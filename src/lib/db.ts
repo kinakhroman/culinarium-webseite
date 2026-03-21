@@ -8,7 +8,11 @@ const globalForPrisma = globalThis as unknown as {
 
 function createPrismaClient() {
   const pool = mariadb.createPool({
-    uri: process.env.DATABASE_URL || "",
+    host: new URL((process.env.DATABASE_URL || "").replace("mysql://", "http://")).hostname,
+    port: parseInt(new URL((process.env.DATABASE_URL || "").replace("mysql://", "http://")).port) || 3306,
+    user: decodeURIComponent(new URL((process.env.DATABASE_URL || "").replace("mysql://", "http://")).username),
+    password: decodeURIComponent(new URL((process.env.DATABASE_URL || "").replace("mysql://", "http://")).password),
+    database: new URL((process.env.DATABASE_URL || "").replace("mysql://", "http://")).pathname.slice(1),
     connectionLimit: 5,
   });
 
