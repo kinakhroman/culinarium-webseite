@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -34,17 +34,18 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String? @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -54,6 +55,8 @@ model Session {
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -68,7 +71,7 @@ model Category {
   id          String     @id @default(cuid())
   name        String     @unique
   slug        String     @unique
-  description String?
+  description String?    @db.Text
   sortOrder   Int        @default(0)
   isActive    Boolean    @default(true)
   createdAt   DateTime   @default(now())
@@ -81,7 +84,7 @@ model MenuItem {
   id           String  @id @default(cuid())
   name         String
   slug         String  @unique
-  description  String
+  description  String  @db.Text
   price        Float
   imageUrl     String?
   categoryId   String
@@ -98,34 +101,38 @@ model MenuItem {
   orderItems      OrderItem[]
   dailySpecials   DailySpecial[]
   weeklyPlanItems WeeklyPlanItem[]
+
+  @@index([categoryId])
 }
 
 model DailySpecial {
   id           String   @id @default(cuid())
   menuItemId   String
-  date         DateTime
+  date         DateTime @db.Date
   specialPrice Float?
-  note         String?
+  note         String?  @db.Text
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
 
   menuItem MenuItem @relation(fields: [menuItemId], references: [id])
 
   @@unique([menuItemId, date])
+  @@index([menuItemId])
 }
 
 model WeeklyPlanItem {
   id         String   @id @default(cuid())
   menuItemId String
   dayOfWeek  Int
-  weekStart  DateTime
+  weekStart  DateTime @db.Date
   mealType   String   @default("LUNCH")
-  note       String?
+  note       String?  @db.Text
   createdAt  DateTime @default(now())
 
   menuItem MenuItem @relation(fields: [menuItemId], references: [id])
 
   @@unique([menuItemId, dayOfWeek, weekStart, mealType])
+  @@index([menuItemId])
 }
 
 model Order {
@@ -137,7 +144,7 @@ model Order {
   subtotal            Float
   deliveryFee         Float    @default(0)
   total               Float
-  notes               String?
+  notes               String?  @db.Text
   deliveryStreet      String?
   deliveryHouseNumber String?
   deliveryPostalCode  String?
@@ -152,6 +159,8 @@ model Order {
 
   user       User        @relation(fields: [userId], references: [id])
   orderItems OrderItem[]
+
+  @@index([userId])
 }
 
 model OrderItem {
@@ -161,11 +170,14 @@ model OrderItem {
   quantity   Int
   unitPrice  Float
   itemName   String
-  notes      String?
+  notes      String?  @db.Text
   createdAt  DateTime @default(now())
 
   order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@index([orderId])
+  @@index([menuItemId])
 }
 
 model Review {
@@ -173,12 +185,14 @@ model Review {
   userId    String
   rating    Int
   title     String?
-  comment   String
+  comment   String   @db.Text
   isVisible Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 model SiteSettings {
@@ -221,20 +235,20 @@ model AgentLog {
   id        String   @id @default(cuid())
   taskName  String
   status    String
-  message   String?
-  details   String?
+  message   String?  @db.Text
+  details   String?  @db.Text
   createdAt DateTime @default(now())
 }
 
 model SocialPost {
   id          String    @id @default(cuid())
   platform    String
-  caption     String
-  hashtags    String?
+  caption     String    @db.Text
+  hashtags    String?   @db.Text
   imageUrl    String?
   status      String    @default("DRAFT")
   scheduledAt DateTime?
   postedAt    DateTime?
-  error       String?
+  error       String?   @db.Text
   createdAt   DateTime  @default(now())
 }
