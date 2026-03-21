@@ -11,11 +11,13 @@ export const metadata: Metadata = {
 };
 
 async function getReviews() {
-  return db.review.findMany({
-    where: { isVisible: true },
-    include: { user: { select: { name: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    return await db.review.findMany({
+      where: { isVisible: true },
+      include: { user: { select: { name: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch { return []; }
 }
 
 export default async function BewertungenPage() {

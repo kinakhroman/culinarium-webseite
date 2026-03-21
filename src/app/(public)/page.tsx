@@ -17,30 +17,36 @@ import {
 } from "lucide-react";
 
 async function getFeaturedItems() {
-  return db.menuItem.findMany({
-    where: { isAvailable: true },
-    include: { category: true },
-    take: 6,
-    orderBy: { sortOrder: "asc" },
-  });
+  try {
+    return await db.menuItem.findMany({
+      where: { isAvailable: true },
+      include: { category: true },
+      take: 6,
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch { return []; }
 }
 
 async function getDailySpecials() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return db.dailySpecial.findMany({
-    where: { date: today, isActive: true },
-    include: { menuItem: { include: { category: true } } },
-  });
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return await db.dailySpecial.findMany({
+      where: { date: today, isActive: true },
+      include: { menuItem: { include: { category: true } } },
+    });
+  } catch { return []; }
 }
 
 async function getReviews() {
-  return db.review.findMany({
-    where: { isVisible: true },
-    include: { user: { select: { name: true } } },
-    take: 3,
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    return await db.review.findMany({
+      where: { isVisible: true },
+      include: { user: { select: { name: true } } },
+      take: 3,
+      orderBy: { createdAt: "desc" },
+    });
+  } catch { return []; }
 }
 
 export default async function HomePage() {

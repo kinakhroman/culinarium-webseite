@@ -20,12 +20,14 @@ function getWeekStart() {
 }
 
 async function getWeeklyPlan() {
-  const weekStart = getWeekStart();
-  return db.weeklyPlanItem.findMany({
-    where: { weekStart },
-    include: { menuItem: { include: { category: true } } },
-    orderBy: [{ dayOfWeek: "asc" }, { mealType: "asc" }],
-  });
+  try {
+    const weekStart = getWeekStart();
+    return await db.weeklyPlanItem.findMany({
+      where: { weekStart },
+      include: { menuItem: { include: { category: true } } },
+      orderBy: [{ dayOfWeek: "asc" }, { mealType: "asc" }],
+    });
+  } catch { return []; }
 }
 
 export default async function WochenplanPage() {

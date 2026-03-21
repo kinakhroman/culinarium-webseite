@@ -12,18 +12,20 @@ export const metadata: Metadata = {
 };
 
 async function getTodaysSpecials() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-  return db.dailySpecial.findMany({
-    where: {
-      date: { gte: today, lt: tomorrow },
-      isActive: true,
-    },
-    include: { menuItem: { include: { category: true } } },
-  });
+    return await db.dailySpecial.findMany({
+      where: {
+        date: { gte: today, lt: tomorrow },
+        isActive: true,
+      },
+      include: { menuItem: { include: { category: true } } },
+    });
+  } catch { return []; }
 }
 
 export default async function TagesangebotPage() {

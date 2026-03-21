@@ -11,17 +11,18 @@ export const metadata: Metadata = {
 };
 
 async function getMenuData() {
-  const categories = await db.category.findMany({
-    where: { isActive: true },
-    orderBy: { sortOrder: "asc" },
-    include: {
-      menuItems: {
-        where: { isAvailable: true },
-        orderBy: { sortOrder: "asc" },
+  try {
+    return await db.category.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" },
+      include: {
+        menuItems: {
+          where: { isAvailable: true },
+          orderBy: { sortOrder: "asc" },
+        },
       },
-    },
-  });
-  return categories;
+    });
+  } catch { return []; }
 }
 
 export default async function SpeisekartePage() {
