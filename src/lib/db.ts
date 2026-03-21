@@ -1,13 +1,28 @@
-import { PrismaClient } from "@prisma/client";
+let prismaClient: any = null;
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+async function getPrismaClient() {
+  if (!prismaClient) {
+    const { PrismaClient } = await import("@prisma/client");
+    prismaClient = new PrismaClient();
+  }
+  return prismaClient;
+}
 
-export const db =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["query"] : [],
-  });
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+// Proxy that lazily loads PrismaClient only when a property is accessed
+export const db = new Proxy({} as any, {
+  get(_target, prop) {
+    if (prop === "then") return undefined; // prevent treating as thenable
+    return new Proxy(() => {}, {
+      get(_t, method) {
+        return async (...args: any[]) => {
+          const client = await getPrismaClient();
+          return client[prop][method](...args);
+        };
+      },
+      apply: async (_t, _thisArg, args) => {
+        const client = await getPrismaClient();
+        return client[prop](...args);
+      },
+    });
+  },
+});
