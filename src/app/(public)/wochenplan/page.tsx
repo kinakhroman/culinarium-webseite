@@ -3,6 +3,8 @@ import { formatCurrency, DAYS_DE } from "@/lib/utils";
 import { UtensilsCrossed, Calendar } from "lucide-react";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Wochenplan",
   description: "Der aktuelle Wochenplan im Culinarium am Biesenhorst.",

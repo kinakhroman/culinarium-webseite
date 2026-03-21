@@ -4,6 +4,8 @@ import { ORDER_STATUS, ORDER_STATUS_COLORS } from "@/lib/constants";
 import { ShoppingBag, Users, Euro, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 async function getStats() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);

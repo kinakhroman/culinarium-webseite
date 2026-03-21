@@ -4,6 +4,8 @@ import { UtensilsCrossed, CalendarDays, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Tagesangebot",
   description: "Das heutige Tagesangebot im Culinarium am Biesenhorst.",

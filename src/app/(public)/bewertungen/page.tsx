@@ -3,6 +3,8 @@ import { formatDate } from "@/lib/utils";
 import { Star, MessageSquare } from "lucide-react";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Bewertungen",
   description: "Was unsere Gäste über das Culinarium am Biesenhorst sagen.",

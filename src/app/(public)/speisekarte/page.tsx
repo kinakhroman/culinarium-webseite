@@ -3,6 +3,8 @@ import { formatCurrency } from "@/lib/utils";
 import { Leaf, UtensilsCrossed, WheatOff } from "lucide-react";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Speisekarte",
   description: "Unsere komplette Speisekarte mit Vorspeisen, Hauptgerichten, Salaten, Desserts und Getränken.",

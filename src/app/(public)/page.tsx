@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
 import { formatCurrency } from "@/lib/utils";
 import {
   ChefHat,
