@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /konto/
+
+Sitemap: https://culinarium-biesenhorst.de/sitemap.xml

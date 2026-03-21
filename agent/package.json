@@ -1,0 +1,20 @@
+{
+  "name": "culinarium-agent",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "monitor-orders": "tsx src/index.ts monitor-orders",
+    "update-menu": "tsx src/index.ts update-daily-menu",
+    "social-post": "tsx src/index.ts generate-social-post",
+    "all": "tsx src/index.ts all"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.2",
+    "anthropic": "^0.39.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
