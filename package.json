@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "npm rebuild lightningcss && prisma generate && next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "db:push": "prisma db push",
@@ -48,5 +48,9 @@
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
+  },
+  "optionalDependencies": {
+    "lightningcss-linux-x64-gnu": "^1.32.0",
+    "lightningcss-linux-x64-musl": "^1.32.0"
   }
 }
