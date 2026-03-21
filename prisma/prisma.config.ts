@@ -1,0 +1,20 @@
+import path from "node:path";
+import { defineConfig } from "prisma/config";
+
+export default defineConfig({
+  earlyAccess: true,
+  schema: path.join(__dirname, "schema.prisma"),
+  migrate: {
+    adapter: async () => {
+      const mariadb = await import("mariadb");
+      const { PrismaMariaDBAdapter } = await import("@prisma/adapter-mariadb");
+
+      const pool = mariadb.createPool({
+        uri: process.env.DATABASE_URL,
+        connectionLimit: 1,
+      });
+
+      return new PrismaMariaDBAdapter(pool);
+    },
+  },
+});

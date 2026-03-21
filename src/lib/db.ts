@@ -1,13 +1,25 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaMariaDBAdapter } from "@prisma/adapter-mariadb";
+import mariadb from "mariadb";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-export const db =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["query"] : [],
+function createPrismaClient() {
+  const pool = mariadb.createPool({
+    uri: process.env.DATABASE_URL || "",
+    connectionLimit: 5,
   });
+
+  const adapter = new PrismaMariaDBAdapter(pool);
+
+  return new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === "development" ? ["query"] : [],
+  } as any);
+}
+
+export const db = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
