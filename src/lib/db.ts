@@ -4,17 +4,10 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-function getDb(): PrismaClient {
-  if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = new PrismaClient({
-      log: process.env.NODE_ENV === "development" ? ["query"] : [],
-    });
-  }
-  return globalForPrisma.prisma;
-}
+export const db =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["query"] : [],
+  });
 
-export const db = new Proxy({} as PrismaClient, {
-  get(_target, prop) {
-    return (getDb() as Record<string | symbol, unknown>)[prop];
-  },
-});
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
