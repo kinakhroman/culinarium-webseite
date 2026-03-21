@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaMariaDBAdapter } from "@prisma/adapter-mariadb";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import * as mariadb from "mariadb";
 
 const globalForPrisma = globalThis as unknown as {
@@ -12,7 +12,7 @@ function createPrismaClient() {
     connectionLimit: 5,
   });
 
-  const adapter = new PrismaMariaDBAdapter(pool);
+  const adapter = new PrismaMariaDb(pool);
 
   return new PrismaClient({
     adapter,

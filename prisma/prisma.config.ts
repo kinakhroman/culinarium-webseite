@@ -7,14 +7,14 @@ export default defineConfig({
   migrate: {
     adapter: async () => {
       const mariadb = await import("mariadb");
-      const { PrismaMariaDBAdapter } = await import("@prisma/adapter-mariadb");
+      const { PrismaMariaDb } = await import("@prisma/adapter-mariadb");
 
       const pool = mariadb.createPool({
         uri: process.env.DATABASE_URL,
         connectionLimit: 1,
       });
 
-      return new PrismaMariaDBAdapter(pool);
+      return new PrismaMariaDb(pool);
     },
   },
 });
