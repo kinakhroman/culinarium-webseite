@@ -6,9 +6,8 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  const adapter = new PrismaMariaDb({
-    url: process.env.DATABASE_URL || "",
-  });
+  const connectionString = process.env.DATABASE_URL || "";
+  const adapter = new PrismaMariaDb(connectionString);
 
   return new PrismaClient({
     adapter,
