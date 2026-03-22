@@ -14,15 +14,15 @@ export default function ImpressumPage() {
           <h2 className="font-heading text-xl font-semibold text-neutral-800">Angaben gemäß § 5 TMG</h2>
           <p className="text-neutral-600">
             Culinarium am Biesenhorst<br />
-            Biesenhorster Weg 1<br />
-            12683 Berlin
+            Am alten Flugplatz 100<br />
+            10318 Berlin
           </p>
         </section>
 
         <section>
           <h2 className="font-heading text-xl font-semibold text-neutral-800">Kontakt</h2>
           <p className="text-neutral-600">
-            Telefon: 030 1234567<br />
+            Telefon: 030 56553364<br />
             E-Mail: info@culinarium-biesenhorst.de
           </p>
         </section>
@@ -39,8 +39,8 @@ export default function ImpressumPage() {
           <h2 className="font-heading text-xl font-semibold text-neutral-800">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
           <p className="text-neutral-600">
             [Name des Verantwortlichen]<br />
-            Biesenhorster Weg 1<br />
-            12683 Berlin
+            Am alten Flugplatz 100<br />
+            10318 Berlin
           </p>
         </section>
 

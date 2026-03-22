@@ -59,7 +59,7 @@ export default function KontaktPage() {
               <div>
                 <h3 className="font-semibold text-neutral-800 mb-1">Adresse</h3>
                 <p className="text-neutral-600">
-                  Biesenhorster Weg 1<br />12683 Berlin
+                  Am alten Flugplatz 100<br />10318 Berlin
                 </p>
               </div>
             </div>
@@ -69,7 +69,7 @@ export default function KontaktPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-neutral-800 mb-1">Telefon</h3>
-                <p className="text-neutral-600">030 1234567</p>
+                <p className="text-neutral-600">030 56553364</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -92,7 +92,7 @@ export default function KontaktPage() {
               {DAYS_DE.slice(0, 5).map((day) => (
                 <li key={day} className="flex justify-between text-sm">
                   <span className="text-neutral-600">{day}</span>
-                  <span className="font-medium text-neutral-800">08:00 – 16:00</span>
+                  <span className="font-medium text-neutral-800">06:00 – 14:00</span>
                 </li>
               ))}
               {DAYS_DE.slice(5).map((day) => (

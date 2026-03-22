@@ -17,7 +17,7 @@ export function Footer() {
             </div>
             <p className="text-sm text-neutral-400 mb-4">
               Frisch, regional und mit Liebe zubereitet. Ihr Partner für
-              erstklassige Kantinenküche in Berlin-Biesdorf.
+              erstklassige Kantinenküche in Berlin. Kulinarische Pause für Geist und Körper!
             </p>
             <div className="flex gap-3">
               <a
@@ -62,11 +62,11 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 text-secondary shrink-0" />
-                <span>Biesenhorster Weg 1<br />12683 Berlin</span>
+                <span>Am alten Flugplatz 100<br />10318 Berlin</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-secondary shrink-0" />
-                <span>030 1234567</span>
+                <span>030 56553364</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-secondary shrink-0" />
@@ -83,7 +83,7 @@ export function Footer() {
             <ul className="space-y-1.5 text-sm">
               <li className="flex justify-between">
                 <span>Mo – Fr</span>
-                <span className="text-secondary">08:00 – 16:00</span>
+                <span className="text-secondary">06:00 – 14:00</span>
               </li>
               <li className="flex justify-between">
                 <span>Sa – So</span>

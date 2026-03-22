@@ -23,8 +23,8 @@ export default function DatenschutzPage() {
           <h2 className="font-heading text-xl font-semibold text-neutral-800">2. Verantwortliche Stelle</h2>
           <p className="text-neutral-600">
             Culinarium am Biesenhorst<br />
-            Biesenhorster Weg 1<br />
-            12683 Berlin<br />
+            Am alten Flugplatz 100<br />
+            10318 Berlin<br />
             E-Mail: info@culinarium-biesenhorst.de
           </p>
         </section>

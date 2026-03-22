@@ -20,8 +20,6 @@ function createPrismaClient() {
   const config = parseDatabaseUrl(process.env.DATABASE_URL || "");
   const connectionString = `mariadb://${config.user}:${config.password}@${config.host}:${config.port}/${config.database}`;
 
-  console.log(`DB connecting to ${config.host}:${config.port} as ${config.user} db=${config.database}`);
-
   const adapter = new PrismaMariaDb(connectionString as any);
 
   return new PrismaClient({

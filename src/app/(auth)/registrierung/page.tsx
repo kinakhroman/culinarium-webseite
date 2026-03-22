@@ -104,7 +104,7 @@ export default function RegistrierungPage() {
             id="phone"
             name="phone"
             className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
-            placeholder="030 1234567"
+            placeholder="030 56553364"
           />
         </div>
 
