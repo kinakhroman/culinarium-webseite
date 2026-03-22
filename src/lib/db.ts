@@ -5,9 +5,24 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+function parseDatabaseUrl(url: string) {
+  const parsed = new URL(url.replace(/^(mysql|mariadb):\/\//, "http://"));
+  return {
+    host: parsed.hostname === "localhost" ? "127.0.0.1" : parsed.hostname,
+    port: parseInt(parsed.port) || 3306,
+    user: decodeURIComponent(parsed.username),
+    password: decodeURIComponent(parsed.password),
+    database: parsed.pathname.slice(1),
+  };
+}
+
 function createPrismaClient() {
-  const connectionString = (process.env.DATABASE_URL || "").replace("mysql://", "mariadb://");
-  const adapter = new PrismaMariaDb(connectionString);
+  const config = parseDatabaseUrl(process.env.DATABASE_URL || "");
+  const connectionString = `mariadb://${config.user}:${config.password}@${config.host}:${config.port}/${config.database}`;
+
+  console.log(`DB connecting to ${config.host}:${config.port} as ${config.user} db=${config.database}`);
+
+  const adapter = new PrismaMariaDb(connectionString as any);
 
   return new PrismaClient({
     adapter,
