@@ -23,7 +23,7 @@ export default function ImpressumPage() {
           <h2 className="font-heading text-xl font-semibold text-neutral-800">Kontakt</h2>
           <p className="text-neutral-600">
             Telefon: 030 56553364<br />
-            E-Mail: info@culinarium-biesenhorst.de
+            E-Mail: culinariumambiesenhorst@gmail.com
           </p>
         </section>
 

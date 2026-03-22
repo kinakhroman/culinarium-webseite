@@ -78,7 +78,7 @@ export default function KontaktPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-neutral-800 mb-1">E-Mail</h3>
-                <p className="text-neutral-600">info@culinarium-biesenhorst.de</p>
+                <p className="text-neutral-600">culinariumambiesenhorst@gmail.com</p>
               </div>
             </div>
           </div>

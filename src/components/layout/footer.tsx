@@ -70,7 +70,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-secondary shrink-0" />
-                <span>info@culinarium-biesenhorst.de</span>
+                <span>culinariumambiesenhorst@gmail.com</span>
               </li>
             </ul>
           </div>

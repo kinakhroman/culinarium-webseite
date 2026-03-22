@@ -25,7 +25,7 @@ export default function DatenschutzPage() {
             Culinarium am Biesenhorst<br />
             Am alten Flugplatz 100<br />
             10318 Berlin<br />
-            E-Mail: info@culinarium-biesenhorst.de
+            E-Mail: culinariumambiesenhorst@gmail.com
           </p>
         </section>
 
