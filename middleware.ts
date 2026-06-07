@@ -7,7 +7,7 @@ import { authConfig } from "./auth.config";
 // WARTUNGSMODUS: auf true setzen um die Seite
 // offline zu nehmen. Auf false für Normalbetrieb.
 // ============================================
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 const authMiddleware = NextAuth(authConfig).auth;
 
