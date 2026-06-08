@@ -60,6 +60,13 @@ export default function BaustellenCateringPage() {
       <header className="sticky top-0 z-50 bg-paper/85 backdrop-blur-md border-b border-ink/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
+            <Image
+              src="/images/logo-icon.png"
+              alt="Culinarium am Bau"
+              width={40}
+              height={40}
+              className="w-9 h-9 object-contain"
+            />
             <span className="font-display text-2xl font-semibold text-brand leading-none tracking-tight">
               Culinarium
             </span>
