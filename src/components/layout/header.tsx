@@ -30,15 +30,14 @@ export function Header() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0 group">
-            <div className="relative w-10 h-10 md:w-12 md:h-12 transition-transform duration-300 group-hover:scale-105">
-              <Image
-                src="/images/logo-icon.png"
-                alt="Culinarium am Biesenhorst"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
+            <Image
+              src="/images/logo-icon.png"
+              alt="Culinarium am Biesenhorst"
+              width={48}
+              height={48}
+              priority
+              className="w-10 h-10 md:w-12 md:h-12 object-contain transition-transform duration-300 group-hover:scale-105"
+            />
             <div className="flex flex-col">
               <span className="font-heading text-xl md:text-2xl font-bold text-primary leading-tight tracking-tight">
                 Culinarium

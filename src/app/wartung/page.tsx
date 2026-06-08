@@ -29,8 +29,9 @@ export default function WartungPage() {
           <Image
             src="/images/logo-icon.png"
             alt="Culinarium am Biesenhorst"
-            fill
-            className="object-contain relative drop-shadow-2xl"
+            width={96}
+            height={96}
+            className="w-24 h-24 object-contain relative drop-shadow-2xl"
             priority
           />
         </div>
