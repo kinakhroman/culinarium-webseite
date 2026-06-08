@@ -6,6 +6,7 @@ import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://culinarium-berlin.de"),
   title: {
     default: APP_NAME,
     template: `%s | ${APP_NAME}`,
