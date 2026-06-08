@@ -11,19 +11,34 @@ export default function ImpressumPage() {
 
       <div className="prose prose-neutral max-w-none space-y-6">
         <section>
-          <h2 className="font-heading text-xl font-semibold text-neutral-800">Angaben gemäß § 5 TMG</h2>
+          <h2 className="font-heading text-xl font-semibold text-neutral-800">Angaben gemäß § 5 DDG</h2>
           <p className="text-neutral-600">
-            Culinarium am Biesenhorst<br />
+            Burck, Bau und Verwaltung e.K.<br />
+            Geschäftsbezeichnungen: Culinarium am Biesenhorst · Culinarium am Bau<br />
             Am alten Flugplatz 100<br />
             10318 Berlin
           </p>
         </section>
 
         <section>
+          <h2 className="font-heading text-xl font-semibold text-neutral-800">Inhaber</h2>
+          <p className="text-neutral-600">Roman Kinakh</p>
+        </section>
+
+        <section>
           <h2 className="font-heading text-xl font-semibold text-neutral-800">Kontakt</h2>
           <p className="text-neutral-600">
             Telefon: 030 56553364<br />
-            E-Mail: culinariumambiesenhorst@gmail.com
+            E-Mail: info@culinarium-berlin.de
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-heading text-xl font-semibold text-neutral-800">Registereintrag</h2>
+          <p className="text-neutral-600">
+            Eintragung im Handelsregister<br />
+            Registergericht: Amtsgericht Charlottenburg (Berlin)<br />
+            Registernummer: HRA 49128 B
           </p>
         </section>
 
@@ -31,16 +46,30 @@ export default function ImpressumPage() {
           <h2 className="font-heading text-xl font-semibold text-neutral-800">Umsatzsteuer-ID</h2>
           <p className="text-neutral-600">
             Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br />
-            [USt-IdNr. hier einfügen]
+            DE266181282
           </p>
         </section>
 
         <section>
-          <h2 className="font-heading text-xl font-semibold text-neutral-800">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
+          <h2 className="font-heading text-xl font-semibold text-neutral-800">
+            Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
+          </h2>
           <p className="text-neutral-600">
-            [Name des Verantwortlichen]<br />
+            Roman Kinakh<br />
             Am alten Flugplatz 100<br />
             10318 Berlin
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-heading text-xl font-semibold text-neutral-800">EU-Streitschlichtung</h2>
+          <p className="text-neutral-600">
+            Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{" "}
+            <a href="https://ec.europa.eu/consumers/odr/" className="text-primary underline" target="_blank" rel="noopener noreferrer">
+              https://ec.europa.eu/consumers/odr/
+            </a>
+            . Wir sind nicht verpflichtet und nicht bereit, an einem Streitbeilegungsverfahren vor einer
+            Verbraucherschlichtungsstelle teilzunehmen.
           </p>
         </section>
 

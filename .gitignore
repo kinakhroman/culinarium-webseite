@@ -49,3 +49,4 @@ agent/.env
 
 # claude skills
 .agents/
+nanobanana-output/

@@ -110,7 +110,7 @@ export function Footer() {
                 <div className="p-1.5 bg-neutral-800/80 rounded-lg">
                   <Mail className="h-4 w-4 text-secondary" />
                 </div>
-                <span className="text-neutral-400 text-xs">culinariumambiesenhorst@gmail.com</span>
+                <span className="text-neutral-400 text-xs">info@culinarium-berlin.de</span>
               </li>
             </ul>
           </div>

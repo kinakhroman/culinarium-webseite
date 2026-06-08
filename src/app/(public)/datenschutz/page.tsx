@@ -22,10 +22,12 @@ export default function DatenschutzPage() {
         <section>
           <h2 className="font-heading text-xl font-semibold text-neutral-800">2. Verantwortliche Stelle</h2>
           <p className="text-neutral-600">
-            Culinarium am Biesenhorst<br />
+            Burck, Bau und Verwaltung e.K. (Culinarium am Biesenhorst / Culinarium am Bau)<br />
+            Inhaber: Roman Kinakh<br />
             Am alten Flugplatz 100<br />
             10318 Berlin<br />
-            E-Mail: culinariumambiesenhorst@gmail.com
+            Telefon: 030 56553364<br />
+            E-Mail: info@culinarium-berlin.de
           </p>
         </section>
 
@@ -39,6 +41,22 @@ export default function DatenschutzPage() {
           <p className="text-neutral-600">
             <strong>Cookies:</strong> Diese Website verwendet technisch notwendige Cookies für die
             Sitzungsverwaltung und Authentifizierung. Es werden keine Tracking-Cookies verwendet.
+          </p>
+          <p className="text-neutral-600">
+            <strong>Instagram-Inhalte:</strong> Auf unserer Startseite zeigen wir öffentliche Beiträge
+            unseres Instagram-Profils an. Dabei können Inhalte von den Servern der Meta Platforms Ireland
+            Ltd. (4 Grand Canal Square, Dublin, Irland) geladen und hierbei Daten wie Ihre IP-Adresse an
+            Meta übertragen werden. Weitere Informationen finden Sie in der Datenschutzerklärung von
+            Instagram:{" "}
+            <a
+              href="https://privacycenter.instagram.com/policy"
+              className="text-primary underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              privacycenter.instagram.com/policy
+            </a>
+            .
           </p>
         </section>
 

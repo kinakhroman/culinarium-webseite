@@ -94,9 +94,19 @@ export default async function HomePage() {
     <>
       {/* ─── HERO ─── */}
       <section className="relative min-h-[92vh] flex items-center overflow-hidden bg-neutral-900">
-        {/* Background layers */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/95 via-primary/85 to-neutral-900/90" />
-        <div className="absolute inset-0 bg-mesh opacity-40" />
+        {/* Header-Foto */}
+        <Image
+          src="/images/menu/hero-dark.png"
+          alt="Frisch gekochtes Mittagessen im Culinarium am Biesenhorst"
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 object-cover"
+        />
+        {/* Lesbarkeits-Verläufe */}
+        <div className="absolute inset-0 bg-gradient-to-r from-neutral-900 via-neutral-900/80 to-neutral-900/25" />
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/95 via-neutral-900/20 to-neutral-900/50" />
+        <div className="absolute inset-0 bg-mesh opacity-20" />
 
         {/* Decorative circles */}
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse-soft" />
@@ -150,7 +160,7 @@ export default async function HomePage() {
               </h1>
 
               <p className="text-lg md:text-xl text-white/70 mb-10 max-w-xl leading-relaxed">
-                Täglich wechselnde Gerichte aus regionaler Küche in Berlin-Biesenhorst.
+                Täglich wechselnde Gerichte aus regionaler Küche in Berlin.
                 Abholung in 15 Min. oder Lieferung ins Büro — ab 6,90 €.
               </p>
 
@@ -195,8 +205,8 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Hero Bento Grid */}
-            <div className="hidden lg:block animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            {/* Hero Bento Grid – durch Header-Foto ersetzt */}
+            <div className="hidden" style={{ animationDelay: '0.3s' }}>
               <div className="relative">
                 {/* Ambient glow behind bento */}
                 <div className="absolute -inset-8 bg-gradient-to-br from-secondary/20 via-primary-light/10 to-accent/10 rounded-[3rem] blur-3xl animate-pulse-soft" />
@@ -205,9 +215,18 @@ export default async function HomePage() {
                   {/* BIG CARD — Today's special / Menu teaser */}
                   <Link
                     href={dailySpecials.length > 0 ? "/tagesangebot" : "/speisekarte"}
-                    className="bento-card col-span-2 row-span-2 group flex flex-col justify-between p-6 xl:p-8"
+                    className="bento-card col-span-2 row-span-2 group flex flex-col justify-between p-6 xl:p-8 relative overflow-hidden"
                   >
-                    <div>
+                    <Image
+                      src="/images/menu/wiener-schnitzel.png"
+                      alt=""
+                      fill
+                      sizes="(min-width: 1024px) 40vw, 0px"
+                      className="absolute inset-0 object-cover transition-transform duration-700 group-hover:scale-105"
+                      aria-hidden
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/85 to-neutral-900/55" />
+                    <div className="relative z-10">
                       <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold text-white/90 border border-white/10 mb-6">
                         <Sparkles className="h-3 w-3 text-secondary" />
                         {dailySpecials.length > 0 ? "Heute im Angebot" : "Heute auf der Karte"}
@@ -236,7 +255,7 @@ export default async function HomePage() {
                       )}
                     </div>
 
-                    <div className="flex items-end justify-between">
+                    <div className="relative z-10 flex items-end justify-between">
                       <div>
                         {dailySpecials.length > 0 && (
                           <div className="flex items-baseline gap-2">
@@ -256,14 +275,6 @@ export default async function HomePage() {
                       </div>
                     </div>
 
-                    <Image
-                      src="/images/logo.png"
-                      alt=""
-                      width={120}
-                      height={120}
-                      className="absolute bottom-4 right-4 opacity-[0.05] pointer-events-none select-none rotate-12"
-                      aria-hidden
-                    />
                   </Link>
 
                   {/* Rating Card */}

@@ -71,6 +71,16 @@ export const profileSchema = z.object({
   city: z.string().optional(),
 });
 
+export const cateringInquirySchema = z.object({
+  company: z.string().optional(),
+  contactName: z.string().min(2, "Name ist erforderlich"),
+  site: z.string().min(2, "Baustelle / Ort ist erforderlich"),
+  people: z.string().optional(),
+  phone: z.string().min(5, "Telefonnummer ist erforderlich"),
+  email: z.string().email("Ungültige E-Mail-Adresse").optional().or(z.literal("")),
+  message: z.string().optional(),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type MenuItemInput = z.infer<typeof menuItemSchema>;
@@ -79,3 +89,4 @@ export type OrderInput = z.infer<typeof orderSchema>;
 export type ReviewInput = z.infer<typeof reviewSchema>;
 export type ContactInput = z.infer<typeof contactSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
+export type CateringInquiryInput = z.infer<typeof cateringInquirySchema>;

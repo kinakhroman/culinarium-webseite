@@ -90,12 +90,12 @@ async function main() {
 
   // Menu Items
   const menuItems = [
-    { name: "Tomatensuppe", slug: "tomatensuppe", description: "Cremige Tomatensuppe mit frischem Basilikum und Croutons", price: 4.90, categoryId: vorspeisen.id, isVegetarian: true, isVegan: true, isGlutenFree: true },
-    { name: "Bruschetta", slug: "bruschetta", description: "Geröstetes Ciabatta mit Tomaten, Knoblauch und Olivenöl", price: 5.50, categoryId: vorspeisen.id, isVegetarian: true },
-    { name: "Wiener Schnitzel", slug: "wiener-schnitzel", description: "Paniertes Kalbsschnitzel mit Zitrone, dazu Kartoffelsalat", price: 12.90, categoryId: hauptgerichte.id },
-    { name: "Hähnchen Curry", slug: "haehnchen-curry", description: "Zartes Hähnchenfleisch in aromatischer Currysauce mit Basmatireis", price: 11.50, categoryId: hauptgerichte.id, isGlutenFree: true },
-    { name: "Spaghetti Bolognese", slug: "spaghetti-bolognese", description: "Klassische Pasta mit hausgemachter Fleischsauce", price: 9.90, categoryId: hauptgerichte.id },
-    { name: "Gemüse-Curry", slug: "gemuese-curry", description: "Saisonales Gemüse in cremiger Kokosnuss-Currysauce mit Reis", price: 10.50, categoryId: hauptgerichte.id, isVegetarian: true, isVegan: true, isGlutenFree: true },
+    { name: "Tomatensuppe", slug: "tomatensuppe", imageUrl: "/images/menu/tomatensuppe.png", description: "Cremige Tomatensuppe mit frischem Basilikum und Croutons", price: 4.90, categoryId: vorspeisen.id, isVegetarian: true, isVegan: true, isGlutenFree: true },
+    { name: "Bruschetta", slug: "bruschetta", imageUrl: "/images/menu/bruschetta.png", description: "Geröstetes Ciabatta mit Tomaten, Knoblauch und Olivenöl", price: 5.50, categoryId: vorspeisen.id, isVegetarian: true },
+    { name: "Wiener Schnitzel", slug: "wiener-schnitzel", imageUrl: "/images/menu/wiener-schnitzel.png", description: "Paniertes Kalbsschnitzel mit Zitrone, dazu Kartoffelsalat", price: 12.90, categoryId: hauptgerichte.id },
+    { name: "Hähnchen Curry", slug: "haehnchen-curry", imageUrl: "/images/menu/haehnchen-curry.png", description: "Zartes Hähnchenfleisch in aromatischer Currysauce mit Basmatireis", price: 11.50, categoryId: hauptgerichte.id, isGlutenFree: true },
+    { name: "Spaghetti Bolognese", slug: "spaghetti-bolognese", imageUrl: "/images/menu/spaghetti-bolognese.png", description: "Klassische Pasta mit hausgemachter Fleischsauce", price: 9.90, categoryId: hauptgerichte.id },
+    { name: "Gemüse-Curry", slug: "gemuese-curry", imageUrl: "/images/menu/gemuese-curry.png", description: "Saisonales Gemüse in cremiger Kokosnuss-Currysauce mit Reis", price: 10.50, categoryId: hauptgerichte.id, isVegetarian: true, isVegan: true, isGlutenFree: true },
     { name: "Lachs vom Grill", slug: "lachs-vom-grill", description: "Gegrilltes Lachsfilet mit Dillsauce und Gemüse der Saison", price: 14.90, categoryId: hauptgerichte.id, isGlutenFree: true },
     { name: "Kartoffelpüree", slug: "kartoffelpueree", description: "Cremiges Kartoffelpüree mit Butter und Muskatnuss", price: 3.50, categoryId: beilagen.id, isVegetarian: true, isGlutenFree: true },
     { name: "Gemischter Salat", slug: "gemischter-salat", description: "Frischer Blattsalat mit Gurke, Tomate und Hausdressing", price: 4.50, categoryId: salate.id, isVegetarian: true, isVegan: true, isGlutenFree: true },

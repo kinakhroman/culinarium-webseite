@@ -79,7 +79,7 @@ export default function WartungPage() {
             <div className="p-2 bg-white/5 rounded-xl">
               <Mail className="h-4 w-4 text-secondary" />
             </div>
-            <span className="text-sm">culinariumambiesenhorst@gmail.com</span>
+            <span className="text-sm">info@culinarium-berlin.de</span>
           </div>
         </div>
 

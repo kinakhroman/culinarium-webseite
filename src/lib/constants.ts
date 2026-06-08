@@ -30,6 +30,7 @@ export const NAV_ITEMS = [
   { label: "Tagesangebot", href: "/tagesangebot" },
   { label: "Wochenplan", href: "/wochenplan" },
   { label: "Bestellen", href: "/bestellen" },
+  { label: "Baustellen-Catering", href: "/baustellen-catering" },
   { label: "Über uns", href: "/ueber-uns" },
   { label: "Kontakt", href: "/kontakt" },
 ] as const;
