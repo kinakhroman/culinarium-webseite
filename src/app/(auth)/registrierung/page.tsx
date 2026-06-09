@@ -9,12 +9,14 @@ import { UserPlus, Eye, EyeOff } from "lucide-react";
 export default function RegistrierungPage() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [existingEmail, setExistingEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    setExistingEmail("");
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -33,8 +35,16 @@ export default function RegistrierungPage() {
       });
 
       if (!res.ok) {
+        // E-Mail schon vergeben -> freundlich zum Anmelden weiterleiten
+        if (res.status === 409) {
+          setExistingEmail(data.email);
+          setLoading(false);
+          return;
+        }
         const err = await res.json();
-        setError(err.error || "Registrierung fehlgeschlagen.");
+        setError(
+          typeof err.error === "string" ? err.error : "Registrierung fehlgeschlagen."
+        );
         setLoading(false);
         return;
       }
@@ -131,6 +141,21 @@ export default function RegistrierungPage() {
             </button>
           </div>
         </div>
+
+        {existingEmail && (
+          <div className="bg-secondary/10 border border-secondary/30 rounded-xl p-4 text-center">
+            <p className="text-sm text-neutral-700">
+              Für <span className="font-semibold">{existingEmail}</span> gibt es
+              bereits ein Konto.
+            </p>
+            <Link
+              href={`/login?email=${encodeURIComponent(existingEmail)}`}
+              className="mt-3 inline-flex items-center justify-center gap-2 w-full bg-primary text-white py-2.5 px-6 rounded-xl font-semibold hover:bg-primary-dark transition-colors"
+            >
+              Stattdessen anmelden
+            </Link>
+          </div>
+        )}
 
         {error && (
           <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</p>

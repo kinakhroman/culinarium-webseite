@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -9,8 +9,15 @@ import { LogIn, Eye, EyeOff } from "lucide-react";
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // E-Mail aus ?email= vorausfüllen (kommt von der Registrierung, wenn Konto schon existiert)
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("email");
+    if (q) setEmail(q);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -50,6 +57,9 @@ export default function LoginPage() {
             id="email"
             name="email"
             required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoFocus={!email}
             className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
             placeholder="ihre@email.de"
           />
