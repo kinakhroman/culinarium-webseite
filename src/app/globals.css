@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
-/* Build-Cache-Bust 2026-06-09: erzwingt neue CSS-Hashes nach Deploy-Asset-Mismatch */
-
 /* Catering-Schriften: Browser lädt Fraunces + Hanken Grotesk (siehe <link> auf der Seite) */
+:root {
+  /* Deploy-Bust 2026-06-09b: echte Deklaration -> neuer CSS-Hash, bricht Build-Cache */
+  --deploy-bust: 2;
+}
 @layer components {
   .font-display {
     font-family: "Bitter", "Playfair Display", Georgia, serif;
