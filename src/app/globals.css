@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+/* Build-Cache-Bust 2026-06-09: erzwingt neue CSS-Hashes nach Deploy-Asset-Mismatch */
+
 /* Catering-Schriften: Browser lädt Fraunces + Hanken Grotesk (siehe <link> auf der Seite) */
 @layer components {
   .font-display {
