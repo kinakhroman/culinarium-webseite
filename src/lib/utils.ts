@@ -60,3 +60,30 @@ export const DAYS_DE = [
   "Samstag",
   "Sonntag",
 ] as const;
+
+// Montag der aktuellen Woche (00:00). Optional ein Bezugsdatum übergeben.
+export function getWeekStart(ref: Date = new Date()): Date {
+  const now = new Date(ref);
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(now.setDate(diff));
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+// "YYYY-MM-DD" aus den LOKALEN Datumsteilen (nicht UTC – sonst Verschiebung über Mitternacht)
+export function toISODateLocal(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+// "05.–09.06.2026" für eine Woche ab Montag (Mo–Fr)
+export function formatWeekRange(weekStart: Date): string {
+  const end = new Date(weekStart);
+  end.setDate(end.getDate() + 4);
+  const d = (x: Date) => String(x.getDate()).padStart(2, "0");
+  const m = (x: Date) => String(x.getMonth() + 1).padStart(2, "0");
+  return `${d(weekStart)}.${m(weekStart)}.–${d(end)}.${m(end)}.${end.getFullYear()}`;
+}

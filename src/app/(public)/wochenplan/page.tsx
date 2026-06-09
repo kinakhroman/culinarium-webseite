@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { getWeekPlanRows } from "@/lib/menu-db";
 import { formatCurrency, DAYS_DE } from "@/lib/utils";
 import { UtensilsCrossed, Calendar } from "lucide-react";
 import type { Metadata } from "next";
@@ -21,12 +21,7 @@ function getWeekStart() {
 
 async function getWeeklyPlan() {
   try {
-    const weekStart = getWeekStart();
-    return await db.weeklyPlanItem.findMany({
-      where: { weekStart },
-      include: { menuItem: { include: { category: true } } },
-      orderBy: [{ dayOfWeek: "asc" }, { mealType: "asc" }],
-    });
+    return await getWeekPlanRows(getWeekStart());
   } catch { return []; }
 }
 
@@ -73,23 +68,25 @@ export default async function WochenplanPage() {
                 <div className="p-6">
                   {items.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {items.map((item) => (
+                      {items.map((item, idx) => (
                         <div
-                          key={item.id}
+                          key={idx}
                           className="flex gap-3 p-3 rounded-xl bg-warm-50"
                         >
                           <div className="w-14 h-14 bg-secondary/20 rounded-lg flex items-center justify-center shrink-0">
                             <UtensilsCrossed className="h-6 w-6 text-primary/30" />
                           </div>
                           <div>
-                            <span className="text-xs text-neutral-400">
-                              {item.menuItem.category.name}
-                            </span>
+                            {item.category && (
+                              <span className="text-xs text-neutral-400">
+                                {item.category}
+                              </span>
+                            )}
                             <h4 className="font-semibold text-neutral-800">
-                              {item.menuItem.name}
+                              {item.name}
                             </h4>
                             <span className="text-sm font-bold text-primary">
-                              {formatCurrency(item.menuItem.price)}
+                              {formatCurrency(item.price)}
                             </span>
                             {item.note && (
                               <p className="text-xs text-neutral-400 mt-0.5">

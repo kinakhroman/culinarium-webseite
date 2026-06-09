@@ -81,6 +81,23 @@ export const cateringInquirySchema = z.object({
   message: z.string().optional(),
 });
 
+export const weeklyPlanItemInputSchema = z.object({
+  dayOfWeek: z.number().int().min(0).max(6),
+  name: z.string().min(1, "Gericht ist erforderlich"),
+  description: z.string().optional().default(""),
+  price: z.number().nonnegative().default(0),
+  category: z.string().optional(),
+  note: z.string().optional(),
+  isVegetarian: z.boolean().optional(),
+  isVegan: z.boolean().optional(),
+});
+
+export const weeklyPlanSchema = z.object({
+  // ISO-Datum (YYYY-MM-DD) des Montags; fehlt es, wird der aktuelle Montag genommen
+  weekStart: z.string().optional(),
+  items: z.array(weeklyPlanItemInputSchema).min(1, "Mindestens ein Gericht erforderlich"),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type MenuItemInput = z.infer<typeof menuItemSchema>;
@@ -90,3 +107,4 @@ export type ReviewInput = z.infer<typeof reviewSchema>;
 export type ContactInput = z.infer<typeof contactSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
 export type CateringInquiryInput = z.infer<typeof cateringInquirySchema>;
+export type WeeklyPlanInput = z.infer<typeof weeklyPlanSchema>;

@@ -18,9 +18,16 @@ function parseDatabaseUrl(url: string) {
 
 function createPrismaClient() {
   const config = parseDatabaseUrl(process.env.DATABASE_URL || "");
-  const connectionString = `mariadb://${config.user}:${config.password}@${config.host}:${config.port}/${config.database}`;
 
-  const adapter = new PrismaMariaDb(connectionString as any);
+  const adapter = new PrismaMariaDb({
+    host: config.host,
+    port: config.port,
+    user: config.user,
+    password: config.password,
+    database: config.database,
+    charset: "utf8mb4",
+    collation: "utf8mb4_unicode_ci",
+  } as any);
 
   return new PrismaClient({
     adapter,
