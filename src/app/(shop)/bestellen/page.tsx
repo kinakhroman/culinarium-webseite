@@ -13,6 +13,7 @@ import {
   Check,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface MenuItem {
   id: string;
@@ -126,9 +127,19 @@ export default function BestellenPage() {
               key={item.id}
               className="bg-white rounded-2xl border border-neutral-100 overflow-hidden hover:shadow-lg transition-shadow"
             >
-              <div className="h-40 bg-gradient-to-br from-secondary/20 to-warm-200 flex items-center justify-center relative">
-                <UtensilsCrossed className="h-12 w-12 text-primary/20" />
-                <div className="absolute top-3 right-3 flex gap-1">
+              <div className="h-40 bg-gradient-to-br from-secondary/20 to-warm-200 flex items-center justify-center relative overflow-hidden">
+                {item.imageUrl ? (
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover"
+                  />
+                ) : (
+                  <UtensilsCrossed className="h-12 w-12 text-primary/20" />
+                )}
+                <div className="absolute top-3 right-3 flex gap-1 z-10">
                   {item.isVegetarian && (
                     <span className="bg-green-500 text-white p-1 rounded-full">
                       <Leaf className="h-3 w-3" />
@@ -141,7 +152,7 @@ export default function BestellenPage() {
                   )}
                 </div>
                 {qty > 0 && (
-                  <div className="absolute top-3 left-3 bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold">
+                  <div className="absolute top-3 left-3 z-10 bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shadow-md">
                     {qty}
                   </div>
                 )}

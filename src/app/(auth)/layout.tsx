@@ -7,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full max-w-md">
         <Link href="/" className="flex items-center justify-center gap-3 mb-8">
           <Image
-            src="/images/logo-icon.png"
+            src="/images/logo-emblem.png"
             alt="Culinarium am Biesenhorst"
             width={48}
             height={48}

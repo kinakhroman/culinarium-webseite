@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { db } from "@/lib/db";
+import { menuImage } from "@/lib/menu-db";
 import { formatCurrency } from "@/lib/utils";
 import { Leaf, UtensilsCrossed, WheatOff } from "lucide-react";
 import type { Metadata } from "next";
@@ -13,7 +15,8 @@ export const metadata: Metadata = {
 async function getMenuData() {
   try {
     return await db.category.findMany({
-      where: { isActive: true },
+      // Wochenmenue-Kategorie nicht auf der festen Speisekarte zeigen (lebt auf /wochenplan)
+      where: { isActive: true, slug: { not: "wochenmenue" } },
       orderBy: { sortOrder: "asc" },
       include: {
         menuItems: {
@@ -52,13 +55,25 @@ export default async function SpeisekartePage() {
               <p className="text-neutral-500 mb-6">{category.description}</p>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {category.menuItems.map((item) => (
+              {category.menuItems.map((item) => {
+                const img = item.imageUrl || menuImage(item.slug);
+                return (
                 <div
                   key={item.id}
                   className="flex gap-4 p-4 rounded-xl bg-warm-50 hover:bg-warm-100 transition-colors border border-neutral-100"
                 >
-                  <div className="w-20 h-20 bg-gradient-to-br from-secondary/20 to-warm-200 rounded-xl flex items-center justify-center shrink-0">
-                    <UtensilsCrossed className="h-8 w-8 text-primary/20" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-secondary/20 to-warm-200 rounded-xl overflow-hidden flex items-center justify-center shrink-0 relative">
+                    {img ? (
+                      <Image
+                        src={img}
+                        alt={item.name}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <UtensilsCrossed className="h-8 w-8 text-primary/20" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
@@ -98,7 +113,8 @@ export default async function SpeisekartePage() {
                     )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}

@@ -20,7 +20,7 @@ export function Footer() {
             <div className="flex items-center gap-3 mb-5">
               <div className="relative w-10 h-10">
                 <Image
-                  src="/images/logo-icon.png"
+                  src="/images/logo-emblem.png"
                   alt="Culinarium"
                   fill
                   className="object-contain brightness-110"

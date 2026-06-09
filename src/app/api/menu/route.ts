@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { menuImage } from "@/lib/menu-db";
 import { auth } from "../../../../auth";
 import { menuItemSchema } from "@/lib/validators";
 import { slugify } from "@/lib/utils";
@@ -10,7 +11,12 @@ export async function GET() {
     include: { category: true },
     orderBy: [{ category: { sortOrder: "asc" } }, { sortOrder: "asc" }],
   });
-  return NextResponse.json(items);
+  // Foto per Slug ergänzen, falls in der DB keine imageUrl gesetzt ist
+  const withImages = items.map((it) => ({
+    ...it,
+    imageUrl: it.imageUrl || menuImage(it.slug),
+  }));
+  return NextResponse.json(withImages);
 }
 
 export async function POST(req: Request) {

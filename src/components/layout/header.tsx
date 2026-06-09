@@ -31,7 +31,7 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0 group">
             <Image
-              src="/images/logo-icon.png"
+              src="/images/logo-emblem.png"
               alt="Culinarium am Biesenhorst"
               width={48}
               height={48}

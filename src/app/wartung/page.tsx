@@ -27,7 +27,7 @@ export default function WartungPage() {
         <div className="relative w-24 h-24 mx-auto mb-8">
           <div className="absolute inset-0 bg-secondary/20 rounded-full blur-xl animate-pulse-soft" />
           <Image
-            src="/images/logo-icon.png"
+            src="/images/logo-emblem.png"
             alt="Culinarium am Biesenhorst"
             width={96}
             height={96}

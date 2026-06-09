@@ -3,8 +3,20 @@
 // fehlerhaft (U+FFFD). Der rohe mariadb-Treiber dekodiert korrekt. Schreibzugriffe
 // laufen weiter über Prisma (Schreiben ist nicht betroffen).
 import { createPool, type Pool } from "mariadb";
+import { existsSync } from "fs";
+import { join } from "path";
 
 let pool: Pool | undefined;
+
+/**
+ * Foto eines Gerichts: gibt `/images/menu/{slug}.png` zurück, wenn die Datei
+ * existiert, sonst null (dann zeigt die UI das Platzhalter-Icon). Server-only.
+ */
+export function menuImage(slug: string | null | undefined): string | null {
+  if (!slug) return null;
+  const file = join(process.cwd(), "public", "images", "menu", `${slug}.png`);
+  return existsSync(file) ? `/images/menu/${slug}.png` : null;
+}
 
 function getPool(): Pool {
   if (!pool) {
@@ -27,6 +39,8 @@ export type WeekPlanRow = {
   price: number;
   category: string | null;
   note: string | null;
+  slug: string;
+  imageUrl: string | null;
 };
 
 /** Wochenplan einer Woche (korrekte Umlaute) – ab Montag (Date) */
@@ -36,7 +50,8 @@ export async function getWeekPlanRows(weekStart: Date): Promise<WeekPlanRow[]> {
   try {
     const rows = await conn.query(
       `SELECT w.dayOfWeek AS dayOfWeek, w.note AS note,
-              m.name AS name, m.price AS price, c.name AS category
+              m.name AS name, m.price AS price, m.slug AS slug, m.imageUrl AS imageUrl,
+              c.name AS category
        FROM WeeklyPlanItem w
        JOIN MenuItem m ON w.menuItemId = m.id
        LEFT JOIN Category c ON m.categoryId = c.id
@@ -44,13 +59,19 @@ export async function getWeekPlanRows(weekStart: Date): Promise<WeekPlanRow[]> {
        ORDER BY w.dayOfWeek ASC, w.mealType ASC`,
       [ws]
     );
-    return (rows as Record<string, unknown>[]).map((r) => ({
-      dayOfWeek: Number(r.dayOfWeek),
-      name: String(r.name),
-      price: Number(r.price),
-      category: r.category != null ? String(r.category) : null,
-      note: r.note != null ? String(r.note) : null,
-    }));
+    return (rows as Record<string, unknown>[]).map((r) => {
+      const slug = r.slug != null ? String(r.slug) : "";
+      const dbImg = r.imageUrl != null ? String(r.imageUrl) : null;
+      return {
+        dayOfWeek: Number(r.dayOfWeek),
+        name: String(r.name),
+        price: Number(r.price),
+        category: r.category != null ? String(r.category) : null,
+        note: r.note != null ? String(r.note) : null,
+        slug,
+        imageUrl: dbImg || menuImage(slug),
+      };
+    });
   } finally {
     conn.release();
   }

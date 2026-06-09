@@ -61,7 +61,7 @@ export default function BaustellenCateringPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
             <Image
-              src="/images/logo-icon.png"
+              src="/images/logo-emblem.png"
               alt="Culinarium am Bau"
               width={40}
               height={40}
@@ -504,14 +504,20 @@ export default function BaustellenCateringPage() {
 
           <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             {/* Modell 1 – Imbisswagen vor Ort (Highlight) */}
-            <div className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-b from-brand to-[#371a0b] text-paper p-7 sm:p-8 shadow-xl shadow-ink/25 lg:-mt-2 transition-all duration-300 hover:-translate-y-1.5">
+            <div className="group relative rounded-[2rem] text-paper p-7 sm:p-8 shadow-xl shadow-ink/25 lg:-mt-2 transition-all duration-300 hover:-translate-y-1.5">
+              {/* Hintergrund (Verlauf + Glow) – geclippt für saubere runde Ecken */}
               <div
-                className="absolute -top-16 -right-12 h-48 w-48 rounded-full bg-ember/15 blur-3xl"
+                className="absolute inset-0 rounded-[2rem] overflow-hidden bg-gradient-to-b from-brand to-[#371a0b]"
                 aria-hidden
-              />
-              <span className="absolute -top-3 left-7 text-[10px] font-bold uppercase tracking-wider bg-ember text-ink px-3 py-1 rounded-full">
+              >
+                <div className="absolute -top-16 -right-12 h-48 w-48 rounded-full bg-ember/15 blur-3xl" />
+              </div>
+              {/* Badge sitzt frei über dem oberen Rand – wird nicht mehr abgeschnitten */}
+              <span className="absolute -top-3 left-7 z-20 text-[10px] font-bold uppercase tracking-wider bg-ember text-ink px-3 py-1 rounded-full shadow-md shadow-ink/20">
                 Top bei vielen Gewerken
               </span>
+              {/* Inhalt */}
+              <div className="relative z-10">
               <div className="h-12 w-12 rounded-2xl bg-paper/10 flex items-center justify-center">
                 <Truck className="h-6 w-6 text-ember" />
               </div>
@@ -537,6 +543,7 @@ export default function BaustellenCateringPage() {
                   </li>
                 ))}
               </ul>
+              </div>
             </div>
 
             {/* Modell 2 – Sammelbestellung & Abo */}

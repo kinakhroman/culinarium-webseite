@@ -103,10 +103,10 @@ export default async function HomePage() {
           sizes="100vw"
           className="absolute inset-0 object-cover"
         />
-        {/* Lesbarkeits-Verläufe */}
-        <div className="absolute inset-0 bg-gradient-to-r from-neutral-900 via-neutral-900/80 to-neutral-900/25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/95 via-neutral-900/20 to-neutral-900/50" />
-        <div className="absolute inset-0 bg-mesh opacity-20" />
+        {/* Lesbarkeits-Verläufe – heller gehalten, Foto kommt mehr durch */}
+        <div className="absolute inset-0 bg-gradient-to-r from-neutral-900/80 via-neutral-900/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/70 via-transparent to-neutral-900/20" />
+        <div className="absolute inset-0 bg-mesh opacity-10" />
 
         {/* Decorative circles */}
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse-soft" />
