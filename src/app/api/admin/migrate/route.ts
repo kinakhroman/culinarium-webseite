@@ -62,25 +62,11 @@ export async function POST(req: Request) {
     results.OrderPayment = `Fehler: ${e instanceof Error ? e.message : "unbekannt"}`;
   }
 
-  // Order.userId nullable machen (Gast-Bestellungen ohne Konto).
-  // Der Fremdschlüssel verhindert ein direktes MODIFY -> lösen, ändern, neu setzen.
+  // Order.userId nullable machen (Gast-Bestellungen ohne Konto)
   try {
-    // 1. Fremdschlüssel lösen (falls vorhanden)
-    try {
-      await db.$executeRawUnsafe("ALTER TABLE `Order` DROP FOREIGN KEY `Order_userId_fkey`");
-    } catch {
-      /* FK existiert evtl. schon nicht mehr – ignorieren */
-    }
-    // 2. Spalte auf nullable umstellen (idempotent)
-    await db.$executeRawUnsafe("ALTER TABLE `Order` MODIFY `userId` VARCHAR(191) NULL");
-    // 3. Fremdschlüssel neu setzen: Konto gelöscht -> Bestellung wird Gast-Bestellung
-    try {
-      await db.$executeRawUnsafe(
-        "ALTER TABLE `Order` ADD CONSTRAINT `Order_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE"
-      );
-    } catch {
-      /* FK existiert bereits – ignorieren */
-    }
+    await db.$executeRawUnsafe(
+      "ALTER TABLE `Order` MODIFY `userId` VARCHAR(191) NULL"
+    );
     results.OrderGuest = "ok";
   } catch (e) {
     results.OrderGuest = `Fehler: ${e instanceof Error ? e.message : "unbekannt"}`;
