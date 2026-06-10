@@ -2,8 +2,9 @@
 
 import { useCart } from "@/components/features/cart/cart-provider";
 import { formatCurrency } from "@/lib/utils";
-import { Plus, Minus, Trash2, ShoppingCart, ArrowLeft, ArrowRight } from "lucide-react";
+import { Plus, Minus, Trash2, ShoppingCart, ArrowLeft, ArrowRight, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function WarenkorbPage() {
   const { items, updateQuantity, removeItem, clearCart, total, itemCount } = useCart();
@@ -41,42 +42,59 @@ export default function WarenkorbPage() {
           {items.map((item) => (
             <div
               key={item.menuItemId}
-              className="bg-white rounded-xl border border-neutral-100 p-4 flex items-center gap-4"
+              className="bg-white rounded-xl border border-neutral-100 p-3 flex gap-3"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-secondary/20 to-warm-200 rounded-lg shrink-0" />
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-neutral-800 truncate">
-                  {item.name}
-                </h3>
+              <div className="w-20 h-20 rounded-lg shrink-0 overflow-hidden relative bg-gradient-to-br from-secondary/20 to-warm-200 flex items-center justify-center">
+                {item.imageUrl ? (
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.name}
+                    fill
+                    sizes="80px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <UtensilsCrossed className="h-7 w-7 text-primary/25" />
+                )}
+              </div>
+
+              <div className="flex-1 min-w-0 flex flex-col">
+                <h3 className="font-semibold text-neutral-800 leading-snug">{item.name}</h3>
                 <span className="text-sm text-primary font-bold">
                   {formatCurrency(item.price)}
                 </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => updateQuantity(item.menuItemId, item.quantity - 1)}
-                  className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors"
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="w-8 text-center font-semibold">{item.quantity}</span>
-                <button
-                  onClick={() => updateQuantity(item.menuItemId, item.quantity + 1)}
-                  className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="text-right">
-                <span className="font-bold text-neutral-800">
-                  {formatCurrency(item.price * item.quantity)}
-                </span>
-                <button
-                  onClick={() => removeItem(item.menuItemId)}
-                  className="block mt-1 text-red-400 hover:text-red-600"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+
+                <div className="flex items-center justify-between mt-auto pt-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => updateQuantity(item.menuItemId, item.quantity - 1)}
+                      className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors"
+                      aria-label="Weniger"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="w-7 text-center font-semibold">{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.menuItemId, item.quantity + 1)}
+                      className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors"
+                      aria-label="Mehr"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-neutral-800">
+                      {formatCurrency(item.price * item.quantity)}
+                    </span>
+                    <button
+                      onClick={() => removeItem(item.menuItemId)}
+                      className="text-red-400 hover:text-red-600"
+                      aria-label="Entfernen"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))}

@@ -23,8 +23,10 @@ export default function KassePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const MIN_DELIVERY = 50;
   const deliveryFee = orderType === "DELIVERY" ? 3.5 : 0;
   const grandTotal = total + deliveryFee;
+  const deliveryBlocked = orderType === "DELIVERY" && total < MIN_DELIVERY;
 
   if (!session?.user) {
     return (
@@ -61,6 +63,16 @@ export default function KassePage() {
 
   async function handleOrder() {
     setError("");
+
+    // Lieferung erst ab Mindestbestellwert
+    if (orderType === "DELIVERY" && total < MIN_DELIVERY) {
+      setError(
+        `Lieferung ist erst ab ${formatCurrency(MIN_DELIVERY)} möglich (aktuell ${formatCurrency(
+          total
+        )}). Bitte Abholung wählen oder mehr hinzufügen.`
+      );
+      return;
+    }
 
     // Bei Lieferung: Adresse muss vollständig sein
     if (
@@ -151,11 +163,30 @@ export default function KassePage() {
                 <Truck className={`h-6 w-6 ${orderType === "DELIVERY" ? "text-primary" : "text-neutral-400"}`} />
                 <div className="text-left">
                   <span className="font-semibold text-neutral-800 block">Lieferung</span>
-                  <span className="text-xs text-neutral-500">{formatCurrency(3.5)}</span>
+                  <span className="text-xs text-neutral-500">
+                    {formatCurrency(3.5)} · ab {formatCurrency(MIN_DELIVERY)}
+                  </span>
                 </div>
               </button>
             </div>
           </div>
+
+          {/* Hinweis: Lieferung erst ab Mindestbestellwert */}
+          {deliveryBlocked && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-800">
+              Lieferung ist erst ab <strong>{formatCurrency(MIN_DELIVERY)}</strong> möglich
+              (aktuell {formatCurrency(total)}). Es fehlen noch{" "}
+              <strong>{formatCurrency(MIN_DELIVERY - total)}</strong> – oder wähle{" "}
+              <button
+                type="button"
+                onClick={() => setOrderType("PICKUP")}
+                className="underline font-semibold"
+              >
+                Abholung
+              </button>
+              .
+            </div>
+          )}
 
           {/* Delivery Address */}
           {orderType === "DELIVERY" && (
@@ -283,10 +314,14 @@ export default function KassePage() {
 
           <button
             onClick={handleOrder}
-            disabled={loading}
+            disabled={loading || deliveryBlocked}
             className="w-full mt-6 bg-primary text-white py-3 px-6 rounded-xl font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50"
           >
-            {loading ? "Wird bestellt..." : `Jetzt bestellen (${formatCurrency(grandTotal)})`}
+            {loading
+              ? "Wird bestellt..."
+              : deliveryBlocked
+              ? `Lieferung ab ${formatCurrency(MIN_DELIVERY)}`
+              : `Jetzt bestellen (${formatCurrency(grandTotal)})`}
           </button>
 
           <p className="text-xs text-neutral-400 text-center mt-3">

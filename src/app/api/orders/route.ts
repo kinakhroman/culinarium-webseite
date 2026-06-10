@@ -68,6 +68,15 @@ export async function POST(req: Request) {
     });
   }
 
+  // Lieferung erst ab Mindestbestellwert (serverseitig erzwungen)
+  const MIN_DELIVERY = 50;
+  if (data.orderType === "DELIVERY" && subtotal < MIN_DELIVERY) {
+    return NextResponse.json(
+      { error: `Lieferung ist erst ab ${MIN_DELIVERY.toFixed(2)} € möglich.` },
+      { status: 400 }
+    );
+  }
+
   const deliveryFee = data.orderType === "DELIVERY" ? 3.5 : 0;
   const total = subtotal + deliveryFee;
 
