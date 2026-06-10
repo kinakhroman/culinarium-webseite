@@ -6,10 +6,8 @@ import { useSession } from "next-auth/react";
 import {
   LayoutDashboard,
   UtensilsCrossed,
-  FolderOpen,
   ShoppingBag,
-  Star as StarIcon,
-  Sparkles,
+  Mail,
   Calendar,
   Settings,
   ChefHat,
@@ -20,11 +18,9 @@ import { cn } from "@/lib/utils";
 const sidebarItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Bestellungen", href: "/admin/bestellungen", icon: ShoppingBag },
+  { label: "Anfragen", href: "/admin/anfragen", icon: Mail },
   { label: "Speisekarte", href: "/admin/speisekarte", icon: UtensilsCrossed },
-  { label: "Kategorien", href: "/admin/kategorien", icon: FolderOpen },
-  { label: "Tagesangebot", href: "/admin/tagesangebot", icon: Sparkles },
   { label: "Wochenplan", href: "/admin/wochenplan", icon: Calendar },
-  { label: "Bewertungen", href: "/admin/bewertungen", icon: StarIcon },
   { label: "Einstellungen", href: "/admin/einstellungen", icon: Settings },
 ];
 

@@ -24,12 +24,18 @@ export default function AdminEinstellungenPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    fetch("/api/settings").then((r) => r.json()).then(setSettings);
+    fetch("/api/settings")
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setSettings)
+      .catch(() => setSettings({} as never));
   }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
     setSaving(true);
     const fd = new FormData(e.currentTarget);
     const data: Record<string, unknown> = {};
@@ -41,13 +47,17 @@ export default function AdminEinstellungenPage() {
       }
     });
 
-    await fetch("/api/settings", {
+    const res = await fetch("/api/settings", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
     setSaving(false);
+    if (!res.ok) {
+      setError("Speichern fehlgeschlagen.");
+      return;
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -130,6 +140,8 @@ export default function AdminEinstellungenPage() {
             </div>
           </div>
         </div>
+
+        {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg mb-4">{error}</p>}
 
         <button
           type="submit"

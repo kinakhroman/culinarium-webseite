@@ -22,16 +22,22 @@ export default function AdminBestellungenPage() {
 
   useEffect(() => {
     fetch("/api/orders")
-      .then((r) => r.json())
-      .then((data) => { setOrders(data); setLoading(false); });
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => setOrders(Array.isArray(data) ? data : []))
+      .catch(() => setOrders([]))
+      .finally(() => setLoading(false));
   }, []);
 
   async function updateStatus(orderId: string, status: string) {
-    await fetch(`/api/orders/${orderId}`, {
+    const res = await fetch(`/api/orders/${orderId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+    if (!res.ok) {
+      alert("Status konnte nicht aktualisiert werden.");
+      return;
+    }
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status } : o))
     );

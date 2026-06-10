@@ -3,6 +3,7 @@ import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { CheckCircle, Clock, MapPin, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { auth } from "../../../../../auth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,12 +13,17 @@ export default async function BestellbestaetigungPage({
   params: Promise<{ orderId: string }>;
 }) {
   const { orderId } = await params;
+  const session = await auth();
   const order = await db.order.findUnique({
     where: { id: orderId },
     include: { orderItems: true },
   });
 
   if (!order) notFound();
+  // Nur der Besteller oder ein Admin darf die Bestelldetails sehen
+  if (!session?.user || (order.userId !== session.user.id && session.user.role !== "ADMIN")) {
+    notFound();
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12 text-center">

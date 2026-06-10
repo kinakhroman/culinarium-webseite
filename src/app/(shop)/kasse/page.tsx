@@ -61,6 +61,19 @@ export default function KassePage() {
 
   async function handleOrder() {
     setError("");
+
+    // Bei Lieferung: Adresse muss vollständig sein
+    if (
+      orderType === "DELIVERY" &&
+      (!deliveryStreet.trim() ||
+        !deliveryHouseNumber.trim() ||
+        !deliveryPostalCode.trim() ||
+        !deliveryCity.trim())
+    ) {
+      setError("Bitte vollständige Lieferadresse angeben (Straße, Hausnummer, PLZ, Ort).");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -84,8 +97,8 @@ export default function KassePage() {
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        setError(err.error || "Bestellung fehlgeschlagen.");
+        const err = await res.json().catch(() => ({}));
+        setError(typeof err.error === "string" ? err.error : "Bestellung fehlgeschlagen.");
         setLoading(false);
         return;
       }

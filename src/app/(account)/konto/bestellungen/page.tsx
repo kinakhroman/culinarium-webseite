@@ -27,8 +27,9 @@ export default function BestellungenPage() {
       })
       .then((data) => {
         setOrders(Array.isArray(data) ? data : []);
-        setLoading(false);
-      });
+      })
+      .catch(() => setOrders([]))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <div className="py-8 text-center text-neutral-500">Lädt...</div>;

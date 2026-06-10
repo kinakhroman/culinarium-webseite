@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserPlus, Eye, EyeOff } from "lucide-react";
+import SocialLogin from "@/components/auth/social-login";
 
 export default function RegistrierungPage() {
   const router = useRouter();
@@ -170,6 +171,8 @@ export default function RegistrierungPage() {
           {loading ? "Wird registriert..." : "Konto erstellen"}
         </button>
       </form>
+
+      <SocialLogin callbackUrl="/" />
 
       <p className="text-center text-sm text-neutral-500 mt-6">
         Bereits registriert?{" "}

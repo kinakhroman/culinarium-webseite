@@ -29,13 +29,20 @@ export async function PUT(req: Request, { params }: { params: Promise<{ orderId:
   }
 
   const { orderId } = await params;
-  const body = await req.json();
+  const body = await req.json().catch(() => ({}));
+  const ALLOWED = ["PENDING", "CONFIRMED", "PREPARING", "READY", "DELIVERED", "CANCELLED"];
+  if (!ALLOWED.includes(body?.status)) {
+    return NextResponse.json({ error: "Ungültiger Status" }, { status: 400 });
+  }
 
-  const order = await db.order.update({
-    where: { id: orderId },
-    data: { status: body.status },
-    include: { orderItems: true },
-  });
-
-  return NextResponse.json(order);
+  try {
+    const order = await db.order.update({
+      where: { id: orderId },
+      data: { status: body.status },
+      include: { orderItems: true },
+    });
+    return NextResponse.json(order);
+  } catch {
+    return NextResponse.json({ error: "Bestellung nicht gefunden" }, { status: 404 });
+  }
 }

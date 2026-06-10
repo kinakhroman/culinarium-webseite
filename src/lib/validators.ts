@@ -12,6 +12,16 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Passwort ist erforderlich"),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Ungültige E-Mail-Adresse"),
+});
+
+export const resetPasswordSchema = z.object({
+  email: z.string().email("Ungültige E-Mail-Adresse"),
+  code: z.string().regex(/^\d{6}$/, "Code besteht aus 6 Ziffern"),
+  password: z.string().min(8, "Passwort muss mindestens 8 Zeichen haben"),
+});
+
 export const menuItemSchema = z.object({
   name: z.string().min(1, "Name ist erforderlich"),
   description: z.string().min(1, "Beschreibung ist erforderlich"),
@@ -47,6 +57,25 @@ export const orderSchema = z.object({
       notes: z.string().optional(),
     })
   ).min(1, "Mindestens ein Artikel ist erforderlich"),
+}).superRefine((data, ctx) => {
+  // Bei Lieferung sind Adressfelder Pflicht
+  if (data.orderType === "DELIVERY") {
+    const required: [keyof typeof data, string][] = [
+      ["deliveryStreet", "Straße"],
+      ["deliveryHouseNumber", "Hausnummer"],
+      ["deliveryPostalCode", "PLZ"],
+      ["deliveryCity", "Ort"],
+    ];
+    for (const [field, label] of required) {
+      if (!data[field] || String(data[field]).trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [field],
+          message: `${label} ist für die Lieferung erforderlich`,
+        });
+      }
+    }
+  }
 });
 
 export const reviewSchema = z.object({

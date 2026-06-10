@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { db } from "@/lib/db";
+import { menuImage } from "@/lib/menu-db";
 
 export const dynamic = "force-dynamic";
 import { formatCurrency } from "@/lib/utils";
@@ -382,9 +383,9 @@ export default async function HomePage() {
                   className="group relative bg-white rounded-[2rem] overflow-hidden border border-neutral-100 shadow-sm card-hover flex flex-col"
                 >
                   <div className="relative h-64 overflow-hidden">
-                    {special.menuItem.imageUrl ? (
+                    {(special.menuItem.imageUrl || menuImage(special.menuItem.slug)) ? (
                       <Image
-                        src={special.menuItem.imageUrl}
+                        src={(special.menuItem.imageUrl || menuImage(special.menuItem.slug))!}
                         alt={special.menuItem.name}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -490,9 +491,9 @@ export default async function HomePage() {
               >
                 {/* Image / Visual */}
                 <div className="relative h-60 overflow-hidden">
-                  {item.imageUrl ? (
+                  {(item.imageUrl || menuImage(item.slug)) ? (
                     <Image
-                      src={item.imageUrl}
+                      src={(item.imageUrl || menuImage(item.slug))!}
                       alt={item.name}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

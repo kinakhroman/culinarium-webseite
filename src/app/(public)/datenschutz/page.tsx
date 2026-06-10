@@ -61,16 +61,48 @@ export default function DatenschutzPage() {
         </section>
 
         <section>
-          <h2 className="font-heading text-xl font-semibold text-neutral-800">4. Ihre Rechte</h2>
+          <h2 className="font-heading text-xl font-semibold text-neutral-800">4. Hosting &amp; Server-Logfiles</h2>
           <p className="text-neutral-600">
-            Sie haben das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der
-            Verarbeitung Ihrer personenbezogenen Daten. Bitte kontaktieren Sie uns unter der
-            oben genannten Adresse.
+            Diese Website wird bei einem externen Dienstleister (Hosting-Provider) betrieben. Beim
+            Aufruf der Seiten erfasst der Provider automatisch Informationen in sogenannten
+            Server-Logfiles: Browsertyp und -version, verwendetes Betriebssystem, Referrer-URL,
+            Hostname des zugreifenden Rechners, Uhrzeit der Serveranfrage und die IP-Adresse. Diese
+            Daten sind technisch erforderlich, um die Website stabil und sicher auszuliefern, und
+            werden nicht mit anderen Datenquellen zusammengeführt.
           </p>
         </section>
 
         <section>
-          <h2 className="font-heading text-xl font-semibold text-neutral-800">5. SSL-Verschlüsselung</h2>
+          <h2 className="font-heading text-xl font-semibold text-neutral-800">5. Rechtsgrundlagen &amp; Speicherdauer</h2>
+          <p className="text-neutral-600">
+            Die Verarbeitung Ihrer Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO
+            (Vertragserfüllung – Registrierung, Bestellungen, Anfragen), Art. 6 Abs. 1 lit. f DSGVO
+            (berechtigtes Interesse – sicherer und technisch fehlerfreier Betrieb der Website) sowie
+            ggf. Art. 6 Abs. 1 lit. a DSGVO (Einwilligung).
+          </p>
+          <p className="text-neutral-600">
+            Wir speichern personenbezogene Daten nur so lange, wie es für die genannten Zwecke
+            erforderlich ist bzw. gesetzliche Aufbewahrungsfristen (z. B. handels- und steuerrechtlich)
+            dies vorschreiben. Server-Logfiles werden in der Regel nach kurzer Zeit gelöscht.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-heading text-xl font-semibold text-neutral-800">6. Ihre Rechte</h2>
+          <p className="text-neutral-600">
+            Sie haben jederzeit das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der
+            Verarbeitung, Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung Ihrer
+            personenbezogenen Daten. Eine erteilte Einwilligung können Sie jederzeit mit Wirkung für
+            die Zukunft widerrufen. Bitte kontaktieren Sie uns dazu unter der oben genannten Adresse.
+          </p>
+          <p className="text-neutral-600">
+            Ihnen steht zudem ein Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde zu, etwa der
+            Berliner Beauftragten für Datenschutz und Informationsfreiheit.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-heading text-xl font-semibold text-neutral-800">7. SSL-Verschlüsselung</h2>
           <p className="text-neutral-600">
             Diese Seite nutzt aus Sicherheitsgründen eine SSL-Verschlüsselung. Eine verschlüsselte
             Verbindung erkennen Sie daran, dass die Adresszeile Ihres Browsers von „http://"

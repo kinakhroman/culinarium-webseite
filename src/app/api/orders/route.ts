@@ -7,11 +7,15 @@ import { sendTelegramMessage, formatOrderTelegramMessage } from "@/lib/telegram"
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
+  if (!session?.user) {
+    return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   }
 
+  // Admin sieht alle Bestellungen, Kunden nur ihre eigenen
+  const where = session.user.role === "ADMIN" ? {} : { userId: session.user.id };
+
   const orders = await db.order.findMany({
+    where,
     include: { orderItems: true, user: { select: { name: true, email: true } } },
     orderBy: { createdAt: "desc" },
   });
@@ -28,7 +32,9 @@ export async function POST(req: Request) {
   const body = await req.json();
   const parsed = orderSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    const firstMsg =
+      parsed.error.issues[0]?.message || "Bitte alle Pflichtfelder korrekt ausfüllen.";
+    return NextResponse.json({ error: firstMsg }, { status: 400 });
   }
 
   const data = parsed.data;
@@ -41,21 +47,26 @@ export async function POST(req: Request) {
 
   const menuItemMap = new Map(menuItems.map((m) => [m.id, m]));
 
-  // Calculate totals
+  // Calculate totals (Preise serverseitig aus der DB – Client-Preise werden ignoriert)
   let subtotal = 0;
-  const orderItems = data.items.map((item) => {
+  const orderItems = [];
+  for (const item of data.items) {
     const menuItem = menuItemMap.get(item.menuItemId);
-    if (!menuItem) throw new Error(`Menüeintrag ${item.menuItemId} nicht gefunden`);
-    const lineTotal = menuItem.price * item.quantity;
-    subtotal += lineTotal;
-    return {
+    if (!menuItem || !menuItem.isAvailable) {
+      return NextResponse.json(
+        { error: "Ein Gericht ist nicht mehr verfügbar. Bitte Warenkorb prüfen." },
+        { status: 409 }
+      );
+    }
+    subtotal += menuItem.price * item.quantity;
+    orderItems.push({
       menuItemId: item.menuItemId,
       quantity: item.quantity,
       unitPrice: menuItem.price,
       itemName: menuItem.name,
       notes: item.notes || null,
-    };
-  });
+    });
+  }
 
   const deliveryFee = data.orderType === "DELIVERY" ? 3.5 : 0;
   const total = subtotal + deliveryFee;
@@ -68,10 +79,12 @@ export async function POST(req: Request) {
 
   // Parse requested time
   let requestedTime: Date | null = null;
-  if (data.requestedTime) {
+  if (data.requestedTime && /^\d{1,2}:\d{2}$/.test(data.requestedTime)) {
     const today = new Date();
     const [hours, minutes] = data.requestedTime.split(":").map(Number);
-    requestedTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
+    if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+      requestedTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
+    }
   }
 
   const order = await db.order.create({

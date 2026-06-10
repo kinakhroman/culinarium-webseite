@@ -252,3 +252,22 @@ model SocialPost {
   error       String?   @db.Text
   createdAt   DateTime  @default(now())
 }
+
+// Kontakt- und Catering-Anfragen werden in der DB gespeichert (Telegram optional)
+model Inquiry {
+  id        String   @id @default(cuid())
+  type      String   // "CONTACT" | "CATERING"
+  name      String
+  email     String?
+  phone     String?
+  subject   String?
+  message   String?  @db.Text
+  company   String?
+  site      String?
+  people    Int?
+  status    String   @default("NEW") // NEW | READ | DONE
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([status])
+}

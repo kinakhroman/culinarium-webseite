@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LogIn, Eye, EyeOff } from "lucide-react";
+import SocialLogin from "@/components/auth/social-login";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -101,6 +102,14 @@ export default function LoginPage() {
           {loading ? "Wird angemeldet..." : "Anmelden"}
         </button>
       </form>
+
+      <p className="text-center text-sm mt-4">
+        <Link href="/passwort-vergessen" className="text-neutral-500 hover:text-primary hover:underline">
+          Passwort vergessen?
+        </Link>
+      </p>
+
+      <SocialLogin callbackUrl="/" />
 
       <p className="text-center text-sm text-neutral-500 mt-6">
         Noch kein Konto?{" "}

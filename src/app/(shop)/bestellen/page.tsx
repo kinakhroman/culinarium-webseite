@@ -37,15 +37,21 @@ export default function BestellenPage() {
 
   useEffect(() => {
     async function load() {
-      const [menuRes, catRes] = await Promise.all([
-        fetch("/api/menu"),
-        fetch("/api/categories"),
-      ]);
-      const menuData = await menuRes.json();
-      const catData = await catRes.json();
-      setItems(menuData);
-      setCategories(catData);
-      setLoading(false);
+      try {
+        const [menuRes, catRes] = await Promise.all([
+          fetch("/api/menu"),
+          fetch("/api/categories"),
+        ]);
+        const menuData = await menuRes.json();
+        const catData = await catRes.json();
+        setItems(Array.isArray(menuData) ? menuData : []);
+        setCategories(Array.isArray(catData) ? catData : []);
+      } catch {
+        setItems([]);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, []);
