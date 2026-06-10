@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/features/cart/cart-provider";
 import { formatCurrency } from "@/lib/utils";
-import { MapPin, Clock, FileText, ShoppingCart, Truck, Store, User } from "lucide-react";
+import { MapPin, Clock, FileText, ShoppingCart, Truck, Store } from "lucide-react";
 import Link from "next/link";
 
 export default function KassePage() {
@@ -16,9 +16,6 @@ export default function KassePage() {
   const [orderType, setOrderType] = useState<"PICKUP" | "DELIVERY">("PICKUP");
   const [requestedTime, setRequestedTime] = useState("");
   const [notes, setNotes] = useState("");
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
-  const [guestPhone, setGuestPhone] = useState("");
   const [deliveryStreet, setDeliveryStreet] = useState("");
   const [deliveryHouseNumber, setDeliveryHouseNumber] = useState("");
   const [deliveryPostalCode, setDeliveryPostalCode] = useState("");
@@ -39,6 +36,25 @@ export default function KassePage() {
   const grandTotal = total + deliveryFee;
   const deliveryBlocked = orderType === "DELIVERY" && total < MIN_DELIVERY;
 
+  if (!session?.user) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-20 text-center">
+        <h1 className="font-heading text-2xl font-bold text-neutral-800 mb-4">
+          Bitte anmelden
+        </h1>
+        <p className="text-neutral-500 mb-6">
+          Um eine Bestellung aufzugeben, müssen Sie angemeldet sein.
+        </p>
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-semibold"
+        >
+          Jetzt anmelden
+        </Link>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="max-w-xl mx-auto px-4 py-20 text-center">
@@ -55,12 +71,6 @@ export default function KassePage() {
 
   async function handleOrder() {
     setError("");
-
-    // Gast-Bestellung: Name + E-Mail erforderlich
-    if (!session?.user && (!guestName.trim() || !guestEmail.trim())) {
-      setError("Bitte Name und E-Mail angeben – oder melde dich an.");
-      return;
-    }
 
     // Lieferung erst ab Mindestbestellwert
     if (orderType === "DELIVERY" && total < MIN_DELIVERY) {
@@ -94,9 +104,6 @@ export default function KassePage() {
           orderType,
           requestedTime: requestedTime || undefined,
           notes: notes || undefined,
-          guestName: !session?.user ? guestName : undefined,
-          guestEmail: !session?.user ? guestEmail : undefined,
-          guestPhone: !session?.user ? guestPhone : undefined,
           deliveryStreet: orderType === "DELIVERY" ? deliveryStreet : undefined,
           deliveryHouseNumber: orderType === "DELIVERY" ? deliveryHouseNumber : undefined,
           deliveryPostalCode: orderType === "DELIVERY" ? deliveryPostalCode : undefined,
@@ -138,63 +145,6 @@ export default function KassePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          {/* Gast-Kontaktdaten (nur ohne Login) */}
-          {!session?.user && (
-            <div className="bg-white rounded-2xl border border-neutral-100 p-6">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="font-heading text-lg font-bold text-neutral-800 flex items-center gap-2">
-                  <User className="h-5 w-5 text-primary" />
-                  Ihre Kontaktdaten
-                </h2>
-              </div>
-              <p className="text-sm text-neutral-500 mb-4">
-                Bestellung als Gast – ganz ohne Konto.{" "}
-                <Link
-                  href="/login?callbackUrl=/kasse"
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Schon Kunde? Anmelden
-                </Link>
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">Name *</label>
-                  <input
-                    type="text"
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                    required
-                    placeholder="Vor- und Nachname"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">E-Mail *</label>
-                  <input
-                    type="email"
-                    value={guestEmail}
-                    onChange={(e) => setGuestEmail(e.target.value)}
-                    required
-                    placeholder="ihre@email.de"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">
-                    Telefon (optional)
-                  </label>
-                  <input
-                    type="tel"
-                    value={guestPhone}
-                    onChange={(e) => setGuestPhone(e.target.value)}
-                    placeholder="Für Rückfragen"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Order Type */}
           <div className="bg-white rounded-2xl border border-neutral-100 p-6">
             <h2 className="font-heading text-lg font-bold text-neutral-800 mb-4">

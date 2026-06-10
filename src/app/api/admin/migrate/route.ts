@@ -62,15 +62,5 @@ export async function POST(req: Request) {
     results.OrderPayment = `Fehler: ${e instanceof Error ? e.message : "unbekannt"}`;
   }
 
-  // Order.userId nullable machen (Gast-Bestellungen ohne Konto)
-  try {
-    await db.$executeRawUnsafe(
-      "ALTER TABLE `Order` MODIFY `userId` VARCHAR(191) NULL"
-    );
-    results.OrderGuest = "ok";
-  } catch (e) {
-    results.OrderGuest = `Fehler: ${e instanceof Error ? e.message : "unbekannt"}`;
-  }
-
   return NextResponse.json({ success: true, tables: results });
 }
