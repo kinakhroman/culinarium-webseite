@@ -117,8 +117,10 @@ export function Header() {
 
       {/* Mobile Menu */}
       <div
-        className={`lg:hidden overflow-hidden transition-all duration-500 ease-in-out ${
-          mobileOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+        className={`lg:hidden transition-all duration-500 ease-in-out ${
+          mobileOpen
+            ? "max-h-[85vh] opacity-100 overflow-y-auto"
+            : "max-h-0 opacity-0 overflow-hidden"
         }`}
       >
         <div className="bg-white/95 backdrop-blur-xl border-t border-neutral-100">
@@ -144,6 +146,17 @@ export function Header() {
               </Link>
               {session?.user ? (
                 <>
+                  <div className="flex items-center gap-3 px-4 py-3 bg-primary/5 rounded-xl">
+                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <User className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-neutral-400 leading-tight">Angemeldet als</p>
+                      <p className="text-sm font-semibold text-neutral-800 truncate">
+                        {session.user.name || session.user.email}
+                      </p>
+                    </div>
+                  </div>
                   <Link
                     href="/konto"
                     onClick={() => setMobileOpen(false)}
@@ -157,18 +170,37 @@ export function Header() {
                       onClick={() => setMobileOpen(false)}
                       className="block text-center px-3 py-3 text-neutral-600 hover:text-primary rounded-xl transition-all"
                     >
-                      Admin
+                      Admin-Bereich
                     </Link>
                   )}
+                  <button
+                    onClick={() => {
+                      setMobileOpen(false);
+                      signOut({ callbackUrl: "/" });
+                    }}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-3 text-red-600 border border-red-200 rounded-2xl font-medium hover:bg-red-50 transition-all"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Abmelden
+                  </button>
                 </>
               ) : (
-                <Link
-                  href="/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="block text-center px-4 py-3 text-primary border border-primary/30 rounded-2xl font-medium hover:bg-primary/5 transition-all"
-                >
-                  Anmelden
-                </Link>
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-center px-4 py-3 text-primary border border-primary/30 rounded-2xl font-medium hover:bg-primary/5 transition-all"
+                  >
+                    Anmelden
+                  </Link>
+                  <Link
+                    href="/registrierung"
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-center px-4 py-3 bg-primary/10 text-primary rounded-2xl font-medium hover:bg-primary/15 transition-all"
+                  >
+                    Registrieren
+                  </Link>
+                </div>
               )}
             </div>
           </div>
