@@ -154,6 +154,8 @@ model Order {
   customerPhone       String?
   customerEmail       String
   telegramNotified    Boolean  @default(false)
+  paymentStatus       String   @default("ON_SITE") // ON_SITE | UNPAID | PAID
+  stripeSessionId     String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 

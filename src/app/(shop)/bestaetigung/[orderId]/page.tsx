@@ -43,9 +43,19 @@ export default async function BestellbestaetigungPage({
             <span className="text-sm text-neutral-400">Bestellnummer</span>
             <p className="font-heading text-xl font-bold text-primary">{order.orderNumber}</p>
           </div>
-          <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
-            Ausstehend
-          </span>
+          {order.paymentStatus === "PAID" ? (
+            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+              Bezahlt ✓
+            </span>
+          ) : order.paymentStatus === "UNPAID" ? (
+            <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
+              Zahlung wird bestätigt…
+            </span>
+          ) : (
+            <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+              Ausstehend
+            </span>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">

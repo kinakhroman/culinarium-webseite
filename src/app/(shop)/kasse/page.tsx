@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/features/cart/cart-provider";
@@ -22,6 +22,14 @@ export default function KassePage() {
   const [deliveryCity, setDeliveryCity] = useState("Berlin");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [stripeOn, setStripeOn] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/payment-config")
+      .then((r) => (r.ok ? r.json() : { stripe: false }))
+      .then((d) => setStripeOn(!!d.stripe))
+      .catch(() => setStripeOn(false));
+  }, []);
 
   const MIN_DELIVERY = 50;
   const deliveryFee = orderType === "DELIVERY" ? 3.5 : 0;
@@ -117,7 +125,12 @@ export default function KassePage() {
 
       const order = await res.json();
       clearCart();
-      router.push(`/bestaetigung/${order.id}`);
+      // Lieferung mit Online-Zahlung: zu Stripe weiterleiten; sonst Bestätigung
+      if (order.checkoutUrl) {
+        window.location.href = order.checkoutUrl;
+      } else {
+        router.push(`/bestaetigung/${order.id}`);
+      }
     } catch {
       setError("Ein Fehler ist aufgetreten.");
       setLoading(false);
@@ -321,11 +334,17 @@ export default function KassePage() {
               ? "Wird bestellt..."
               : deliveryBlocked
               ? `Lieferung ab ${formatCurrency(MIN_DELIVERY)}`
+              : orderType === "DELIVERY" && stripeOn
+              ? `Weiter zur Bezahlung (${formatCurrency(grandTotal)})`
               : `Jetzt bestellen (${formatCurrency(grandTotal)})`}
           </button>
 
           <p className="text-xs text-neutral-400 text-center mt-3">
-            Zahlung bei {orderType === "PICKUP" ? "Abholung" : "Lieferung"} (Bar oder Karte)
+            {orderType === "PICKUP"
+              ? "Zahlung bei Abholung (bar oder Karte)"
+              : stripeOn
+              ? "Online-Vorkasse: Karte, Apple Pay & Google Pay"
+              : "Zahlung bei Lieferung"}
           </p>
         </div>
       </div>

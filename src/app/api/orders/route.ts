@@ -4,6 +4,7 @@ import { auth } from "../../../../auth";
 import { orderSchema } from "@/lib/validators";
 import { generateOrderNumber } from "@/lib/utils";
 import { sendTelegramMessage, formatOrderTelegramMessage } from "@/lib/telegram";
+import { getStripe, isStripeEnabled } from "@/lib/stripe";
 
 export async function GET() {
   const session = await auth();
@@ -96,6 +97,9 @@ export async function POST(req: Request) {
     }
   }
 
+  // Lieferung wird online vorab bezahlt (sofern Stripe konfiguriert); sonst „vor Ort"
+  const needsPrepay = data.orderType === "DELIVERY" && isStripeEnabled();
+
   const order = await db.order.create({
     data: {
       orderNumber: generateOrderNumber(),
@@ -113,14 +117,58 @@ export async function POST(req: Request) {
       customerName: user.name,
       customerPhone: user.phone,
       customerEmail: user.email,
-      orderItems: {
-        create: orderItems,
-      },
+      paymentStatus: needsPrepay ? "UNPAID" : "ON_SITE",
+      orderItems: { create: orderItems },
     },
     include: { orderItems: true },
   });
 
-  // Send Telegram notification
+  // Lieferung: Stripe-Checkout-Session erstellen und Kunden zur Bezahlung schicken
+  if (needsPrepay) {
+    const stripe = getStripe()!;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://culinarium-berlin.de";
+    try {
+      const checkout = await stripe.checkout.sessions.create({
+        mode: "payment",
+        customer_email: order.customerEmail,
+        line_items: [
+          ...order.orderItems.map((it) => ({
+            price_data: {
+              currency: "eur",
+              product_data: { name: it.itemName },
+              unit_amount: Math.round(it.unitPrice * 100),
+            },
+            quantity: it.quantity,
+          })),
+          {
+            price_data: {
+              currency: "eur",
+              product_data: { name: "Liefergebühr" },
+              unit_amount: Math.round(deliveryFee * 100),
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${baseUrl}/bestaetigung/${order.id}?paid=1`,
+        cancel_url: `${baseUrl}/kasse`,
+        metadata: { orderId: order.id },
+      });
+      await db.order.update({
+        where: { id: order.id },
+        data: { stripeSessionId: checkout.id },
+      });
+      return NextResponse.json({ ...order, checkoutUrl: checkout.url }, { status: 201 });
+    } catch (e) {
+      console.error("[orders] Stripe-Checkout fehlgeschlagen:", e);
+      // Bestellung existiert – Kunde soll es erneut versuchen
+      return NextResponse.json(
+        { error: "Bezahlung konnte nicht gestartet werden. Bitte erneut versuchen." },
+        { status: 502 }
+      );
+    }
+  }
+
+  // Abholung / ohne Stripe: Telegram-Benachrichtigung (no-op ohne Token)
   const telegramMsg = formatOrderTelegramMessage({
     orderNumber: order.orderNumber,
     customerName: order.customerName,
@@ -131,13 +179,9 @@ export async function POST(req: Request) {
     notes: order.notes,
     items: order.orderItems,
   });
-
   const sent = await sendTelegramMessage({ text: telegramMsg });
   if (sent) {
-    await db.order.update({
-      where: { id: order.id },
-      data: { telegramNotified: true },
-    });
+    await db.order.update({ where: { id: order.id }, data: { telegramNotified: true } });
   }
 
   return NextResponse.json(order, { status: 201 });

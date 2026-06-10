@@ -49,5 +49,18 @@ export async function POST(req: Request) {
     results.Inquiry = `Fehler: ${e instanceof Error ? e.message : "unbekannt"}`;
   }
 
+  // Order: Zahlungs-Spalten (MariaDB unterstützt IF NOT EXISTS)
+  try {
+    await db.$executeRawUnsafe(
+      "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `paymentStatus` VARCHAR(191) NOT NULL DEFAULT 'ON_SITE'"
+    );
+    await db.$executeRawUnsafe(
+      "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `stripeSessionId` VARCHAR(191) NULL"
+    );
+    results.OrderPayment = "ok";
+  } catch (e) {
+    results.OrderPayment = `Fehler: ${e instanceof Error ? e.message : "unbekannt"}`;
+  }
+
   return NextResponse.json({ success: true, tables: results });
 }
