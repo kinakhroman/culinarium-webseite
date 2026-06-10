@@ -17,7 +17,39 @@
       "Bash(export PATH=\"$PATH:/c/Program Files/GitHub CLI\")",
       "Bash(gh repo:*)",
       "Bash(grep -A1 '\"\"prisma\"\":' package.json)",
-      "WebFetch(domain:culinarium-am-biesenhorst.de)"
+      "WebFetch(domain:culinarium-am-biesenhorst.de)",
+      "WebFetch(domain:github.com)",
+      "Bash(claude mcp:*)",
+      "Read(//c/Users/rkina/.claude/**)",
+      "Bash(ls ~/.claude/mcp*.json)",
+      "Bash(ls ~/.claude/*.json)",
+      "mcp__claude_ai_Canva__search-designs",
+      "mcp__claude_ai_Canva__export-design",
+      "Bash(curl -L -o \"/c/Users/rkina/Documents/Webseite Culinarium/public/images/logo.png\" \"https://export-download.canva.com/yLNP0/DAGV3XyLNP0/-1/0/0001-837041326747819513.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260321%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260321T142344Z&X-Amz-Expires=64262&X-Amz-Signature=6ca1761b94ca81ccd84d8a1e96bb1ce256b17eedfb8bccb126ab9bad062f6b4a&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Sun%2C%2022%20Mar%202026%2008%3A14%3A46%20GMT\")",
+      "Bash(curl -k -L -o \"/c/Users/rkina/Documents/Webseite Culinarium/public/images/logo.png\" \"https://export-download.canva.com/yLNP0/DAGV3XyLNP0/-1/0/0001-837041326747819513.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260321%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260321T142344Z&X-Amz-Expires=64262&X-Amz-Signature=6ca1761b94ca81ccd84d8a1e96bb1ce256b17eedfb8bccb126ab9bad062f6b4a&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Sun%2C%2022%20Mar%202026%2008%3A14%3A46%20GMT\")",
+      "mcp__claude_ai_Canva__get-design-pages",
+      "WebFetch(domain:document-export.canva.com)",
+      "mcp__claude_ai_Canva__get-assets",
+      "Bash(node -e \":*)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(npx vercel:*)",
+      "mcp__mcp-registry__search_mcp_registry",
+      "mcp__2ce912e2-1856-4a55-94a7-9d4a45ebf66c__create-design-from-candidate",
+      "Bash(gh api *)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(x['name'], x['type']\\) for x in d]\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(x['name'], x['type'], x.get\\('size',''\\)\\) for x in d]\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(x['path']\\) for x in d['tree'] if x['path'].endswith\\(\\('.sh','.js','.py','.ts'\\)\\) or 'hook' in x['path'].lower\\(\\)]\")",
+      "Bash(pip show *)",
+      "Bash(mkdir -p public/images/instagram)",
+      "Bash(python -m instaloader --no-videos --no-video-thumbnails --no-metadata-json --no-captions --fast-update --count 20 --dirname-pattern . --filename-pattern \"ig_{date_utc}\" profile culinariumambiesenhorst)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\), indent=2\\)\\)\")",
+      "Bash(python -c \"import sys,json;d=json.load\\(sys.stdin\\);print\\('tailwind:',d.get\\('dependencies',{}\\).get\\('tailwindcss'\\),d.get\\('devDependencies',{}\\).get\\('tailwindcss'\\)\\)\")",
+      "Bash(curl -s -o /dev/null -w \"Status: %{http_code}\\\\nTime: %{time_total}s\\\\n\" http://localhost:3000/)",
+      "Bash(tasklist //FI \"IMAGENAME eq node.exe\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\rkina",
+      "\\tmp"
     ]
   }
 }

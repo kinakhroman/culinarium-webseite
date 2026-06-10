@@ -20,8 +20,12 @@ export default async function BestellbestaetigungPage({
   });
 
   if (!order) notFound();
-  // Nur der Besteller oder ein Admin darf die Bestelldetails sehen
-  if (!session?.user || (order.userId !== session.user.id && session.user.role !== "ADMIN")) {
+  // Gast-Bestellungen (ohne Konto) sind über den unguessable-Link einsehbar.
+  // Konto-Bestellungen darf nur der Besteller oder ein Admin sehen.
+  const isGuestOrder = order.userId === null;
+  const isOwner = !!session?.user && order.userId === session.user.id;
+  const isAdmin = session?.user?.role === "ADMIN";
+  if (!isGuestOrder && !isOwner && !isAdmin) {
     notFound();
   }
 

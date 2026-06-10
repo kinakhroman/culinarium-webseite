@@ -26,9 +26,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
-  }
+  const isGuest = !session?.user;
 
   const body = await req.json();
   const parsed = orderSchema.safeParse(body);
@@ -39,6 +37,16 @@ export async function POST(req: Request) {
   }
 
   const data = parsed.data;
+
+  // Gast-Bestellung: Name + E-Mail sind Pflicht (für Kontakt/Bestätigung)
+  if (isGuest) {
+    if (!data.guestName?.trim() || !data.guestEmail?.trim()) {
+      return NextResponse.json(
+        { error: "Für eine Bestellung ohne Konto sind Name und E-Mail erforderlich." },
+        { status: 400 }
+      );
+    }
+  }
 
   // Fetch menu items for pricing
   const menuItemIds = data.items.map((i) => i.menuItemId);
@@ -81,10 +89,25 @@ export async function POST(req: Request) {
   const deliveryFee = data.orderType === "DELIVERY" ? 3.5 : 0;
   const total = subtotal + deliveryFee;
 
-  // Get user info
-  const user = await db.user.findUnique({ where: { id: session.user.id } });
-  if (!user) {
-    return NextResponse.json({ error: "Benutzer nicht gefunden" }, { status: 404 });
+  // Kundendaten: bei eingeloggten Nutzern aus dem Konto, bei Gästen aus dem Formular
+  let userId: string | null = null;
+  let customerName: string;
+  let customerPhone: string | null;
+  let customerEmail: string;
+
+  if (isGuest) {
+    customerName = data.guestName!.trim();
+    customerEmail = data.guestEmail!.trim();
+    customerPhone = data.guestPhone?.trim() || null;
+  } else {
+    const user = await db.user.findUnique({ where: { id: session!.user.id } });
+    if (!user) {
+      return NextResponse.json({ error: "Benutzer nicht gefunden" }, { status: 404 });
+    }
+    userId = user.id;
+    customerName = user.name;
+    customerPhone = user.phone;
+    customerEmail = user.email;
   }
 
   // Parse requested time
@@ -103,7 +126,7 @@ export async function POST(req: Request) {
   const order = await db.order.create({
     data: {
       orderNumber: generateOrderNumber(),
-      userId: session.user.id,
+      userId,
       orderType: data.orderType,
       subtotal,
       deliveryFee,
@@ -114,9 +137,9 @@ export async function POST(req: Request) {
       deliveryPostalCode: data.deliveryPostalCode || null,
       deliveryCity: data.deliveryCity || null,
       requestedTime,
-      customerName: user.name,
-      customerPhone: user.phone,
-      customerEmail: user.email,
+      customerName,
+      customerPhone,
+      customerEmail,
       paymentStatus: needsPrepay ? "UNPAID" : "ON_SITE",
       orderItems: { create: orderItems },
     },

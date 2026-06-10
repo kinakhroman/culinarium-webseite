@@ -50,6 +50,10 @@ export const orderSchema = z.object({
   deliveryHouseNumber: z.string().optional(),
   deliveryPostalCode: z.string().optional(),
   deliveryCity: z.string().optional(),
+  // Gast-Bestellung (nur relevant, wenn nicht eingeloggt – serverseitig erzwungen)
+  guestName: z.string().optional(),
+  guestEmail: z.string().email("Ungültige E-Mail-Adresse").optional().or(z.literal("")),
+  guestPhone: z.string().optional(),
   items: z.array(
     z.object({
       menuItemId: z.string(),
