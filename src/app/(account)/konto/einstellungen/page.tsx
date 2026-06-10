@@ -116,6 +116,79 @@ export default function ProfilEinstellungenPage() {
           {saved ? <><Check className="h-5 w-5" /> Gespeichert</> : <><Save className="h-5 w-5" /> {saving ? "Speichert…" : "Speichern"}</>}
         </button>
       </form>
+
+      <PasswordChange />
     </div>
+  );
+}
+
+function PasswordChange() {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const input =
+    "w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors";
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setMsg(null);
+    setBusy(true);
+    const fd = new FormData(e.currentTarget);
+    const res = await fetch("/api/auth/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        currentPassword: fd.get("currentPassword"),
+        newPassword: fd.get("newPassword"),
+      }),
+    });
+    setBusy(false);
+    if (res.ok) {
+      setMsg({ ok: true, text: "Passwort geändert." });
+      (e.target as HTMLFormElement).reset();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      setMsg({
+        ok: false,
+        text: typeof err.error === "string" ? err.error : "Ändern fehlgeschlagen.",
+      });
+    }
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="mt-6 bg-white rounded-2xl border border-neutral-100 p-6 space-y-4"
+    >
+      <h2 className="font-heading text-lg font-bold text-neutral-800">Passwort ändern</h2>
+      <div>
+        <label className="block text-sm font-medium text-neutral-700 mb-1">
+          Aktuelles Passwort
+        </label>
+        <input name="currentPassword" type="password" required className={input} />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-neutral-700 mb-1">
+          Neues Passwort (min. 8 Zeichen)
+        </label>
+        <input name="newPassword" type="password" required minLength={8} className={input} />
+      </div>
+      {msg && (
+        <p
+          className={`text-sm p-3 rounded-lg ${
+            msg.ok ? "text-green-700 bg-green-50" : "text-red-600 bg-red-50"
+          }`}
+        >
+          {msg.text}
+        </p>
+      )}
+      <button
+        type="submit"
+        disabled={busy}
+        className="inline-flex items-center gap-2 bg-neutral-800 text-white px-6 py-3 rounded-xl font-semibold hover:bg-neutral-700 transition-colors disabled:opacity-50"
+      >
+        {busy ? "Ändert…" : "Passwort ändern"}
+      </button>
+    </form>
   );
 }
