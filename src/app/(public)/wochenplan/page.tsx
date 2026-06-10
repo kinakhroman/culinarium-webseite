@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { getWeekPlanRows } from "@/lib/menu-db";
 import { formatCurrency, formatWeekRange, DAYS_DE } from "@/lib/utils";
 import { UtensilsCrossed, CalendarDays } from "lucide-react";
@@ -28,10 +29,29 @@ async function getWeeklyPlan(weekStart: Date) {
   }
 }
 
-export default async function WochenplanPage() {
-  const weekStart = getWeekStart();
-  const planItems = await getWeeklyPlan(weekStart);
-  const todayIdx = (new Date().getDay() + 6) % 7; // Mo=0 … So=6
+export default async function WochenplanPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ week?: string }>;
+}) {
+  const sp = await searchParams;
+
+  const currentWeekStart = getWeekStart();
+  const nextWeekStart = new Date(currentWeekStart);
+  nextWeekStart.setDate(nextWeekStart.getDate() + 7);
+
+  const [currentItems, nextItems] = await Promise.all([
+    getWeeklyPlan(currentWeekStart),
+    getWeeklyPlan(nextWeekStart),
+  ]);
+
+  const hasNext = nextItems.length > 0;
+  const showNext = sp.week === "next" && hasNext;
+
+  const weekStart = showNext ? nextWeekStart : currentWeekStart;
+  const planItems = showNext ? nextItems : currentItems;
+  // "Heute"-Markierung nur in der aktuellen Woche sinnvoll
+  const todayIdx = showNext ? -1 : (new Date().getDay() + 6) % 7; // Mo=0 … So=6
 
   const planByDay = DAYS_DE.reduce(
     (acc, _day, index) => {
@@ -50,9 +70,9 @@ export default async function WochenplanPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Kopf */}
-      <div className="text-center mb-12">
+      <div className="text-center mb-8">
         <span className="text-primary font-semibold text-sm uppercase tracking-[0.2em]">
-          Diese Woche
+          {showNext ? "Nächste Woche" : "Diese Woche"}
         </span>
         <h1 className="font-heading text-4xl md:text-5xl font-bold text-neutral-800 mt-2 mb-3">
           Wochenplan
@@ -62,6 +82,30 @@ export default async function WochenplanPage() {
           <span className="font-medium">{formatWeekRange(weekStart)}</span>
         </div>
       </div>
+
+      {/* Umschalter: Diese Woche / Nächste Woche (nur wenn nächste Woche gepflegt ist) */}
+      {hasNext && (
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex items-center gap-1 rounded-full bg-warm-100 p-1">
+            <Link
+              href="/wochenplan"
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
+                !showNext ? "bg-primary text-white shadow-sm" : "text-neutral-600 hover:text-primary"
+              }`}
+            >
+              Diese Woche
+            </Link>
+            <Link
+              href="/wochenplan?week=next"
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
+                showNext ? "bg-primary text-white shadow-sm" : "text-neutral-600 hover:text-primary"
+              }`}
+            >
+              Nächste Woche
+            </Link>
+          </div>
+        </div>
+      )}
 
       {planItems.length > 0 ? (
         <div className="space-y-8">

@@ -14,10 +14,11 @@ const FORMATS = {
 } as const;
 
 const PAPER = "#F8F1E7";
-const PAPER_DEEP = "#F0E5D4";
+const CARD = "#FFFFFF";
 const INK = "#221A12";
-const INK_SOFT = "#6B5A47";
+const INK_SOFT = "#7A6A56";
 const BRAND = "#4A2410";
+const BRAND_DEEP = "#321606";
 const PAPRIKA = "#C0381C";
 const EMBER = "#E0902F";
 
@@ -64,6 +65,7 @@ export async function GET(
           display: "flex",
           flexDirection: "column",
           backgroundColor: PAPER,
+          backgroundImage: `radial-gradient(circle at 100% 0%, rgba(224,144,47,0.10), transparent 45%)`,
           fontFamily: "Hanken",
           color: INK,
         }}
@@ -75,7 +77,8 @@ export async function GET(
             alignItems: "center",
             justifyContent: "space-between",
             backgroundColor: BRAND,
-            padding: `${40 * s}px ${56 * s}px`,
+            backgroundImage: `linear-gradient(120deg, ${BRAND_DEEP}, ${BRAND})`,
+            padding: `${38 * s}px ${52 * s}px`,
           }}
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
@@ -83,7 +86,7 @@ export async function GET(
               style={{
                 fontFamily: "Playfair",
                 fontWeight: 700,
-                fontSize: 64 * s,
+                fontSize: 60 * s,
                 color: PAPER,
                 lineHeight: 1,
               }}
@@ -93,7 +96,7 @@ export async function GET(
             <div
               style={{
                 fontWeight: 700,
-                fontSize: 22 * s,
+                fontSize: 21 * s,
                 letterSpacing: 6 * s,
                 color: EMBER,
                 marginTop: 8 * s,
@@ -107,7 +110,7 @@ export async function GET(
               style={{
                 fontFamily: "Playfair",
                 fontWeight: 700,
-                fontSize: 46 * s,
+                fontSize: 44 * s,
                 color: EMBER,
                 lineHeight: 1,
               }}
@@ -116,7 +119,7 @@ export async function GET(
             </div>
             <div
               style={{
-                fontSize: 20 * s,
+                fontSize: 19 * s,
                 color: PAPER,
                 letterSpacing: 4 * s,
                 marginTop: 6 * s,
@@ -131,95 +134,175 @@ export async function GET(
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            padding: `${40 * s}px ${56 * s}px ${16 * s}px`,
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            padding: `${34 * s}px ${52 * s}px ${10 * s}px`,
           }}
         >
-          <div
-            style={{
-              fontFamily: "Playfair",
-              fontWeight: 700,
-              fontSize: 58 * s,
-              color: PAPRIKA,
-              lineHeight: 1,
-            }}
-          >
-            Menü der Woche
-          </div>
-          <div style={{ fontSize: 28 * s, color: INK_SOFT, marginTop: 10 * s }}>
-            {formatWeekRange(weekStart)}
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div
+              style={{
+                fontFamily: "Playfair",
+                fontWeight: 700,
+                fontSize: 54 * s,
+                color: PAPRIKA,
+                lineHeight: 1,
+              }}
+            >
+              Menü der Woche
+            </div>
+            <div style={{ display: "flex", fontSize: 26 * s, color: INK_SOFT, marginTop: 10 * s }}>
+              {formatWeekRange(weekStart)}
+            </div>
           </div>
         </div>
 
-        {/* Tage */}
+        {/* Tageskarten */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             flex: 1,
-            padding: `${8 * s}px ${56 * s}px ${24 * s}px`,
+            padding: `${16 * s}px ${52 * s}px ${22 * s}px`,
             justifyContent: hasItems ? "flex-start" : "center",
           }}
         >
           {hasItems ? (
             DAYS_DE.slice(0, 5).map((dayName, i) => {
               const dishes = byDay[i];
+              const empty = dishes.length === 0;
               return (
                 <div
                   key={i}
                   style={{
                     display: "flex",
-                    alignItems: "flex-start",
-                    padding: `${18 * s}px 0`,
-                    borderBottom: `${2 * s}px solid ${PAPER_DEEP}`,
+                    marginBottom: i < 4 ? 14 * s : 0,
+                    borderRadius: 22 * s,
+                    overflow: "hidden",
+                    backgroundColor: CARD,
+                    boxShadow: `0 ${5 * s}px ${18 * s}px rgba(74,36,16,0.10)`,
                   }}
                 >
+                  {/* Akzentbalken */}
                   <div
                     style={{
                       display: "flex",
-                      fontFamily: "Playfair",
-                      fontWeight: 700,
-                      fontSize: 30 * s,
-                      color: BRAND,
-                      width: 180 * s,
-                      flexShrink: 0,
+                      width: 13 * s,
+                      backgroundColor: EMBER,
+                      backgroundImage: empty
+                        ? "none"
+                        : `linear-gradient(180deg, ${PAPRIKA}, ${EMBER})`,
+                    }}
+                  />
+                  {/* Inhalt */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      flex: 1,
+                      padding: `${17 * s}px ${26 * s}px`,
                     }}
                   >
-                    {dayName}
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    {dishes.length > 0 ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        fontFamily: "Playfair",
+                        fontWeight: 700,
+                        fontSize: 27 * s,
+                        color: BRAND,
+                        marginBottom: empty ? 0 : 9 * s,
+                      }}
+                    >
+                      {dayName}
+                    </div>
+                    {empty ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          fontSize: 22 * s,
+                          color: INK_SOFT,
+                          fontStyle: "italic",
+                        }}
+                      >
+                        Ruhetag
+                      </div>
+                    ) : (
                       dishes.map((d, j) => (
                         <div
                           key={j}
                           style={{
                             display: "flex",
+                            alignItems: "center",
                             justifyContent: "space-between",
-                            alignItems: "baseline",
-                            marginBottom: j < dishes.length - 1 ? 6 * s : 0,
+                            marginTop: j > 0 ? 8 * s : 0,
                           }}
                         >
-                          <div style={{ display: "flex", fontWeight: 700, fontSize: 30 * s, color: INK }}>
-                            {d.name}
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              flex: 1,
+                              paddingRight: 16 * s,
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                fontWeight: 700,
+                                fontSize: 28 * s,
+                                color: INK,
+                                lineHeight: 1.15,
+                              }}
+                            >
+                              {d.name}
+                            </div>
+                            {d.note && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  fontSize: 18 * s,
+                                  color: INK_SOFT,
+                                  marginTop: 4 * s,
+                                }}
+                              >
+                                {d.note}
+                              </div>
+                            )}
                           </div>
                           {d.price > 0 && (
-                            <div style={{ display: "flex", fontWeight: 700, fontSize: 30 * s, color: PAPRIKA }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                backgroundColor: PAPRIKA,
+                                backgroundImage: `linear-gradient(135deg, ${EMBER}, ${PAPRIKA})`,
+                                color: PAPER,
+                                fontWeight: 700,
+                                fontSize: 25 * s,
+                                padding: `${8 * s}px ${18 * s}px`,
+                                borderRadius: 999,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
                               {formatCurrency(d.price)}
                             </div>
                           )}
                         </div>
                       ))
-                    ) : (
-                      <div style={{ display: "flex", fontSize: 26 * s, color: INK_SOFT, fontStyle: "italic" }}>
-                        Ruhetag
-                      </div>
                     )}
                   </div>
                 </div>
               );
             })
           ) : (
-            <div style={{ display: "flex", fontSize: 36 * s, color: INK_SOFT, fontStyle: "italic" }}>
+            <div
+              style={{
+                display: "flex",
+                fontSize: 36 * s,
+                color: INK_SOFT,
+                fontStyle: "italic",
+              }}
+            >
               Das Menü dieser Woche folgt in Kürze.
             </div>
           )}
@@ -233,13 +316,13 @@ export async function GET(
             justifyContent: "space-between",
             backgroundColor: INK,
             color: PAPER,
-            padding: `${28 * s}px ${56 * s}px`,
+            padding: `${26 * s}px ${52 * s}px`,
           }}
         >
-          <div style={{ display: "flex", fontWeight: 700, fontSize: 28 * s, color: EMBER }}>
+          <div style={{ display: "flex", fontWeight: 700, fontSize: 27 * s, color: EMBER }}>
             culinarium-berlin.de
           </div>
-          <div style={{ display: "flex", fontSize: 26 * s }}>030 56553364 · frisch & regional</div>
+          <div style={{ display: "flex", fontSize: 24 * s }}>030 56553364 · frisch &amp; regional</div>
         </div>
       </div>
     ),
