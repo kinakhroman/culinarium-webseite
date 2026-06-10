@@ -13,6 +13,19 @@ import {
 
 const DAYS = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"];
 
+/** "2026-06-15" (Montag) -> "15.–19.06.2026" (Mo–Fr-Bereich) */
+function fmtRange(mondayISO: string): string {
+  const mon = new Date(`${mondayISO}T00:00:00`);
+  const fri = new Date(mon);
+  fri.setDate(mon.getDate() + 4);
+  const dd = (x: Date) => String(x.getDate()).padStart(2, "0");
+  const mm = (x: Date) => String(x.getMonth() + 1).padStart(2, "0");
+  if (mon.getMonth() === fri.getMonth()) {
+    return `${dd(mon)}.–${dd(fri)}.${mm(fri)}.${fri.getFullYear()}`;
+  }
+  return `${dd(mon)}.${mm(mon)}.–${dd(fri)}.${mm(fri)}.${fri.getFullYear()}`;
+}
+
 const EXAMPLE = JSON.stringify(
   {
     weekStart: "",
@@ -52,6 +65,7 @@ export default function AdminWochenplanPage() {
   const [msg, setMsg] = useState("");
   const [current, setCurrent] = useState<Current | null>(null);
   const [bust, setBust] = useState(Date.now());
+  const [weeks, setWeeks] = useState<{ weekStart: string; count: number }[]>([]);
 
   // Vollautomatik
   const [rawText, setRawText] = useState("");
@@ -77,6 +91,7 @@ export default function AdminWochenplanPage() {
         setAutoState("done");
         setBust(Date.now());
         loadCurrent();
+        loadWeeks();
       } else {
         setAutoState("error");
       }
@@ -92,8 +107,15 @@ export default function AdminWochenplanPage() {
       if (res.ok) setCurrent(await res.json());
     } catch {}
   }
+  async function loadWeeks() {
+    try {
+      const res = await fetch("/api/weekly-plan/weeks", { cache: "no-store" });
+      if (res.ok) setWeeks((await res.json()).weeks ?? []);
+    } catch {}
+  }
   useEffect(() => {
     loadCurrent();
+    loadWeeks();
   }, []);
 
   async function save() {
@@ -119,6 +141,7 @@ export default function AdminWochenplanPage() {
         setMsg(`Gespeichert: ${data.count} Gerichte für die Woche ab ${data.weekStart}.`);
         setBust(Date.now());
         loadCurrent();
+        loadWeeks();
       } else {
         setState("error");
         setMsg(
@@ -381,6 +404,63 @@ export default function AdminWochenplanPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ── Archiv – zum Ausdrucken ── */}
+      <div className="mt-10 rounded-2xl border border-neutral-100 p-6">
+        <h2 className="font-heading text-xl font-bold text-neutral-800 mb-1">
+          Archiv – zum Ausdrucken
+        </h2>
+        <p className="text-sm text-neutral-500 mb-5">
+          Alle gespeicherten Wochen. Jede Woche jederzeit als <strong>A4-Aushang</strong> (oder
+          Social-Format) herunterladen und drucken – auch zukünftige Wochen.
+        </p>
+        {weeks.length === 0 ? (
+          <p className="text-sm text-neutral-400">Noch keine Wochen gespeichert.</p>
+        ) : (
+          <div className="space-y-3">
+            {weeks.map((w) => (
+              <div
+                key={w.weekStart}
+                className="flex flex-col gap-3 rounded-xl border border-neutral-100 bg-warm-50/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <div className="font-semibold text-neutral-800">{fmtRange(w.weekStart)}</div>
+                  <div className="text-xs text-neutral-400">
+                    {w.count} Gerichte · ab {w.weekStart}
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {formats.map((f) => {
+                    const label =
+                      f.key === "print"
+                        ? "A4 drucken"
+                        : f.key === "square"
+                        ? "Instagram"
+                        : f.key === "story"
+                        ? "Story"
+                        : "Web";
+                    return (
+                      <a
+                        key={f.key}
+                        href={`/api/menu-poster/${f.key}?week=${w.weekStart}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                          f.key === "print"
+                            ? "bg-primary text-white hover:bg-primary-dark"
+                            : "border border-neutral-200 text-neutral-600 hover:border-primary hover:text-primary"
+                        }`}
+                      >
+                        <Download className="h-3.5 w-3.5" /> {label}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

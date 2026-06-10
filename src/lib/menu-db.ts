@@ -43,6 +43,27 @@ export type WeekPlanRow = {
   imageUrl: string | null;
 };
 
+export type SavedWeek = { weekStart: string; count: number };
+
+/** Alle gespeicherten Wochen (neueste zuerst) – fürs Druck-Archiv. TZ-sicher via DATE_FORMAT. */
+export async function listSavedWeeks(): Promise<SavedWeek[]> {
+  const conn = await getPool().getConnection();
+  try {
+    const rows = await conn.query(
+      `SELECT DATE_FORMAT(weekStart, '%Y-%m-%d') AS weekStart, COUNT(*) AS cnt
+       FROM WeeklyPlanItem
+       GROUP BY weekStart
+       ORDER BY weekStart DESC`
+    );
+    return (rows as Record<string, unknown>[]).map((r) => ({
+      weekStart: String(r.weekStart),
+      count: Number(r.cnt),
+    }));
+  } finally {
+    conn.release();
+  }
+}
+
 /** Wochenplan einer Woche (korrekte Umlaute) – ab Montag (Date) */
 export async function getWeekPlanRows(weekStart: Date): Promise<WeekPlanRow[]> {
   const ws = weekStart.toISOString().slice(0, 10);

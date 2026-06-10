@@ -26,14 +26,22 @@ function font(name: string) {
 }
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ format: string }> }
 ) {
   const { format } = await params;
   const size = FORMATS[format as keyof typeof FORMATS] ?? FORMATS.square;
   const s = size.h / 1080; // Skalierung relativ zum Quadrat
 
-  const weekStart = getWeekStart();
+  // Optional ?week=YYYY-MM-DD (fürs Druck-Archiv); sonst aktuelle Woche
+  const weekParam = new URL(req.url).searchParams.get("week");
+  let weekStart: Date;
+  if (weekParam && /^\d{4}-\d{2}-\d{2}$/.test(weekParam)) {
+    weekStart = new Date(`${weekParam}T00:00:00`);
+    weekStart.setHours(0, 0, 0, 0);
+  } else {
+    weekStart = getWeekStart();
+  }
   const rows = await getWeekPlanRows(weekStart);
 
   const byDay: Record<number, { name: string; price: number; note: string | null }[]> = {
