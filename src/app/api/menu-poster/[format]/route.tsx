@@ -78,7 +78,7 @@ export async function GET(
             justifyContent: "space-between",
             backgroundColor: BRAND,
             backgroundImage: `linear-gradient(120deg, ${BRAND_DEEP}, ${BRAND})`,
-            padding: `${38 * s}px ${52 * s}px`,
+            padding: `${30 * s}px ${52 * s}px`,
           }}
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
@@ -86,7 +86,7 @@ export async function GET(
               style={{
                 fontFamily: "Playfair",
                 fontWeight: 700,
-                fontSize: 60 * s,
+                fontSize: 50 * s,
                 color: PAPER,
                 lineHeight: 1,
               }}
@@ -96,10 +96,10 @@ export async function GET(
             <div
               style={{
                 fontWeight: 700,
-                fontSize: 21 * s,
+                fontSize: 19 * s,
                 letterSpacing: 6 * s,
                 color: EMBER,
-                marginTop: 8 * s,
+                marginTop: 7 * s,
               }}
             >
               AM BIESENHORST
@@ -110,7 +110,7 @@ export async function GET(
               style={{
                 fontFamily: "Playfair",
                 fontWeight: 700,
-                fontSize: 44 * s,
+                fontSize: 38 * s,
                 color: EMBER,
                 lineHeight: 1,
               }}
@@ -119,7 +119,7 @@ export async function GET(
             </div>
             <div
               style={{
-                fontSize: 19 * s,
+                fontSize: 17 * s,
                 color: PAPER,
                 letterSpacing: 4 * s,
                 marginTop: 6 * s,
@@ -136,7 +136,7 @@ export async function GET(
             display: "flex",
             alignItems: "flex-end",
             justifyContent: "space-between",
-            padding: `${34 * s}px ${52 * s}px ${10 * s}px`,
+            padding: `${22 * s}px ${52 * s}px ${6 * s}px`,
           }}
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
@@ -144,14 +144,14 @@ export async function GET(
               style={{
                 fontFamily: "Playfair",
                 fontWeight: 700,
-                fontSize: 54 * s,
+                fontSize: 46 * s,
                 color: PAPRIKA,
                 lineHeight: 1,
               }}
             >
               Menü der Woche
             </div>
-            <div style={{ display: "flex", fontSize: 26 * s, color: INK_SOFT, marginTop: 10 * s }}>
+            <div style={{ display: "flex", fontSize: 23 * s, color: INK_SOFT, marginTop: 8 * s }}>
               {formatWeekRange(weekStart)}
             </div>
           </div>
@@ -163,7 +163,7 @@ export async function GET(
             display: "flex",
             flexDirection: "column",
             flex: 1,
-            padding: `${16 * s}px ${52 * s}px ${22 * s}px`,
+            padding: `${12 * s}px ${52 * s}px ${14 * s}px`,
             justifyContent: hasItems ? "flex-start" : "center",
           }}
         >
@@ -176,18 +176,18 @@ export async function GET(
                   key={i}
                   style={{
                     display: "flex",
-                    marginBottom: i < 4 ? 14 * s : 0,
-                    borderRadius: 22 * s,
+                    marginBottom: i < 4 ? 11 * s : 0,
+                    borderRadius: 18 * s,
                     overflow: "hidden",
                     backgroundColor: CARD,
-                    boxShadow: `0 ${5 * s}px ${18 * s}px rgba(74,36,16,0.10)`,
+                    boxShadow: `0 ${4 * s}px ${14 * s}px rgba(74,36,16,0.10)`,
                   }}
                 >
                   {/* Akzentbalken */}
                   <div
                     style={{
                       display: "flex",
-                      width: 13 * s,
+                      width: 12 * s,
                       backgroundColor: EMBER,
                       backgroundImage: empty
                         ? "none"
@@ -200,7 +200,7 @@ export async function GET(
                       display: "flex",
                       flexDirection: "column",
                       flex: 1,
-                      padding: `${17 * s}px ${26 * s}px`,
+                      padding: `${13 * s}px ${24 * s}px`,
                     }}
                   >
                     <div
@@ -208,9 +208,9 @@ export async function GET(
                         display: "flex",
                         fontFamily: "Playfair",
                         fontWeight: 700,
-                        fontSize: 27 * s,
+                        fontSize: 23 * s,
                         color: BRAND,
-                        marginBottom: empty ? 0 : 9 * s,
+                        marginBottom: empty ? 0 : 6 * s,
                       }}
                     >
                       {dayName}
@@ -219,7 +219,7 @@ export async function GET(
                       <div
                         style={{
                           display: "flex",
-                          fontSize: 22 * s,
+                          fontSize: 20 * s,
                           color: INK_SOFT,
                           fontStyle: "italic",
                         }}
@@ -234,7 +234,7 @@ export async function GET(
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "space-between",
-                            marginTop: j > 0 ? 8 * s : 0,
+                            marginTop: j > 0 ? 6 * s : 0,
                           }}
                         >
                           <div
@@ -242,16 +242,16 @@ export async function GET(
                               display: "flex",
                               flexDirection: "column",
                               flex: 1,
-                              paddingRight: 16 * s,
+                              paddingRight: 14 * s,
                             }}
                           >
                             <div
                               style={{
                                 display: "flex",
                                 fontWeight: 700,
-                                fontSize: 28 * s,
+                                fontSize: 24 * s,
                                 color: INK,
-                                lineHeight: 1.15,
+                                lineHeight: 1.12,
                               }}
                             >
                               {d.name}
@@ -260,9 +260,9 @@ export async function GET(
                               <div
                                 style={{
                                   display: "flex",
-                                  fontSize: 18 * s,
+                                  fontSize: 16 * s,
                                   color: INK_SOFT,
-                                  marginTop: 4 * s,
+                                  marginTop: 3 * s,
                                 }}
                               >
                                 {d.note}
@@ -278,8 +278,8 @@ export async function GET(
                                 backgroundImage: `linear-gradient(135deg, ${EMBER}, ${PAPRIKA})`,
                                 color: PAPER,
                                 fontWeight: 700,
-                                fontSize: 25 * s,
-                                padding: `${8 * s}px ${18 * s}px`,
+                                fontSize: 22 * s,
+                                padding: `${7 * s}px ${15 * s}px`,
                                 borderRadius: 999,
                                 whiteSpace: "nowrap",
                               }}
@@ -316,13 +316,13 @@ export async function GET(
             justifyContent: "space-between",
             backgroundColor: INK,
             color: PAPER,
-            padding: `${26 * s}px ${52 * s}px`,
+            padding: `${20 * s}px ${52 * s}px`,
           }}
         >
-          <div style={{ display: "flex", fontWeight: 700, fontSize: 27 * s, color: EMBER }}>
+          <div style={{ display: "flex", fontWeight: 700, fontSize: 23 * s, color: EMBER }}>
             culinarium-berlin.de
           </div>
-          <div style={{ display: "flex", fontSize: 24 * s }}>030 56553364 · frisch &amp; regional</div>
+          <div style={{ display: "flex", fontSize: 20 * s }}>030 56553364 · frisch &amp; regional</div>
         </div>
       </div>
     ),
