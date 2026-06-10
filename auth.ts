@@ -15,7 +15,6 @@ if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
     })
   );
 }
@@ -24,13 +23,14 @@ if (process.env.AUTH_APPLE_ID && process.env.AUTH_APPLE_SECRET) {
     Apple({
       clientId: process.env.AUTH_APPLE_ID,
       clientSecret: process.env.AUTH_APPLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
     })
   );
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  // Hinter dem Hostinger-Proxy (LiteSpeed) den Host vertrauen
+  trustHost: true,
   providers: [
     ...oauthProviders,
     Credentials({
