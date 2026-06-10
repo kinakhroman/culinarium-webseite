@@ -10,7 +10,6 @@ import {
   ShoppingCart,
   Leaf,
   WheatOff,
-  Check,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -32,8 +31,7 @@ export default function BestellenPage() {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const { addItem, items: cartItems, total, itemCount } = useCart();
-  const [addedId, setAddedId] = useState<string | null>(null);
+  const { addItem, updateQuantity, items: cartItems, total, itemCount } = useCart();
 
   useEffect(() => {
     async function load() {
@@ -67,8 +65,6 @@ export default function BestellenPage() {
       price: item.price,
       imageUrl: item.imageUrl || undefined,
     });
-    setAddedId(item.id);
-    setTimeout(() => setAddedId(null), 1000);
   }
 
   function getCartQuantity(menuItemId: string): number {
@@ -175,24 +171,34 @@ export default function BestellenPage() {
                   <span className="text-xl font-bold text-primary">
                     {formatCurrency(item.price)}
                   </span>
-                  <button
-                    onClick={() => handleAdd(item)}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                      addedId === item.id
-                        ? "bg-green-500 text-white"
-                        : "bg-primary text-white hover:bg-primary-dark"
-                    }`}
-                  >
-                    {addedId === item.id ? (
-                      <>
-                        <Check className="h-4 w-4" /> Hinzugefügt
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="h-4 w-4" /> Hinzufügen
-                      </>
-                    )}
-                  </button>
+                  {qty > 0 ? (
+                    <div className="flex items-center gap-1 bg-primary text-white rounded-full p-1">
+                      <button
+                        onClick={() => updateQuantity(item.id, qty - 1)}
+                        aria-label="Menge verringern"
+                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-primary-dark transition-colors"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <span className="min-w-[1.75rem] text-center text-sm font-bold tabular-nums">
+                        {qty}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(item.id, qty + 1)}
+                        aria-label="Menge erhöhen"
+                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-primary-dark transition-colors"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleAdd(item)}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-primary text-white hover:bg-primary-dark transition-colors"
+                    >
+                      <Plus className="h-4 w-4" /> Hinzufügen
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
