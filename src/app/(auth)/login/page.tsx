@@ -13,11 +13,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [callbackUrl, setCallbackUrl] = useState("/");
 
-  // E-Mail aus ?email= vorausfüllen (kommt von der Registrierung, wenn Konto schon existiert)
+  // E-Mail aus ?email= vorausfüllen + Ziel nach Login aus ?callbackUrl= übernehmen
   useEffect(() => {
-    const q = new URLSearchParams(window.location.search).get("email");
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("email");
     if (q) setEmail(q);
+    const cb = params.get("callbackUrl");
+    // Nur interne, relative Pfade zulassen (kein Open-Redirect)
+    if (cb && cb.startsWith("/") && !cb.startsWith("//")) setCallbackUrl(cb);
   }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -37,7 +42,7 @@ export default function LoginPage() {
     if (result?.error) {
       setError("E-Mail oder Passwort ist falsch.");
     } else {
-      router.push("/");
+      router.push(callbackUrl);
       router.refresh();
     }
   }
@@ -109,7 +114,7 @@ export default function LoginPage() {
         </Link>
       </p>
 
-      <SocialLogin callbackUrl="/" />
+      <SocialLogin callbackUrl={callbackUrl} />
 
       <p className="text-center text-sm text-neutral-500 mt-6">
         Noch kein Konto?{" "}
