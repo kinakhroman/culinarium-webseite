@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getWeekPlanRows } from "@/lib/menu-db";
+import { getWeekPlanRows, listSavedWeeks } from "@/lib/menu-db";
 import { formatCurrency, formatWeekRange, DAYS_DE } from "@/lib/utils";
-import { UtensilsCrossed, CalendarDays } from "lucide-react";
+import { UtensilsCrossed, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +21,12 @@ function getWeekStart() {
   return monday;
 }
 
+function isoDate(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate()
+  ).padStart(2, "0")}`;
+}
+
 async function getWeeklyPlan(weekStart: Date) {
   try {
     return await getWeekPlanRows(weekStart);
@@ -37,21 +43,35 @@ export default async function WochenplanPage({
   const sp = await searchParams;
 
   const currentWeekStart = getWeekStart();
-  const nextWeekStart = new Date(currentWeekStart);
-  nextWeekStart.setDate(nextWeekStart.getDate() + 7);
+  const currentISO = isoDate(currentWeekStart);
 
-  const [currentItems, nextItems] = await Promise.all([
-    getWeeklyPlan(currentWeekStart),
-    getWeeklyPlan(nextWeekStart),
+  // Angezeigte Woche aus ?week= (validiert), sonst aktuelle Woche
+  let weekStart: Date;
+  if (sp.week && /^\d{4}-\d{2}-\d{2}$/.test(sp.week)) {
+    weekStart = new Date(`${sp.week}T00:00:00`);
+    weekStart.setHours(0, 0, 0, 0);
+  } else {
+    weekStart = currentWeekStart;
+  }
+  const displayedISO = isoDate(weekStart);
+
+  const [planItems, savedWeeksRaw] = await Promise.all([
+    getWeeklyPlan(weekStart),
+    listSavedWeeks().catch(() => []),
   ]);
 
-  const hasNext = nextItems.length > 0;
-  const showNext = sp.week === "next" && hasNext;
+  // Gepflegte Wochen (YYYY-MM-DD) – fürs Blättern nur zwischen Wochen mit Menü
+  const savedWeeks = savedWeeksRaw.map((w) => w.weekStart);
+  const prevWeekISO = savedWeeks.filter((w) => w < displayedISO).sort().reverse()[0] || null;
+  const nextWeekISO = savedWeeks.filter((w) => w > displayedISO).sort()[0] || null;
 
-  const weekStart = showNext ? nextWeekStart : currentWeekStart;
-  const planItems = showNext ? nextItems : currentItems;
-  // "Heute"-Markierung nur in der aktuellen Woche sinnvoll
-  const todayIdx = showNext ? -1 : (new Date().getDay() + 6) % 7; // Mo=0 … So=6
+  const isCurrentWeek = displayedISO === currentISO;
+  const label = isCurrentWeek
+    ? "Diese Woche"
+    : displayedISO > currentISO
+    ? "Kommende Woche"
+    : "Vergangene Woche";
+  const todayIdx = isCurrentWeek ? (new Date().getDay() + 6) % 7 : -1; // Mo=0 … So=6
 
   const planByDay = DAYS_DE.reduce(
     (acc, _day, index) => {
@@ -67,45 +87,56 @@ export default async function WochenplanPage({
     return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.`;
   }
 
+  const arrowBase =
+    "flex items-center justify-center w-11 h-11 rounded-full transition-colors shrink-0";
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Kopf */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-10">
         <span className="text-primary font-semibold text-sm uppercase tracking-[0.2em]">
-          {showNext ? "Nächste Woche" : "Diese Woche"}
+          {label}
         </span>
-        <h1 className="font-heading text-4xl md:text-5xl font-bold text-neutral-800 mt-2 mb-3">
+        <h1 className="font-heading text-4xl md:text-5xl font-bold text-neutral-800 mt-2 mb-5">
           Wochenplan
         </h1>
-        <div className="inline-flex items-center gap-2 text-neutral-500 bg-warm-100/70 px-4 py-1.5 rounded-full">
-          <CalendarDays className="h-4 w-4 text-primary" />
-          <span className="font-medium">{formatWeekRange(weekStart)}</span>
+
+        {/* Wochen-Navigation: ← Datum → */}
+        <div className="flex items-center justify-center gap-3">
+          {prevWeekISO ? (
+            <Link
+              href={`/wochenplan?week=${prevWeekISO}`}
+              aria-label="Vorherige Woche"
+              className={`${arrowBase} bg-warm-100 text-primary hover:bg-primary hover:text-white`}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Link>
+          ) : (
+            <span className={`${arrowBase} text-neutral-200`} aria-hidden>
+              <ChevronLeft className="h-6 w-6" />
+            </span>
+          )}
+
+          <div className="inline-flex items-center gap-2 text-neutral-600 bg-warm-100/70 px-5 py-2 rounded-full">
+            <CalendarDays className="h-4 w-4 text-primary" />
+            <span className="font-medium whitespace-nowrap">{formatWeekRange(weekStart)}</span>
+          </div>
+
+          {nextWeekISO ? (
+            <Link
+              href={`/wochenplan?week=${nextWeekISO}`}
+              aria-label="Nächste Woche"
+              className={`${arrowBase} bg-warm-100 text-primary hover:bg-primary hover:text-white`}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Link>
+          ) : (
+            <span className={`${arrowBase} text-neutral-200`} aria-hidden>
+              <ChevronRight className="h-6 w-6" />
+            </span>
+          )}
         </div>
       </div>
-
-      {/* Umschalter: Diese Woche / Nächste Woche (nur wenn nächste Woche gepflegt ist) */}
-      {hasNext && (
-        <div className="flex justify-center mb-10">
-          <div className="inline-flex items-center gap-1 rounded-full bg-warm-100 p-1">
-            <Link
-              href="/wochenplan"
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
-                !showNext ? "bg-primary text-white shadow-sm" : "text-neutral-600 hover:text-primary"
-              }`}
-            >
-              Diese Woche
-            </Link>
-            <Link
-              href="/wochenplan?week=next"
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
-                showNext ? "bg-primary text-white shadow-sm" : "text-neutral-600 hover:text-primary"
-              }`}
-            >
-              Nächste Woche
-            </Link>
-          </div>
-        </div>
-      )}
 
       {planItems.length > 0 ? (
         <div className="space-y-8">
@@ -191,7 +222,7 @@ export default async function WochenplanPage({
             Kein Wochenplan verfügbar
           </h3>
           <p className="text-neutral-400">
-            Der Wochenplan für diese Woche wurde noch nicht veröffentlicht.
+            Für diese Woche wurde noch kein Menü veröffentlicht.
           </p>
         </div>
       )}
