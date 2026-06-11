@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { inter, playfair } from "@/styles/fonts";
 import { AuthProvider } from "@/providers/session-provider";
 import { CartProvider } from "@/components/features/cart/cart-provider";
+import CookieConsent from "@/components/cookie-consent";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 import "./globals.css";
 
@@ -31,6 +32,7 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>{children}</CartProvider>
         </AuthProvider>
+        <CookieConsent />
       </body>
     </html>
   );

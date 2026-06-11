@@ -31,6 +31,15 @@ export default function SocialLogin({ callbackUrl = "/" }: { callbackUrl?: strin
   const hasApple = !!providers?.apple;
   if (!hasGoogle && !hasApple) return null;
 
+  // Ziel nach Login: zuerst ?callbackUrl= aus der URL, sonst die übergebene Prop
+  function target() {
+    if (typeof window !== "undefined") {
+      const cb = new URLSearchParams(window.location.search).get("callbackUrl");
+      if (cb && cb.startsWith("/") && !cb.startsWith("//")) return cb;
+    }
+    return callbackUrl;
+  }
+
   return (
     <div className="mt-6">
       <div className="flex items-center gap-3 mb-4">
@@ -42,7 +51,7 @@ export default function SocialLogin({ callbackUrl = "/" }: { callbackUrl?: strin
         {hasGoogle && (
           <button
             type="button"
-            onClick={() => signIn("google", { callbackUrl })}
+            onClick={() => signIn("google", { callbackUrl: target() })}
             className="w-full flex items-center justify-center gap-3 border border-neutral-300 rounded-xl py-3 px-4 font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
           >
             <GoogleIcon /> Weiter mit Google
@@ -51,7 +60,7 @@ export default function SocialLogin({ callbackUrl = "/" }: { callbackUrl?: strin
         {hasApple && (
           <button
             type="button"
-            onClick={() => signIn("apple", { callbackUrl })}
+            onClick={() => signIn("apple", { callbackUrl: target() })}
             className="w-full flex items-center justify-center gap-3 bg-black text-white rounded-xl py-3 px-4 font-medium hover:bg-neutral-800 transition-colors"
           >
             <AppleIcon /> Weiter mit Apple

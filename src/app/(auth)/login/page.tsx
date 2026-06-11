@@ -42,7 +42,10 @@ export default function LoginPage() {
     if (result?.error) {
       setError("E-Mail oder Passwort ist falsch.");
     } else {
-      router.push(callbackUrl);
+      // Ziel frisch aus der URL lesen (robust gegen State-/Cache-Timing)
+      const cb = new URLSearchParams(window.location.search).get("callbackUrl");
+      const target = cb && cb.startsWith("/") && !cb.startsWith("//") ? cb : callbackUrl;
+      router.push(target);
       router.refresh();
     }
   }
