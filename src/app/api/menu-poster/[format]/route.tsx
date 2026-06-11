@@ -26,13 +26,13 @@ function font(name: string) {
   return readFileSync(join(process.cwd(), "public", "fonts", name));
 }
 
-/** Gericht-Foto als data-URI (für Satori einbettbar); null wenn keine Datei. */
-function dishPhoto(slug: string | null | undefined): string | null {
+/** Absolute URL zum Gericht-Foto, wenn die Datei existiert (next/og lädt sie). */
+function dishPhotoUrl(slug: string | null | undefined, baseUrl: string): string | null {
   if (!slug) return null;
   try {
     const p = join(process.cwd(), "public", "images", "menu", `${slug}.png`);
     if (!existsSync(p)) return null;
-    return `data:image/png;base64,${readFileSync(p).toString("base64")}`;
+    return `${baseUrl}/images/menu/${slug}.png`;
   } catch {
     return null;
   }
@@ -56,6 +56,7 @@ export async function GET(
     weekStart = getWeekStart();
   }
   const rows = await getWeekPlanRows(weekStart);
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://culinarium-berlin.de";
 
   const byDay: Record<
     number,
@@ -187,7 +188,7 @@ export async function GET(
               const PHOTO = 96 * s;
               const dayImg = empty
                 ? null
-                : dishes.map((d) => dishPhoto(d.slug)).find(Boolean) || null;
+                : dishes.map((d) => dishPhotoUrl(d.slug, baseUrl)).find(Boolean) || null;
               return (
                 <div
                   key={i}
