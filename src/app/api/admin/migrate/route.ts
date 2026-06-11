@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "../../../../../auth";
+import { slugify } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -84,6 +85,56 @@ export async function POST(req: Request) {
     results.OrderGuest = "ok";
   } catch (e) {
     results.OrderGuest = `Fehler: ${e instanceof Error ? e.message : "unbekannt"}`;
+  }
+
+  // Speisekarte: traditionelle Standard-Gerichte (idempotent per Slug).
+  // Fotos liegen unter public/images/menu/{slug}.png (per menuImage-Fallback).
+  try {
+    const classics: {
+      name: string;
+      cat: string;
+      price: number;
+      veg: boolean;
+      sort: number;
+      desc: string;
+    }[] = [
+      { name: "Soljanka", cat: "vorspeisen", price: 5.9, veg: false, sort: 4,
+        desc: "Herzhafte osteuropäische Soljanka mit Wurst, Gewürzgurke und saurer Sahne" },
+      { name: "Currywurst mit Pommes", cat: "hauptgerichte", price: 7.9, veg: false, sort: 10,
+        desc: "Berliner Klassiker: Currywurst mit hausgemachter Currysauce und knusprigen Pommes" },
+      { name: "Königsberger Klopse", cat: "hauptgerichte", price: 9.9, veg: false, sort: 11,
+        desc: "Zarte Kalbsklopse in feiner Kapernsauce mit Salzkartoffeln" },
+      { name: "Gefüllte Paprika mit Hackfleisch", cat: "hauptgerichte", price: 9.9, veg: false, sort: 12,
+        desc: "Paprika gefüllt mit würzigem Hackfleisch und Reis in Tomatensauce" },
+      { name: "Rinderroulade mit Rotkohl und Klößen", cat: "hauptgerichte", price: 13.9, veg: false, sort: 13,
+        desc: "Klassische Rinderroulade mit Speck, Gurke und Zwiebel, dazu Rotkohl und Klöße" },
+      { name: "Frikadellen mit Kartoffelsalat", cat: "hauptgerichte", price: 8.9, veg: false, sort: 14,
+        desc: "Hausgemachte Frikadellen (Buletten) mit cremigem Kartoffelsalat" },
+      { name: "Bratwurst mit Sauerkraut", cat: "hauptgerichte", price: 8.5, veg: false, sort: 15,
+        desc: "Gegrillte Bratwurst mit deftigem Sauerkraut und Kartoffelpüree" },
+      { name: "Kartoffelsalat", cat: "beilagen", price: 3.5, veg: true, sort: 10,
+        desc: "Cremiger hausgemachter Kartoffelsalat mit Schnittlauch" },
+      { name: "Rote Grütze mit Vanillesauce", cat: "desserts", price: 4.9, veg: true, sort: 10,
+        desc: "Fruchtige rote Grütze mit cremiger Vanillesauce" },
+    ];
+    let n = 0;
+    for (const c of classics) {
+      const slug = slugify(c.name);
+      const base = {
+        name: c.name,
+        description: c.desc,
+        price: c.price,
+        isAvailable: true,
+        isVegetarian: c.veg,
+        sortOrder: c.sort,
+        category: { connect: { slug: c.cat } },
+      };
+      await db.menuItem.upsert({ where: { slug }, update: base, create: { slug, ...base } });
+      n++;
+    }
+    results.Speisekarte = `ok (${n})`;
+  } catch (e) {
+    results.Speisekarte = `Fehler: ${e instanceof Error ? e.message : "unbekannt"}`;
   }
 
   return NextResponse.json({ success: true, tables: results });
