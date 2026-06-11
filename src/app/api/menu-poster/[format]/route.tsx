@@ -95,28 +95,53 @@ export async function GET(
             padding: `${30 * s}px ${52 * s}px`,
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {/* Logo-Emblem in hellem Kreis (sonst auf dunklem Band unsichtbar) */}
             <div
               style={{
-                fontFamily: "Playfair",
-                fontWeight: 700,
-                fontSize: 50 * s,
-                color: PAPER,
-                lineHeight: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 88 * s,
+                height: 88 * s,
+                borderRadius: 999,
+                backgroundColor: PAPER,
+                marginRight: 22 * s,
+                flexShrink: 0,
               }}
             >
-              Culinarium
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${baseUrl}/images/logo-emblem.png`}
+                alt=""
+                width={74 * s}
+                height={74 * s}
+                style={{ width: 74 * s, height: 74 * s }}
+              />
             </div>
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: 19 * s,
-                letterSpacing: 6 * s,
-                color: EMBER,
-                marginTop: 7 * s,
-              }}
-            >
-              BERLIN.DE
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div
+                style={{
+                  fontFamily: "Playfair",
+                  fontWeight: 700,
+                  fontSize: 50 * s,
+                  color: PAPER,
+                  lineHeight: 1,
+                }}
+              >
+                Culinarium
+              </div>
+              <div
+                style={{
+                  fontWeight: 700,
+                  fontSize: 19 * s,
+                  letterSpacing: 6 * s,
+                  color: EMBER,
+                  marginTop: 7 * s,
+                }}
+              >
+                BERLIN.DE
+              </div>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
