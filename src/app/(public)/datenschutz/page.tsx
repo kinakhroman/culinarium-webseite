@@ -40,7 +40,42 @@ export default function DatenschutzPage() {
           </p>
           <p className="text-neutral-600">
             <strong>Cookies:</strong> Diese Website verwendet technisch notwendige Cookies für die
-            Sitzungsverwaltung und Authentifizierung. Es werden keine Tracking-Cookies verwendet.
+            Sitzungsverwaltung und Authentifizierung (Anmeldung, Warenkorb). Diese sind für den
+            Betrieb erforderlich (Art. 6 Abs. 1 lit. f DSGVO). Optionale Cookies setzen wir nur nach
+            Ihrer Einwilligung über den Cookie-Hinweis (Art. 6 Abs. 1 lit. a DSGVO); diese können Sie
+            jederzeit widerrufen. Es werden keine Tracking-Cookies ohne Zustimmung verwendet.
+          </p>
+          <p className="text-neutral-600">
+            <strong>Zahlungsabwicklung (Stripe):</strong> Bei einer Lieferbestellung mit
+            Online-Vorkasse wird die Zahlung über den Zahlungsdienstleister Stripe abgewickelt
+            (Stripe Payments Europe Ltd., 1 Grand Canal Street Lower, Dublin, Irland; ggf. Stripe,
+            Inc., USA). Dabei werden die für die Zahlung erforderlichen Daten (u. a. Name,
+            E-Mail-Adresse, Bestell- und Zahlungsbetrag sowie die von Ihnen eingegebenen Zahlungsdaten)
+            an Stripe übermittelt. Ihre vollständigen Zahlungs-/Kartendaten werden ausschließlich von
+            Stripe verarbeitet und sind für uns nicht einsehbar. Rechtsgrundlage ist Art. 6 Abs. 1
+            lit. b DSGVO (Vertragserfüllung). Weitere Informationen:{" "}
+            <a href="https://stripe.com/de/privacy" className="text-primary underline" target="_blank" rel="noopener noreferrer">
+              stripe.com/de/privacy
+            </a>
+            .
+          </p>
+          <p className="text-neutral-600">
+            <strong>Anmeldung mit Google:</strong> Optional können Sie sich mit Ihrem Google-Konto
+            anmelden („Weiter mit Google"). Nutzen Sie diese Funktion, werden Sie zu Google
+            weitergeleitet; dabei werden die für die Anmeldung erforderlichen Daten (insbesondere
+            Google-ID, Name und E-Mail-Adresse) übermittelt und durch Google Ireland Ltd. (Gordon
+            House, Barrow Street, Dublin 4, Irland) verarbeitet. Rechtsgrundlage ist Art. 6 Abs. 1
+            lit. a DSGVO (Einwilligung durch Auswahl der Anmeldeoption) bzw. Art. 6 Abs. 1 lit. b
+            DSGVO. Weitere Informationen:{" "}
+            <a href="https://policies.google.com/privacy" className="text-primary underline" target="_blank" rel="noopener noreferrer">
+              policies.google.com/privacy
+            </a>
+            .
+          </p>
+          <p className="text-neutral-600">
+            <strong>E-Mail-Versand:</strong> Für den Versand von Service-E-Mails (z. B.
+            Passwort-Zurücksetzen) verarbeiten wir Ihre E-Mail-Adresse über den E-Mail-Server unseres
+            Hosting-Anbieters. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b und lit. f DSGVO.
           </p>
           <p className="text-neutral-600">
             <strong>Instagram-Inhalte:</strong> Auf unserer Startseite zeigen wir öffentliche Beiträge
@@ -109,6 +144,8 @@ export default function DatenschutzPage() {
             auf „https://" wechselt.
           </p>
         </section>
+
+        <p className="text-sm text-neutral-400">Stand: Juni 2026</p>
       </div>
     </div>
   );
