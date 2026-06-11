@@ -43,7 +43,7 @@ export function Header() {
                 Culinarium
               </span>
               <span className="text-[10px] md:text-xs text-neutral-400 font-medium tracking-widest uppercase -mt-0.5">
-                am Biesenhorst
+                Berlin.de
               </span>
             </div>
           </Link>

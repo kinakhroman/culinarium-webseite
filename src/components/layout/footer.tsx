@@ -31,7 +31,7 @@ export function Footer() {
                   Culinarium
                 </span>
                 <span className="block text-[10px] text-neutral-500 uppercase tracking-widest -mt-0.5">
-                  am Biesenhorst
+                  Berlin.de
                 </span>
               </div>
             </div>

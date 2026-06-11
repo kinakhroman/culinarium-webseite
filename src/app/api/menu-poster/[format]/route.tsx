@@ -116,7 +116,7 @@ export async function GET(
                 marginTop: 7 * s,
               }}
             >
-              AM BIESENHORST
+              BERLIN.DE
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>

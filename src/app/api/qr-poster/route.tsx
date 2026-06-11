@@ -75,7 +75,7 @@ export async function GET(req: Request) {
               marginTop: 12,
             }}
           >
-            AM BIESENHORST
+            BERLIN.DE
           </div>
         </div>
 
