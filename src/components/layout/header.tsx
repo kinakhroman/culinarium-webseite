@@ -42,7 +42,7 @@ export function Header() {
               <span className="font-heading text-xl md:text-2xl font-bold text-primary leading-tight tracking-tight">
                 Culinarium
               </span>
-              <span className="text-[10px] md:text-xs text-neutral-400 font-medium tracking-widest uppercase -mt-0.5">
+              <span className="text-[10px] md:text-xs text-neutral-400 font-medium tracking-[0.04em] uppercase -mt-0.5">
                 Berlin.de
               </span>
             </div>
