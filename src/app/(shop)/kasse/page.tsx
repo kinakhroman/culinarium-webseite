@@ -16,7 +16,8 @@ export default function KassePage() {
   const [orderType, setOrderType] = useState<"PICKUP" | "DELIVERY">("PICKUP");
   const [requestedTime, setRequestedTime] = useState("");
   const [notes, setNotes] = useState("");
-  const [guestName, setGuestName] = useState("");
+  const [guestFirstName, setGuestFirstName] = useState("");
+  const [guestLastName, setGuestLastName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [deliveryStreet, setDeliveryStreet] = useState("");
@@ -56,9 +57,12 @@ export default function KassePage() {
   async function handleOrder() {
     setError("");
 
-    // Gast-Bestellung: Name + E-Mail erforderlich
-    if (!session?.user && (!guestName.trim() || !guestEmail.trim())) {
-      setError("Bitte Name und E-Mail angeben – oder melde dich an.");
+    // Gast-Bestellung: Vorname, Nachname und Telefon erforderlich (für Rücksprache)
+    if (
+      !session?.user &&
+      (!guestFirstName.trim() || !guestLastName.trim() || !guestPhone.trim())
+    ) {
+      setError("Bitte Vorname, Nachname und Telefonnummer angeben – oder melde dich an.");
       return;
     }
 
@@ -94,7 +98,9 @@ export default function KassePage() {
           orderType,
           requestedTime: requestedTime || undefined,
           notes: notes || undefined,
-          guestName: !session?.user ? guestName : undefined,
+          guestName: !session?.user
+            ? `${guestFirstName} ${guestLastName}`.trim()
+            : undefined,
           guestEmail: !session?.user ? guestEmail : undefined,
           guestPhone: !session?.user ? guestPhone : undefined,
           deliveryStreet: orderType === "DELIVERY" ? deliveryStreet : undefined,
@@ -148,7 +154,8 @@ export default function KassePage() {
                 </h2>
               </div>
               <p className="text-sm text-neutral-500 mb-4">
-                Bestellung als Gast – ganz ohne Konto.{" "}
+                Bestellung als Gast – ganz ohne Konto. Telefonnummer für die Rücksprache zur
+                Bestellung.{" "}
                 <Link
                   href="/login?callbackUrl=/kasse"
                   className="text-primary font-semibold hover:underline"
@@ -157,37 +164,48 @@ export default function KassePage() {
                 </Link>
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">Name *</label>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Vorname *</label>
                   <input
                     type="text"
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
+                    value={guestFirstName}
+                    onChange={(e) => setGuestFirstName(e.target.value)}
                     required
-                    placeholder="Vor- und Nachname"
+                    placeholder="Vorname"
                     className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">E-Mail *</label>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Nachname *</label>
                   <input
-                    type="email"
-                    value={guestEmail}
-                    onChange={(e) => setGuestEmail(e.target.value)}
+                    type="text"
+                    value={guestLastName}
+                    onChange={(e) => setGuestLastName(e.target.value)}
                     required
-                    placeholder="ihre@email.de"
+                    placeholder="Nachname"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Telefon *</label>
+                  <input
+                    type="tel"
+                    value={guestPhone}
+                    onChange={(e) => setGuestPhone(e.target.value)}
+                    required
+                    placeholder="z. B. 0170 1234567"
                     className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-1">
-                    Telefon (optional)
+                    E-Mail (optional)
                   </label>
                   <input
-                    type="tel"
-                    value={guestPhone}
-                    onChange={(e) => setGuestPhone(e.target.value)}
-                    placeholder="Für Rückfragen"
+                    type="email"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    placeholder="ihre@email.de"
                     className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
                   />
                 </div>

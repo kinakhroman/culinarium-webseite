@@ -38,11 +38,11 @@ export async function POST(req: Request) {
 
   const data = parsed.data;
 
-  // Gast-Bestellung: Name + E-Mail sind Pflicht (für Kontakt/Bestätigung)
+  // Gast-Bestellung: Name + Telefon sind Pflicht (für Rücksprache); E-Mail optional
   if (isGuest) {
-    if (!data.guestName?.trim() || !data.guestEmail?.trim()) {
+    if (!data.guestName?.trim() || !data.guestPhone?.trim()) {
       return NextResponse.json(
-        { error: "Für eine Bestellung ohne Konto sind Name und E-Mail erforderlich." },
+        { error: "Für eine Bestellung ohne Konto sind Name und Telefonnummer erforderlich." },
         { status: 400 }
       );
     }
@@ -97,8 +97,8 @@ export async function POST(req: Request) {
 
   if (isGuest) {
     customerName = data.guestName!.trim();
-    customerEmail = data.guestEmail!.trim();
-    customerPhone = data.guestPhone?.trim() || null;
+    customerEmail = data.guestEmail?.trim() || ""; // E-Mail optional bei Gästen
+    customerPhone = data.guestPhone!.trim();
   } else {
     const user = await db.user.findUnique({ where: { id: session!.user.id } });
     if (!user) {
@@ -153,7 +153,7 @@ export async function POST(req: Request) {
     try {
       const checkout = await stripe.checkout.sessions.create({
         mode: "payment",
-        customer_email: order.customerEmail,
+        customer_email: order.customerEmail || undefined,
         line_items: [
           ...order.orderItems.map((it) => ({
             price_data: {
