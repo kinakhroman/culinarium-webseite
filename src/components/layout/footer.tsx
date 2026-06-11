@@ -30,7 +30,7 @@ export function Footer() {
                 <span className="font-heading text-xl font-bold text-white">
                   Culinarium
                 </span>
-                <span className="block text-[10px] text-neutral-500 uppercase tracking-[0.04em] -mt-0.5">
+                <span className="block text-[10px] text-neutral-500 uppercase tracking-[0.04em] -mt-0.5 pl-[2px]">
                   Berlin.de
                 </span>
               </div>
