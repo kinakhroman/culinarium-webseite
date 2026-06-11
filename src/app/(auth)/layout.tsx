@@ -17,8 +17,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <span className="font-heading text-2xl font-bold text-primary block leading-tight">
               Culinarium
             </span>
-            <span className="text-[11px] text-neutral-400 font-medium tracking-widest uppercase">
-              am Biesenhorst
+            <span className="text-[11px] text-neutral-400 font-medium tracking-[0.04em] uppercase pl-[2px]">
+              Berlin.de
             </span>
           </div>
         </Link>

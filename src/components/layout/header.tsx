@@ -3,14 +3,22 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X, ShoppingCart, User, LogOut } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/constants";
 
 export function Header() {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  // Nach dem Login zur ausgangsseite zurück (z. B. Kasse), nicht zur Startseite
+  const loginHref =
+    pathname && !pathname.startsWith("/login") && !pathname.startsWith("/registrierung")
+      ? `/login?callbackUrl=${encodeURIComponent(pathname)}`
+      : "/login";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -97,7 +105,7 @@ export function Header() {
               </div>
             ) : (
               <Link
-                href="/login"
+                href={loginHref}
                 className="px-5 py-2.5 text-sm font-medium text-primary border border-primary/30 rounded-full hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
               >
                 Anmelden
@@ -187,7 +195,7 @@ export function Header() {
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   <Link
-                    href="/login"
+                    href={loginHref}
                     onClick={() => setMobileOpen(false)}
                     className="block text-center px-4 py-3 text-primary border border-primary/30 rounded-2xl font-medium hover:bg-primary/5 transition-all"
                   >
