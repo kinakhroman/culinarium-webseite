@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, ArrowLeft, ArrowRight, Coffee, Flame, UtensilsCrossed, CupSoda } from "lucide-react";
+import { Phone, ArrowLeft, ArrowRight, Coffee, Flame, UtensilsCrossed, CupSoda, Package } from "lucide-react";
 
 const PHONE_DISPLAY = "030 56553364";
 const PHONE_TEL = "+493056553364";
@@ -16,6 +16,16 @@ export const metadata: Metadata = {
 
 type Item = { name: string; price: string; img: string; tag?: string };
 type Group = { id: string; label: string; title: string; sub: string; icon: typeof Coffee; items: Item[] };
+type SetItem = { name: string; items: string; price: string; old: string; img: string };
+
+const SETS: SetItem[] = [
+  { name: "Frühstücks-Menü", items: "Bauernfrühstück + Kaffee + Cola", price: "7,00 €", old: "8,50 €", img: "/images/catering/set-fruehstueck.png" },
+  { name: "Burger-Menü", items: "Burger + Pommes + Cola", price: "7,50 €", old: "9,00 €", img: "/images/catering/set-burger.png" },
+  { name: "Currywurst-Menü", items: "Currywurst mit Pommes + Cola", price: "5,00 €", old: "5,50 €", img: "/images/catering/set-currywurst.png" },
+  { name: "Würstchen-Menü", items: "Pommes mit Würstchen + Cola", price: "4,50 €", old: "5,00 €", img: "/images/catering/set-wuerstchen.png" },
+  { name: "Snack-Menü", items: "Bulette mit Schrippe + Kaffee", price: "3,90 €", old: "4,50 €", img: "/images/catering/set-snack.png" },
+  { name: "Würstchen-Snack", items: "Würstchen + Cola", price: "3,00 €", old: "3,50 €", img: "/images/catering/set-wuerstchen-snack.png" },
+];
 
 const GROUPS: Group[] = [
   {
@@ -151,6 +161,13 @@ export default function CateringSpeisekartePage() {
 
           {/* Sprungmarken */}
           <nav className="mt-7 flex flex-wrap gap-2">
+            <a
+              href="#sets"
+              className="inline-flex items-center gap-2 rounded-full border border-paprika/30 bg-paprika/10 px-4 py-2 text-sm font-bold text-paprika hover:bg-paprika hover:text-paper transition-colors"
+            >
+              <Package className="h-4 w-4" />
+              Menüs &amp; Sets
+            </a>
             {GROUPS.map(({ id, label, icon: Icon }) => (
               <a
                 key={id}
@@ -162,6 +179,57 @@ export default function CateringSpeisekartePage() {
               </a>
             ))}
           </nav>
+        </div>
+      </section>
+
+      {/* ===== Menüs & Sets ===== */}
+      <section id="sets" className="scroll-mt-20 py-14 sm:py-20 bg-paper-deep/30">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex items-start gap-4">
+            <div className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-paprika/10">
+              <Package className="h-6 w-6 text-paprika" />
+            </div>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-paprika">
+                Menüs &amp; Sets
+              </span>
+              <h2 className="font-display mt-2 text-3xl sm:text-4xl font-semibold">Im Set sparen</h2>
+              <p className="mt-2 max-w-2xl text-sm text-ink-soft">
+                Beliebte Kombinationen – immer günstiger als einzeln. Ideal für die
+                Sammelbestellung der ganzen Kolonne.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {SETS.map(({ name, items, price, old, img }) => (
+              <div
+                key={name}
+                className="group flex flex-col overflow-hidden rounded-2xl bg-paper border border-ink/8 hover:border-paprika hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/10 transition-all"
+              >
+                <div className="relative aspect-[16/10] w-full overflow-hidden">
+                  <Image
+                    src={img}
+                    alt={items}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <span className="absolute top-3 right-3 z-10 rounded-full bg-ink/85 px-3 py-1 text-xs font-bold text-paper backdrop-blur-sm">
+                    Set-Preis
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <div className="font-display text-xl font-semibold text-brand leading-tight">{name}</div>
+                  <p className="mt-1.5 text-sm text-ink-soft leading-snug">{items}</p>
+                  <div className="mt-auto flex items-baseline gap-2 pt-3">
+                    <span className="font-display text-2xl font-semibold text-paprika">{price}</span>
+                    <span className="text-sm text-ink-soft line-through">{old}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
