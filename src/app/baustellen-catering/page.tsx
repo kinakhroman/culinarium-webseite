@@ -484,6 +484,17 @@ export default function BaustellenCateringPage() {
             ))}
           </div>
 
+          {/* Mehr anzeigen → ganze Speisekarte */}
+          <div className="mt-8 flex justify-center">
+            <Link
+              href="/baustellen-catering/speisekarte"
+              className="group inline-flex items-center gap-2 rounded-full border-2 border-paprika px-7 py-3 text-base font-bold text-paprika hover:bg-paprika hover:text-paper transition-colors"
+            >
+              Ganze Speisekarte ansehen
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+
           {/* Warmes Mittagessen wie in der Kantine */}
           <div className="mt-8 flex flex-col gap-4 rounded-2xl border-2 border-paprika/25 bg-paper px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -528,34 +539,37 @@ export default function BaustellenCateringPage() {
             </p>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { name: "Frühstücks-Menü", items: "Bauernfrühstück + Kaffee + Cola", price: "7,00 €", old: "8,50 €", img: "/images/catering/bauernfruehstueck.png" },
-              { name: "Burger-Menü", items: "Burger + Pommes + Cola", price: "7,50 €", old: "9,00 €", img: "/images/catering/burger.png" },
-              { name: "Currywurst-Menü", items: "Currywurst mit Pommes + Cola", price: "5,00 €", old: "5,50 €", img: "/images/catering/currywurst-pommes.png" },
-              { name: "Würstchen-Menü", items: "Pommes mit Würstchen + Cola", price: "4,50 €", old: "5,00 €", img: "/images/catering/pommes-wuerstchen.png" },
-              { name: "Snack-Menü", items: "Bulette mit Schrippe + Kaffee", price: "3,90 €", old: "4,50 €", img: "/images/catering/bulette.png" },
-              { name: "Würstchen-Snack", items: "Würstchen + Cola", price: "3,00 €", old: "3,50 €", img: "/images/catering/wuerstchen.png" },
+              { name: "Frühstücks-Menü", items: "Bauernfrühstück + Kaffee + Cola", price: "7,00 €", old: "8,50 €", img: "/images/catering/set-fruehstueck.png" },
+              { name: "Burger-Menü", items: "Burger + Pommes + Cola", price: "7,50 €", old: "9,00 €", img: "/images/catering/set-burger.png" },
+              { name: "Currywurst-Menü", items: "Currywurst mit Pommes + Cola", price: "5,00 €", old: "5,50 €", img: "/images/catering/set-currywurst.png" },
+              { name: "Würstchen-Menü", items: "Pommes mit Würstchen + Cola", price: "4,50 €", old: "5,00 €", img: "/images/catering/set-wuerstchen.png" },
+              { name: "Snack-Menü", items: "Bulette mit Schrippe + Kaffee", price: "3,90 €", old: "4,50 €", img: "/images/catering/set-snack.png" },
+              { name: "Würstchen-Snack", items: "Würstchen + Cola", price: "3,00 €", old: "3,50 €", img: "/images/catering/set-wuerstchen-snack.png" },
             ].map(({ name, items, price, old, img }) => (
               <div
                 key={name}
-                className="group flex overflow-hidden rounded-2xl bg-paper border border-ink/8 hover:border-paprika hover:-translate-y-1 transition-all"
+                className="group flex flex-col overflow-hidden rounded-2xl bg-paper border border-ink/8 hover:border-paprika hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/10 transition-all"
               >
-                <div className="relative w-28 sm:w-32 shrink-0">
+                <div className="relative aspect-[16/10] w-full overflow-hidden">
                   <Image
                     src={img}
-                    alt={name}
+                    alt={items}
                     fill
-                    sizes="128px"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
+                  <span className="absolute top-3 right-3 z-10 rounded-full bg-ink/85 px-3 py-1 text-xs font-bold text-paper backdrop-blur-sm">
+                    Set-Preis
+                  </span>
                 </div>
-                <div className="flex flex-1 flex-col justify-center p-4">
-                  <div className="font-display text-lg font-semibold text-brand leading-tight">
+                <div className="flex flex-1 flex-col p-5">
+                  <div className="font-display text-xl font-semibold text-brand leading-tight">
                     {name}
                   </div>
-                  <p className="mt-1 text-sm text-ink-soft leading-snug">{items}</p>
-                  <div className="mt-2 flex items-baseline gap-2">
+                  <p className="mt-1.5 text-sm text-ink-soft leading-snug">{items}</p>
+                  <div className="mt-auto flex items-baseline gap-2 pt-3">
                     <span className="font-display text-2xl font-semibold text-paprika">
                       {price}
                     </span>
