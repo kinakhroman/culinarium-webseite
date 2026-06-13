@@ -25,8 +25,8 @@ import { CateringInquiryForm } from "@/components/catering/inquiry-form";
 const PHONE_DISPLAY = "030 56553364";
 const PHONE_TEL = "+493056553364";
 const EMAIL = "info@culinarium-berlin.de";
-// TODO: echte WhatsApp-Mobilnummer eintragen (Festnetz funktioniert bei WhatsApp nicht zuverlässig)
-const WHATSAPP = "493056553364";
+// WhatsApp-Mobilnummer (ohne + und ohne führende 0, im wa.me-Format)
+const WHATSAPP = "4915208701105";
 const WHATSAPP_TEXT = encodeURIComponent(
   "Hallo Culinarium, wir interessieren uns für die Baustellen-Belieferung."
 );
