@@ -452,7 +452,7 @@ export default function BaustellenCateringPage() {
             {[
               { name: "Caffè to go „Aroma Crema“", price: "2,00 €", img: "/images/catering/kaffee-to-go.png" },
               { name: "Belegtes Brötchen", price: "1,50 €", img: "/images/catering/belegtes-broetchen.png" },
-              { name: "Bulette", price: "1,50 €", img: "/images/catering/bulette.png" },
+              { name: "Bulette mit Schrippe", price: "2,50 €", img: "/images/catering/bulette.png" },
               { name: "Würstchen", price: "2,00 €", img: "/images/catering/wuerstchen.png" },
               { name: "Bauernfrühstück", price: "5,00 €", img: "/images/catering/bauernfruehstueck.png" },
             ].map(({ name, price, img }) => (
