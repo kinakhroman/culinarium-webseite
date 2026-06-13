@@ -59,20 +59,23 @@ export default function BaustellenCateringPage() {
       {/* ===== Header ===== */}
       <header className="sticky top-0 z-50 bg-paper/85 backdrop-blur-md border-b border-ink/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
+          {/* Logo identisch zur Hauptseite (kein Sprung beim Wechsel) – nur Subtitle "am Bau" */}
+          <Link href="/" className="flex items-center gap-3 group">
             <Image
               src="/images/logo-emblem.png"
               alt="Culinarium am Bau"
-              width={40}
-              height={40}
-              className="w-9 h-9 object-contain"
+              width={48}
+              height={48}
+              className="w-10 h-10 md:w-12 md:h-12 object-contain transition-transform duration-300 group-hover:scale-105"
             />
-            <span className="font-display text-2xl font-semibold text-brand leading-none tracking-tight">
-              Culinarium
-            </span>
-            <span className="text-[10px] sm:text-xs font-bold tracking-[0.18em] text-paprika uppercase border-l border-ink/15 pl-2.5 leading-none">
-              am Bau
-            </span>
+            <div className="flex flex-col">
+              <span className="font-heading text-xl md:text-2xl font-bold text-primary leading-tight tracking-tight">
+                Culinarium
+              </span>
+              <span className="text-[10px] md:text-xs text-neutral-400 font-medium tracking-[0.04em] uppercase -mt-0.5 pl-[2px]">
+                am Bau
+              </span>
+            </div>
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-4">
@@ -85,9 +88,10 @@ export default function BaustellenCateringPage() {
             </a>
             <a
               href="#anfrage"
-              className="rounded-full bg-paprika hover:bg-paprika-dark px-4 sm:px-5 py-2.5 text-sm font-bold text-paper transition-colors"
+              className="rounded-full bg-paprika hover:bg-paprika-dark px-4 sm:px-5 py-2.5 text-sm font-bold text-paper transition-colors whitespace-nowrap"
             >
-              Bedarf anfragen
+              <span className="sm:hidden">Anfragen</span>
+              <span className="hidden sm:inline">Bedarf anfragen</span>
             </a>
           </div>
         </div>
