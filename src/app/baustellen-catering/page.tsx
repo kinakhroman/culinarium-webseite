@@ -454,6 +454,10 @@ export default function BaustellenCateringPage() {
               { name: "Belegtes Brötchen", price: "1,50 €", img: "/images/catering/belegtes-broetchen.png" },
               { name: "Bulette mit Schrippe", price: "2,50 €", img: "/images/catering/bulette.png" },
               { name: "Würstchen", price: "2,00 €", img: "/images/catering/wuerstchen.png" },
+              { name: "Pommes", price: "2,50 €", img: "/images/catering/pommes.png" },
+              { name: "Pommes mit Würstchen", price: "3,50 €", img: "/images/catering/pommes-wuerstchen.png" },
+              { name: "Currywurst mit Pommes", price: "4,00 €", img: "/images/catering/currywurst-pommes.png" },
+              { name: "Burger", price: "5,00 €", img: "/images/catering/burger.png" },
               { name: "Bauernfrühstück", price: "5,00 €", img: "/images/catering/bauernfruehstueck.png" },
             ].map(({ name, price, img }) => (
               <div
@@ -477,6 +481,25 @@ export default function BaustellenCateringPage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Warmes Mittagessen wie in der Kantine */}
+          <div className="mt-8 flex flex-col gap-4 rounded-2xl border-2 border-paprika/25 bg-paper px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="font-display text-xl sm:text-2xl font-semibold text-brand">
+                Lieber ein warmes Mittagessen?
+              </div>
+              <p className="mt-1 text-sm text-ink-soft max-w-xl">
+                Vollwertige, täglich wechselnde Gerichte wie in unserer Kantine – z.&nbsp;B. Gulasch,
+                Schnitzel oder Königsberger Klopse, warm geliefert.
+              </p>
+            </div>
+            <div className="shrink-0 text-left sm:text-right">
+              <div className="font-display text-3xl font-semibold text-paprika leading-none">
+                6,00 €
+              </div>
+              <div className="mt-1 text-xs text-ink-soft">pro Portion</div>
+            </div>
           </div>
 
           <p className="mt-6 text-xs text-ink-soft">
