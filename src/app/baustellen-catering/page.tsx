@@ -430,6 +430,62 @@ export default function BaustellenCateringPage() {
         </div>
       </section>
 
+      {/* ===== Handwerker-Menü (preiswert) ===== */}
+      <section className="py-16 sm:py-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-paprika">
+                Handwerker-Menü
+              </span>
+              <h2 className="font-display mt-3 text-3xl sm:text-4xl font-semibold">
+                Deftig, schnell &amp; preiswert
+              </h2>
+            </div>
+            <p className="text-sm text-ink-soft max-w-xs">
+              Die schnelle Stärkung für zwischendurch – direkt vom Wagen aufs Gerüst. Frühstück,
+              Snacks &amp; Kaffee zu fairen Preisen.
+            </p>
+          </div>
+
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[
+              { name: "Caffè to go „Aroma Crema“", price: "2,00 €", img: "/images/catering/kaffee-to-go.png" },
+              { name: "Belegtes Brötchen", price: "1,50 €", img: "/images/catering/belegtes-broetchen.png" },
+              { name: "Bulette", price: "1,50 €", img: "/images/catering/bulette.png" },
+              { name: "Würstchen", price: "2,00 €", img: "/images/catering/wuerstchen.png" },
+              { name: "Bauernfrühstück", price: "5,00 €", img: "/images/catering/bauernfruehstueck.png" },
+            ].map(({ name, price, img }) => (
+              <div
+                key={name}
+                className="group rounded-2xl bg-paper border border-ink/8 overflow-hidden hover:border-paprika hover:-translate-y-1 transition-all"
+              >
+                <div className="relative aspect-[4/3]">
+                  <Image
+                    src={img}
+                    alt={name}
+                    fill
+                    sizes="(max-width: 640px) 50vw, 20vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <span className="absolute top-2 right-2 font-display text-base font-semibold text-paper bg-paprika px-2.5 py-0.5 rounded-lg shadow-md">
+                    {price}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <div className="font-bold text-ink leading-snug">{name}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-6 text-xs text-ink-soft">
+            Richtpreise inkl. MwSt. – finale Preise, Mengen &amp; Mengenrabatte stimmen wir
+            individuell mit Ihnen ab.
+          </p>
+        </div>
+      </section>
+
       {/* ===== Für wen ===== */}
       <section className="py-16 sm:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
