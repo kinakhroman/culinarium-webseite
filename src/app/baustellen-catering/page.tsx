@@ -451,6 +451,7 @@ export default function BaustellenCateringPage() {
           <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {[
               { name: "Caffè to go „Aroma Crema“", price: "2,00 €", img: "/images/catering/kaffee-to-go.png" },
+              { name: "Softdrink (Cola / Fanta)", price: "1,50 €", img: "/images/catering/softdrink.png" },
               { name: "Belegtes Brötchen", price: "1,50 €", img: "/images/catering/belegtes-broetchen.png" },
               { name: "Bulette mit Schrippe", price: "2,50 €", img: "/images/catering/bulette.png" },
               { name: "Würstchen", price: "2,00 €", img: "/images/catering/wuerstchen.png" },
@@ -505,6 +506,68 @@ export default function BaustellenCateringPage() {
           <p className="mt-6 text-xs text-ink-soft">
             Richtpreise inkl. MwSt. – finale Preise, Mengen &amp; Mengenrabatte stimmen wir
             individuell mit Ihnen ab.
+          </p>
+        </div>
+      </section>
+
+      {/* ===== Menüs & Sets ===== */}
+      <section className="py-16 sm:py-24 bg-paper-deep/40">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-paprika">
+                Menüs &amp; Sets
+              </span>
+              <h2 className="font-display mt-3 text-3xl sm:text-4xl font-semibold">
+                Im Set sparen
+              </h2>
+            </div>
+            <p className="text-sm text-ink-soft max-w-xs">
+              Beliebte Kombinationen – immer günstiger als einzeln. Ideal für die
+              Sammelbestellung.
+            </p>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { name: "Frühstücks-Menü", items: "Bauernfrühstück + Kaffee + Cola", price: "7,00 €", old: "8,50 €", img: "/images/catering/bauernfruehstueck.png" },
+              { name: "Burger-Menü", items: "Burger + Pommes + Cola", price: "7,50 €", old: "9,00 €", img: "/images/catering/burger.png" },
+              { name: "Currywurst-Menü", items: "Currywurst mit Pommes + Cola", price: "5,00 €", old: "5,50 €", img: "/images/catering/currywurst-pommes.png" },
+              { name: "Würstchen-Menü", items: "Pommes mit Würstchen + Cola", price: "4,50 €", old: "5,00 €", img: "/images/catering/pommes-wuerstchen.png" },
+              { name: "Snack-Menü", items: "Bulette mit Schrippe + Kaffee", price: "3,90 €", old: "4,50 €", img: "/images/catering/bulette.png" },
+              { name: "Würstchen-Snack", items: "Würstchen + Cola", price: "3,00 €", old: "3,50 €", img: "/images/catering/wuerstchen.png" },
+            ].map(({ name, items, price, old, img }) => (
+              <div
+                key={name}
+                className="group flex overflow-hidden rounded-2xl bg-paper border border-ink/8 hover:border-paprika hover:-translate-y-1 transition-all"
+              >
+                <div className="relative w-28 sm:w-32 shrink-0">
+                  <Image
+                    src={img}
+                    alt={name}
+                    fill
+                    sizes="128px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col justify-center p-4">
+                  <div className="font-display text-lg font-semibold text-brand leading-tight">
+                    {name}
+                  </div>
+                  <p className="mt-1 text-sm text-ink-soft leading-snug">{items}</p>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="font-display text-2xl font-semibold text-paprika">
+                      {price}
+                    </span>
+                    <span className="text-sm text-ink-soft line-through">{old}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-6 text-xs text-ink-soft">
+            Richtpreise inkl. MwSt. – Sets individuell kombinierbar, Mengenrabatte auf Anfrage.
           </p>
         </div>
       </section>
