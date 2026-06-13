@@ -10,12 +10,12 @@ export const authConfig = {
       const isAdmin = auth?.user?.role === "ADMIN";
       const isAdminRoute = nextUrl.pathname.startsWith("/admin");
       const isAccountRoute = nextUrl.pathname.startsWith("/konto");
-      const isCheckoutRoute = nextUrl.pathname.startsWith("/kasse");
 
       if (isAdminRoute) {
         return isAdmin;
       }
-      if (isAccountRoute || isCheckoutRoute) {
+      // Kasse ist NICHT geschützt – Gast-Bestellung ohne Login möglich.
+      if (isAccountRoute) {
         return isLoggedIn;
       }
       return true;

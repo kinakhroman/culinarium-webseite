@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { contactSchema } from "@/lib/validators";
 import { sendTelegramMessage } from "@/lib/telegram";
+import { sendMail } from "@/lib/mailer";
 import { db } from "@/lib/db";
+
+const NOTIFY_EMAIL = "info@culinarium-berlin.de";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -28,6 +31,14 @@ export async function POST(req: Request) {
   // 2) Optionale Telegram-Benachrichtigung (no-op ohne Token)
   await sendTelegramMessage({
     text: `📩 <b>Neue Kontaktanfrage</b>\n\n👤 ${name}\n📧 ${email}\n📋 ${subject}\n\n${message}`,
+  });
+
+  // 3) Benachrichtigung per E-Mail an info@ (Antwort geht direkt an den Absender)
+  await sendMail({
+    to: NOTIFY_EMAIL,
+    replyTo: email,
+    subject: `📩 Kontaktanfrage – ${subject}`,
+    text: `Neue Kontaktanfrage\n\nName: ${name}\nE-Mail: ${email}\nBetreff: ${subject}\n\nNachricht:\n${message}\n\nAlle Anfragen: https://culinarium-berlin.de/admin/anfragen`,
   });
 
   return NextResponse.json({ success: true });

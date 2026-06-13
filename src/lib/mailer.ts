@@ -6,9 +6,9 @@
  * Ist SMTP nicht konfiguriert (oder nodemailer fehlt), wird die Mail server-
  * seitig NUR geloggt (kein Crash) – so ist der Flow auch ohne Mailserver testbar.
  */
-type MailInput = { to: string; subject: string; text: string; html?: string };
+type MailInput = { to: string; subject: string; text: string; html?: string; replyTo?: string };
 
-export async function sendMail({ to, subject, text, html }: MailInput): Promise<boolean> {
+export async function sendMail({ to, subject, text, html, replyTo }: MailInput): Promise<boolean> {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
 
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
@@ -42,6 +42,7 @@ export async function sendMail({ to, subject, text, html }: MailInput): Promise<
     await transport.sendMail({
       from: SMTP_FROM || `Culinarium am Biesenhorst <${SMTP_USER}>`,
       to,
+      replyTo: replyTo || undefined,
       subject,
       text,
       html: html || undefined,

@@ -4,7 +4,10 @@ import { auth } from "../../../../auth";
 import { orderSchema } from "@/lib/validators";
 import { generateOrderNumber } from "@/lib/utils";
 import { sendTelegramMessage, formatOrderTelegramMessage } from "@/lib/telegram";
+import { sendMail } from "@/lib/mailer";
 import { getStripe, isStripeEnabled } from "@/lib/stripe";
+
+const NOTIFY_EMAIL = "info@culinarium-berlin.de";
 
 export async function GET() {
   const session = await auth();
@@ -145,6 +148,48 @@ export async function POST(req: Request) {
     },
     include: { orderItems: true },
   });
+
+  // Benachrichtigung per E-Mail an info@ – für Abholung UND Lieferung
+  {
+    const isDelivery = order.orderType === "DELIVERY";
+    const zeit = order.requestedTime
+      ? `${String(order.requestedTime.getHours()).padStart(2, "0")}:${String(
+          order.requestedTime.getMinutes()
+        ).padStart(2, "0")} Uhr`
+      : "schnellstmöglich";
+    const mailLines = [
+      `Neue Bestellung ${order.orderNumber}`,
+      `Art: ${isDelivery ? "Lieferung" : "Abholung"}`,
+      `Kunde: ${order.customerName}`,
+      `Telefon: ${order.customerPhone || "-"}`,
+      order.customerEmail ? `E-Mail: ${order.customerEmail}` : null,
+      `Wunschzeit: ${zeit}`,
+      isDelivery
+        ? `Lieferadresse: ${order.deliveryStreet} ${order.deliveryHouseNumber}, ${order.deliveryPostalCode} ${order.deliveryCity}`
+        : null,
+      "",
+      "Bestellung:",
+      ...order.orderItems.map(
+        (it) => `  ${it.quantity}x ${it.itemName}  –  ${(it.unitPrice * it.quantity).toFixed(2)} €`
+      ),
+      isDelivery ? `Liefergebühr: ${order.deliveryFee.toFixed(2)} €` : null,
+      `Gesamt: ${order.total.toFixed(2)} €`,
+      `Zahlung: ${
+        order.paymentStatus === "UNPAID"
+          ? "Online (wird nach Bezahlung bestätigt)"
+          : "vor Ort (bar/Karte)"
+      }`,
+      order.notes ? `\nAnmerkungen: ${order.notes}` : null,
+      "",
+      "Alle Bestellungen: https://culinarium-berlin.de/admin/bestellungen",
+    ].filter(Boolean) as string[];
+    await sendMail({
+      to: NOTIFY_EMAIL,
+      replyTo: order.customerEmail || undefined,
+      subject: `🍽️ Bestellung ${order.orderNumber} – ${isDelivery ? "Lieferung" : "Abholung"}`,
+      text: mailLines.join("\n"),
+    });
+  }
 
   // Lieferung: Stripe-Checkout-Session erstellen und Kunden zur Bezahlung schicken
   if (needsPrepay) {
