@@ -171,35 +171,39 @@ export default async function WochenplanPage({
                 </div>
 
                 {items.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div
+                    className={`grid grid-cols-1 gap-5 ${
+                      items.length > 1 ? "lg:grid-cols-2" : ""
+                    }`}
+                  >
                     {items.map((item, idx) => (
                       <div
                         key={idx}
-                        className="group flex gap-4 rounded-2xl bg-white border border-neutral-100 p-3 shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                        className="group flex flex-col sm:flex-row overflow-hidden rounded-2xl bg-white border border-neutral-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
                       >
-                        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shrink-0 bg-warm-100 flex items-center justify-center">
+                        <div className="relative w-full h-56 sm:h-auto sm:w-72 lg:w-80 sm:self-stretch sm:min-h-[200px] shrink-0 bg-warm-100 flex items-center justify-center">
                           {item.imageUrl ? (
                             <Image
                               src={item.imageUrl}
                               alt={item.name}
                               fill
-                              sizes="112px"
+                              sizes="(max-width: 640px) 100vw, 320px"
                               className="object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           ) : (
-                            <UtensilsCrossed className="h-7 w-7 text-primary/25" />
+                            <UtensilsCrossed className="h-12 w-12 text-primary/25" />
                           )}
                         </div>
-                        <div className="flex flex-col justify-center min-w-0 flex-1 pr-1">
-                          <h3 className="font-heading text-lg font-bold text-neutral-800 leading-snug">
+                        <div className="flex flex-col justify-center min-w-0 flex-1 p-5 sm:p-6">
+                          <h3 className="font-heading text-xl sm:text-2xl font-bold text-neutral-800 leading-snug">
                             {item.name}
                           </h3>
                           {item.note && (
-                            <p className="text-sm text-neutral-400 mt-1 line-clamp-2">
+                            <p className="text-sm sm:text-base text-neutral-400 mt-1.5">
                               {item.note}
                             </p>
                           )}
-                          <span className="mt-2 text-lg font-bold text-primary">
+                          <span className="mt-3 text-2xl font-bold text-primary">
                             {formatCurrency(item.price)}
                           </span>
                         </div>
