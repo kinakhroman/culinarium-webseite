@@ -19,12 +19,12 @@ type Group = { id: string; label: string; title: string; sub: string; icon: type
 type SetItem = { name: string; items: string; price: string; old: string; img: string };
 
 const SETS: SetItem[] = [
-  { name: "Frühstücks-Menü", items: "Bauernfrühstück + Kaffee + Cola", price: "7,00 €", old: "8,50 €", img: "/images/catering/set-fruehstueck.png" },
-  { name: "Burger-Menü", items: "Burger + Pommes + Cola", price: "7,50 €", old: "9,00 €", img: "/images/catering/set-burger.png" },
-  { name: "Currywurst-Menü", items: "Currywurst mit Pommes + Cola", price: "5,00 €", old: "5,50 €", img: "/images/catering/set-currywurst.png" },
-  { name: "Würstchen-Menü", items: "Pommes mit Würstchen + Cola", price: "4,50 €", old: "5,00 €", img: "/images/catering/set-wuerstchen.png" },
+  { name: "Frühstücks-Menü", items: "Bauernfrühstück + Kaffee + Softdrink", price: "7,00 €", old: "8,50 €", img: "/images/catering/set-fruehstueck.png" },
+  { name: "Burger-Menü", items: "Burger + Pommes + Softdrink", price: "7,50 €", old: "9,00 €", img: "/images/catering/set-burger.png" },
+  { name: "Currywurst-Menü", items: "Currywurst mit Pommes + Softdrink", price: "5,00 €", old: "5,50 €", img: "/images/catering/set-currywurst.png" },
+  { name: "Würstchen-Menü", items: "Pommes mit Würstchen + Softdrink", price: "4,50 €", old: "5,00 €", img: "/images/catering/set-wuerstchen.png" },
   { name: "Snack-Menü", items: "Bulette mit Schrippe + Kaffee", price: "3,90 €", old: "4,50 €", img: "/images/catering/set-snack.png" },
-  { name: "Würstchen-Snack", items: "Würstchen + Cola", price: "3,00 €", old: "3,50 €", img: "/images/catering/set-wuerstchen-snack.png" },
+  { name: "Würstchen-Snack", items: "Würstchen + Softdrink", price: "3,00 €", old: "3,50 €", img: "/images/catering/set-wuerstchen-snack.png" },
 ];
 
 const GROUPS: Group[] = [
