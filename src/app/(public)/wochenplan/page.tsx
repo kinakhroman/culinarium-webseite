@@ -171,45 +171,75 @@ export default async function WochenplanPage({
                 </div>
 
                 {items.length > 0 ? (
-                  <div
-                    className={`grid grid-cols-1 gap-5 ${
-                      items.length > 1 ? "lg:grid-cols-2" : ""
-                    }`}
-                  >
-                    {items.map((item, idx) => (
+                  items.length === 1 ? (
+                    /* Ein Gericht: breites Banner, Bild links, Text rechts */
+                    items.map((item, idx) => (
                       <div
                         key={idx}
                         className="group flex flex-col sm:flex-row overflow-hidden rounded-2xl bg-white border border-neutral-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
                       >
-                        <div className="relative w-full h-56 sm:h-auto sm:w-72 lg:w-80 sm:self-stretch sm:min-h-[200px] shrink-0 bg-warm-100 flex items-center justify-center">
+                        <div className="relative w-full h-60 sm:h-72 sm:w-[42%] lg:w-[44%] shrink-0 bg-warm-100 flex items-center justify-center">
                           {item.imageUrl ? (
                             <Image
                               src={item.imageUrl}
                               alt={item.name}
                               fill
-                              sizes="(max-width: 640px) 100vw, 320px"
+                              sizes="(max-width: 640px) 100vw, 480px"
                               className="object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           ) : (
-                            <UtensilsCrossed className="h-12 w-12 text-primary/25" />
+                            <UtensilsCrossed className="h-14 w-14 text-primary/25" />
                           )}
                         </div>
-                        <div className="flex flex-col justify-center min-w-0 flex-1 p-5 sm:p-6">
-                          <h3 className="font-heading text-xl sm:text-2xl font-bold text-neutral-800 leading-snug">
+                        <div className="flex flex-col justify-center min-w-0 flex-1 p-6 sm:p-8">
+                          <h3 className="font-heading text-2xl sm:text-3xl font-bold text-neutral-800 leading-snug">
                             {item.name}
                           </h3>
                           {item.note && (
-                            <p className="text-sm sm:text-base text-neutral-400 mt-1.5">
-                              {item.note}
-                            </p>
+                            <p className="text-base text-neutral-400 mt-2">{item.note}</p>
                           )}
-                          <span className="mt-3 text-2xl font-bold text-primary">
+                          <span className="mt-4 text-3xl font-bold text-primary">
                             {formatCurrency(item.price)}
                           </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    ))
+                  ) : (
+                    /* Mehrere Gerichte: Karten mit großem Bild oben */
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      {items.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-neutral-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                        >
+                          <div className="relative w-full aspect-[16/10] bg-warm-100 flex items-center justify-center">
+                            {item.imageUrl ? (
+                              <Image
+                                src={item.imageUrl}
+                                alt={item.name}
+                                fill
+                                sizes="(max-width: 640px) 100vw, 50vw"
+                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                            ) : (
+                              <UtensilsCrossed className="h-12 w-12 text-primary/25" />
+                            )}
+                          </div>
+                          <div className="flex flex-1 flex-col p-5">
+                            <h3 className="font-heading text-xl font-bold text-neutral-800 leading-snug">
+                              {item.name}
+                            </h3>
+                            {item.note && (
+                              <p className="text-sm text-neutral-400 mt-1.5">{item.note}</p>
+                            )}
+                            <span className="mt-auto pt-3 text-2xl font-bold text-primary">
+                              {formatCurrency(item.price)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )
                 ) : (
                   <p className="text-neutral-400 text-sm italic pl-1">
                     Menü folgt in Kürze.
