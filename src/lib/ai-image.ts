@@ -54,7 +54,22 @@ export async function generateDishPhoto(
       return { ok: false, error: "Gemini lieferte kein Bild" };
     }
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    writeFileSync(file, Buffer.from(img.inlineData.data, "base64"));
+
+    const raw = Buffer.from(img.inlineData.data, "base64");
+    // Gemini liefert große (~2MB) PNGs – die kann der Next-Bildoptimierer auf dem
+    // knappen Server-Speicher nicht verarbeiten (HTTP 500). Daher zu kompaktem
+    // JPEG recodieren (Dateiname bleibt .png, wie die übrigen Menü-Fotos).
+    try {
+      const sharp = (await import("sharp")).default;
+      const jpeg = await sharp(raw)
+        .resize({ width: 1280, withoutEnlargement: true })
+        .jpeg({ quality: 85, progressive: true, mozjpeg: true })
+        .toBuffer();
+      writeFileSync(file, jpeg);
+    } catch {
+      // Fallback: sharp nicht verfügbar -> Rohbild speichern (besser als nichts)
+      writeFileSync(file, raw);
+    }
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Fehler" };

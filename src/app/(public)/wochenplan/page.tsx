@@ -184,6 +184,7 @@ export default async function WochenplanPage({
                               src={item.imageUrl}
                               alt={item.name}
                               fill
+                              unoptimized
                               sizes="(max-width: 640px) 100vw, 480px"
                               className="object-cover group-hover:scale-105 transition-transform duration-500"
                             />
@@ -218,6 +219,7 @@ export default async function WochenplanPage({
                                 src={item.imageUrl}
                                 alt={item.name}
                                 fill
+                                unoptimized
                                 sizes="(max-width: 640px) 100vw, 50vw"
                                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                               />
