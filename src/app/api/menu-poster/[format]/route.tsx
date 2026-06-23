@@ -70,6 +70,14 @@ export async function GET(
 
   const hasItems = rows.length > 0;
 
+  // Einheitspreis erkennen: haben ALLE Gerichte (Mo–Fr) denselben Preis > 0,
+  // wird der Preis nur EINMAL oben gezeigt (statt in jeder Zeile) – das schafft
+  // Platz für größere Fotos.
+  const planned = rows.filter((r) => r.dayOfWeek >= 0 && r.dayOfWeek <= 4);
+  const prices = planned.map((r) => r.price);
+  const uniformPrice =
+    prices.length > 0 && prices.every((p) => p > 0 && p === prices[0]) ? prices[0] : null;
+
   return new ImageResponse(
     (
       <div
@@ -194,6 +202,38 @@ export async function GET(
               {formatWeekRange(weekStart)}
             </div>
           </div>
+          {uniformPrice !== null && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  backgroundColor: PAPRIKA,
+                  backgroundImage: `linear-gradient(135deg, ${EMBER}, ${PAPRIKA})`,
+                  color: PAPER,
+                  fontWeight: 700,
+                  fontSize: 40 * s,
+                  padding: `${9 * s}px ${26 * s}px`,
+                  borderRadius: 999,
+                  whiteSpace: "nowrap",
+                  boxShadow: `0 ${4 * s}px ${12 * s}px rgba(192,56,28,0.25)`,
+                }}
+              >
+                {formatCurrency(uniformPrice)}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: 16 * s,
+                  color: INK_SOFT,
+                  letterSpacing: 2 * s,
+                  marginTop: 6 * s,
+                }}
+              >
+                pro Gericht · mit Salat
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tageskarten */}
@@ -202,7 +242,7 @@ export async function GET(
             display: "flex",
             flexDirection: "column",
             flex: 1,
-            padding: `${12 * s}px ${52 * s}px ${14 * s}px`,
+            padding: `${10 * s}px ${52 * s}px ${10 * s}px`,
             justifyContent: hasItems ? "flex-start" : "center",
           }}
         >
@@ -210,7 +250,7 @@ export async function GET(
             DAYS_DE.slice(0, 5).map((dayName, i) => {
               const dishes = byDay[i];
               const empty = dishes.length === 0;
-              const PHOTO = 96 * s;
+              const PHOTO = 120 * s;
               const dayImg = empty
                 ? null
                 : dishes.map((d) => dishPhotoUrl(d.slug, baseUrl)).find(Boolean) || null;
@@ -219,7 +259,7 @@ export async function GET(
                   key={i}
                   style={{
                     display: "flex",
-                    marginBottom: i < 4 ? 11 * s : 0,
+                    marginBottom: i < 4 ? 8 * s : 0,
                     borderRadius: 18 * s,
                     overflow: "hidden",
                     backgroundColor: CARD,
@@ -243,7 +283,7 @@ export async function GET(
                       display: "flex",
                       alignItems: "center",
                       flex: 1,
-                      padding: `${11 * s}px ${22 * s}px`,
+                      padding: `${9 * s}px ${22 * s}px`,
                     }}
                   >
                     {dayImg && (
@@ -256,9 +296,9 @@ export async function GET(
                         style={{
                           width: PHOTO,
                           height: PHOTO,
-                          borderRadius: 14 * s,
+                          borderRadius: 16 * s,
                           objectFit: "cover",
-                          marginRight: 18 * s,
+                          marginRight: 20 * s,
                           flexShrink: 0,
                         }}
                       />
@@ -330,7 +370,7 @@ export async function GET(
                                 </div>
                               )}
                             </div>
-                            {d.price > 0 && (
+                            {uniformPrice === null && d.price > 0 && (
                               <div
                                 style={{
                                   display: "flex",
