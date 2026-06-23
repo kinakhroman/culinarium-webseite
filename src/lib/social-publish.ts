@@ -24,6 +24,15 @@ function token() {
   return process.env.META_GRAPH_TOKEN || process.env.FACEBOOK_PAGE_ACCESS_TOKEN || "";
 }
 
+/** true, wenn Token + beide IDs gesetzt sind (Auto-Posten möglich). */
+export function metaConfigured(): boolean {
+  return !!(
+    token() &&
+    process.env.FACEBOOK_PAGE_ID &&
+    process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID
+  );
+}
+
 /** Facebook-Seitenbeitrag. Mit imageUrl wird ein Foto gepostet, sonst nur Text. */
 export async function postToFacebook(
   message: string,
@@ -81,6 +90,39 @@ export async function postToInstagram(
     const pubData = await pubRes.json();
     if (!pubRes.ok || !pubData.id) {
       return { ok: false, platform: "instagram", error: pubData?.error?.message || `Publish-Fehler HTTP ${pubRes.status}` };
+    }
+    return { ok: true, platform: "instagram", id: pubData.id };
+  } catch (e) {
+    return { ok: false, platform: "instagram", error: e instanceof Error ? e.message : "Fehler" };
+  }
+}
+
+/** Instagram-Story (Bild). Wie Feed-Post, aber media_type=STORIES. Verschwindet nach 24 h. */
+export async function postStoryToInstagram(imageUrl: string): Promise<PublishResult> {
+  const igId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
+  const t = token();
+  if (!igId || !t) {
+    return { ok: false, platform: "instagram", error: "INSTAGRAM_BUSINESS_ACCOUNT_ID oder Token fehlt" };
+  }
+  if (!imageUrl) {
+    return { ok: false, platform: "instagram", error: "Story braucht eine Bild-URL" };
+  }
+  try {
+    const createBody = new URLSearchParams({
+      image_url: imageUrl,
+      media_type: "STORIES",
+      access_token: t,
+    });
+    const createRes = await fetch(`${GRAPH}/${igId}/media`, { method: "POST", body: createBody });
+    const createData = await createRes.json();
+    if (!createRes.ok || !createData.id) {
+      return { ok: false, platform: "instagram", error: createData?.error?.message || `Story-Container-Fehler HTTP ${createRes.status}` };
+    }
+    const pubBody = new URLSearchParams({ creation_id: createData.id, access_token: t });
+    const pubRes = await fetch(`${GRAPH}/${igId}/media_publish`, { method: "POST", body: pubBody });
+    const pubData = await pubRes.json();
+    if (!pubRes.ok || !pubData.id) {
+      return { ok: false, platform: "instagram", error: pubData?.error?.message || `Story-Publish-Fehler HTTP ${pubRes.status}` };
     }
     return { ok: true, platform: "instagram", id: pubData.id };
   } catch (e) {

@@ -121,3 +121,40 @@ export async function generateCaptions(
   if (!text || text.type !== "text") throw new Error("Keine Captions erhalten");
   return JSON.parse(text.text) as SocialCaptions;
 }
+
+/**
+ * Erzeugt Captions (IG + FB) für das HEUTIGE Tagesgericht – für den täglichen
+ * Post + Story. Kurz, appetitlich, mit Wochentag und Aufruf zum Vorbestellen.
+ */
+export async function generateDailyCaption(
+  dish: { name: string; note?: string | null; price?: number },
+  dayName: string
+): Promise<SocialCaptions> {
+  const system = [
+    "Du bist Social-Media-Redakteur der Berliner Kantine 'Culinarium am Biesenhorst'.",
+    "Ton: warm, regional, einladend, ohne Werbe-Floskeln. Deutsch.",
+    "Schreibe zwei Beiträge zum HEUTIGEN Tagesgericht:",
+    "- instagram: 2–4 kurze Zeilen, 1–2 passende Emojis, Aufruf zum Vorbeikommen/Vorbestellen (culinarium-berlin.de), am Ende 6–9 relevante Hashtags (z. B. #Mittagstisch #BerlinLichtenberg #Kantine #frischgekocht #Mittagspause).",
+    "- facebook: 1–3 freundliche Sätze, 2–3 Hashtags.",
+    "Nenne den Wochentag und mache Lust aufs Mittagessen. Preis nur nennen, wenn angegeben.",
+    "Gib ausschließlich JSON nach dem Schema zurück.",
+  ].join("\n");
+
+  const userMsg = [
+    `Wochentag: ${dayName}`,
+    `Gericht: ${dish.name}${dish.note ? ` (${dish.note})` : ""}`,
+    dish.price && dish.price > 0 ? `Preis: ${dish.price.toFixed(2).replace(".", ",")} €` : "Kein Preis angegeben",
+  ].join("\n");
+
+  const res = await client().messages.create({
+    model: MODEL,
+    max_tokens: 800,
+    system,
+    output_config: { format: { type: "json_schema", schema: CAPTION_SCHEMA } },
+    messages: [{ role: "user", content: userMsg }],
+  });
+
+  const text = res.content.find((b) => b.type === "text");
+  if (!text || text.type !== "text") throw new Error("Keine Tages-Caption erhalten");
+  return JSON.parse(text.text) as SocialCaptions;
+}
