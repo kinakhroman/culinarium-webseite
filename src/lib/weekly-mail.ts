@@ -56,37 +56,10 @@ function buildText(rows: WeekPlanRow[], weekRange: string): string {
   ].join("\n");
 }
 
-function buildHtml(rows: WeekPlanRow[], weekRange: string, posterUrl: string): string {
-  const dayRows = byDay(rows)
-    .map(({ day, items }, idx) => {
-      const dishes = items
-        .map(
-          (i) =>
-            `<div style="margin:2px 0;">
-               <span style="color:${INK};font-weight:600;">${escapeHtml(i.name)}</span>
-               <span style="color:${PAPRIKA};font-weight:700;white-space:nowrap;">&nbsp;${formatCurrency(
-                 i.price
-               )}</span>
-               ${
-                 i.note
-                   ? `<div style="color:${INK_SOFT};font-size:13px;">${escapeHtml(i.note)}</div>`
-                   : ""
-               }
-             </div>`
-        )
-        .join("");
-      const bg = idx % 2 === 0 ? "#FFFFFF" : "#FBF4EA";
-      return `<tr>
-        <td style="padding:12px 16px;background:${bg};border-bottom:1px solid #EFE3D2;width:120px;vertical-align:top;">
-          <span style="display:inline-block;background:${BRAND};color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:999px;">${
-        DAYS_DE[day] ?? "?"
-      }</span>
-        </td>
-        <td style="padding:12px 16px;background:${bg};border-bottom:1px solid #EFE3D2;vertical-align:top;font-size:15px;line-height:1.4;">${dishes}</td>
-      </tr>`;
-    })
-    .join("");
-
+function buildHtml(weekRange: string, posterUrl: string): string {
+  // Bewusst KEINE Tag-für-Tag-Tabelle mehr: die Menügrafik (posterUrl) zeigt
+  // bereits alle Tage mit Fotos und Preisen – eine Textliste darunter wäre
+  // doppelt. Die reine Text-Version der Mail (buildText) bleibt als Fallback.
   return `<!DOCTYPE html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:${PAPER};font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${INK};">
@@ -99,15 +72,9 @@ function buildHtml(rows: WeekPlanRow[], weekRange: string, posterUrl: string): s
           <div style="color:#fff;font-size:26px;font-weight:800;margin-top:6px;">Unser Wochenmenü</div>
           <div style="color:#F3DFC8;font-size:15px;margin-top:4px;">${weekRange}</div>
         </td></tr>
-        <!-- Poster -->
+        <!-- Menügrafik (zeigt alle Tage + Preise + Fotos) -->
         <tr><td style="padding:0;line-height:0;">
           <img src="${posterUrl}" alt="Wochenmenü ${weekRange}" width="600" style="display:block;width:100%;height:auto;border:0;" />
-        </td></tr>
-        <!-- Tabelle -->
-        <tr><td style="padding:8px 12px 0;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-            ${dayRows}
-          </table>
         </td></tr>
         <!-- CTA -->
         <tr><td style="padding:24px 28px 8px;text-align:center;">
@@ -126,14 +93,6 @@ function buildHtml(rows: WeekPlanRow[], weekRange: string, posterUrl: string): s
     </td></tr>
   </table>
 </body></html>`;
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 /**
@@ -165,7 +124,7 @@ export async function sendWeeklyMenuMail(weekStart: Date): Promise<WeeklyMailRes
   const posterUrl = `${BASE_URL}/api/menu-poster/square?week=${toISODateLocal(weekStart)}`;
   const subject = `🍽️ Wochenmenü ${weekRange} – Culinarium am Biesenhorst`;
   const text = buildText(rows, weekRange);
-  const html = buildHtml(rows, weekRange, posterUrl);
+  const html = buildHtml(weekRange, posterUrl);
 
   let sent = 0;
   let failed = 0;
