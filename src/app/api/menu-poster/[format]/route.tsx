@@ -100,7 +100,7 @@ export async function GET(
             justifyContent: "space-between",
             backgroundColor: BRAND,
             backgroundImage: `linear-gradient(120deg, ${BRAND_DEEP}, ${BRAND})`,
-            padding: `${24 * s}px ${52 * s}px`,
+            padding: `${18 * s}px ${52 * s}px`,
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -183,7 +183,7 @@ export async function GET(
             display: "flex",
             alignItems: "flex-end",
             justifyContent: "space-between",
-            padding: `${16 * s}px ${52 * s}px ${4 * s}px`,
+            padding: `${10 * s}px ${52 * s}px ${2 * s}px`,
           }}
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
@@ -242,7 +242,7 @@ export async function GET(
             display: "flex",
             flexDirection: "column",
             flex: 1,
-            padding: `${8 * s}px ${52 * s}px ${8 * s}px`,
+            padding: `${6 * s}px ${52 * s}px ${6 * s}px`,
             justifyContent: hasItems ? "flex-start" : "center",
           }}
         >
@@ -250,7 +250,7 @@ export async function GET(
             DAYS_DE.slice(0, 5).map((dayName, i) => {
               const dishes = byDay[i];
               const empty = dishes.length === 0;
-              const PHOTO = 134 * s;
+              const PHOTO = 146 * s;
               const dayImg = empty
                 ? null
                 : dishes.map((d) => dishPhotoUrl(d.slug, baseUrl)).find(Boolean) || null;
@@ -259,7 +259,7 @@ export async function GET(
                   key={i}
                   style={{
                     display: "flex",
-                    marginBottom: i < 4 ? 6 * s : 0,
+                    marginBottom: i < 4 ? 4 * s : 0,
                     borderRadius: 18 * s,
                     overflow: "hidden",
                     backgroundColor: CARD,
@@ -283,7 +283,7 @@ export async function GET(
                       display: "flex",
                       alignItems: "center",
                       flex: 1,
-                      padding: `${7 * s}px ${22 * s}px`,
+                      padding: `${5 * s}px ${22 * s}px`,
                     }}
                   >
                     {dayImg && (
@@ -418,7 +418,7 @@ export async function GET(
             justifyContent: "space-between",
             backgroundColor: INK,
             color: PAPER,
-            padding: `${15 * s}px ${52 * s}px`,
+            padding: `${12 * s}px ${52 * s}px`,
           }}
         >
           <div style={{ display: "flex", fontWeight: 700, fontSize: 23 * s, color: EMBER }}>
