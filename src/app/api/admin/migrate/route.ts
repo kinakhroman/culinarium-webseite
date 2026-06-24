@@ -50,6 +50,24 @@ export async function POST(req: Request) {
     results.Inquiry = `Fehler: ${e instanceof Error ? e.message : "unbekannt"}`;
   }
 
+  // Fester E-Mail-Verteiler für den Wochenmenü-Versand (freitags)
+  try {
+    await db.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS \`MailingRecipient\` (
+        \`id\` VARCHAR(191) NOT NULL,
+        \`email\` VARCHAR(191) NOT NULL,
+        \`name\` VARCHAR(191) NULL,
+        \`isActive\` BOOLEAN NOT NULL DEFAULT true,
+        \`createdAt\` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+        PRIMARY KEY (\`id\`),
+        UNIQUE INDEX \`MailingRecipient_email_key\`(\`email\`)
+      ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+    `);
+    results.MailingRecipient = "ok";
+  } catch (e) {
+    results.MailingRecipient = `Fehler: ${e instanceof Error ? e.message : "unbekannt"}`;
+  }
+
   // Order: Zahlungs-Spalten (MariaDB unterstützt IF NOT EXISTS)
   try {
     await db.$executeRawUnsafe(

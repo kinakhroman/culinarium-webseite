@@ -42,3 +42,12 @@ jobs:
             -H "x-api-key: ${{ secrets.MENU_API_KEY }}" \
             -w "\nHTTP %{http_code}\n" \
             https://culinarium-berlin.de/api/cron/weekly-post
+
+      - name: Wochenmenü per Mail an Verteiler (Freitag)
+        if: github.event.schedule == '0 9 * * 5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'weekly')
+        run: |
+          echo "Rufe weekly-mail auf …"
+          curl -sS -X POST \
+            -H "x-api-key: ${{ secrets.MENU_API_KEY }}" \
+            -w "\nHTTP %{http_code}\n" \
+            https://culinarium-berlin.de/api/cron/weekly-mail

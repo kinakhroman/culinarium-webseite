@@ -255,6 +255,16 @@ model SocialPost {
   createdAt   DateTime  @default(now())
 }
 
+// Fester E-Mail-Verteiler für den freitäglichen Wochenmenü-Versand.
+// Wird im Admin unter "Verteiler" gepflegt (nur Adressen mit Einwilligung).
+model MailingRecipient {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
 // Kontakt- und Catering-Anfragen werden in der DB gespeichert (Telegram optional)
 model Inquiry {
   id        String   @id @default(cuid())

@@ -12,6 +12,7 @@ import {
   Settings,
   ChefHat,
   ArrowLeft,
+  Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ const sidebarItems = [
   { label: "Anfragen", href: "/admin/anfragen", icon: Mail },
   { label: "Speisekarte", href: "/admin/speisekarte", icon: UtensilsCrossed },
   { label: "Wochenplan", href: "/admin/wochenplan", icon: Calendar },
+  { label: "Verteiler", href: "/admin/verteiler", icon: Send },
   { label: "Einstellungen", href: "/admin/einstellungen", icon: Settings },
 ];
 
