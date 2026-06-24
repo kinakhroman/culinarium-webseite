@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Trash2, Mail, Send, UserPlus } from "lucide-react";
+import { Loader2, Trash2, Mail, Send, UserPlus, Users } from "lucide-react";
 
 type Recipient = {
   id: string;
@@ -16,6 +16,8 @@ export default function RecipientManager({ initial }: { initial: Recipient[] }) 
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [bulk, setBulk] = useState("");
+  const [bulkMsg, setBulkMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [testMsg, setTestMsg] = useState<string | null>(null);
@@ -37,6 +39,26 @@ export default function RecipientManager({ initial }: { initial: Recipient[] }) 
     } else {
       const data = await res.json().catch(() => ({}));
       setError(data.error || "Hinzufügen fehlgeschlagen");
+    }
+  }
+
+  async function importBulk() {
+    setBulkMsg(null);
+    setBusy(true);
+    const res = await fetch("/api/admin/recipients", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ emails: bulk }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (res.ok) {
+      setBulk("");
+      const inv = data.invalid?.length ? ` · ${data.invalid.length} übersprungen (ungültig)` : "";
+      setBulkMsg(`${data.added} Adresse(n) importiert${inv}.`);
+      router.refresh();
+    } else {
+      setBulkMsg(data.error || "Import fehlgeschlagen");
     }
   }
 
@@ -110,6 +132,40 @@ export default function RecipientManager({ initial }: { initial: Recipient[] }) 
           Nur Adressen aufnehmen, die dem Erhalt des Wochenmenüs zugestimmt haben (DSGVO).
         </p>
       </form>
+
+      {/* Sammel-Import */}
+      <div className="bg-white rounded-2xl border border-neutral-100 p-5">
+        <h2 className="font-heading font-bold text-neutral-800 mb-1 flex items-center gap-2">
+          <Users className="h-5 w-5 text-primary" /> Mehrere auf einmal einfügen
+        </h2>
+        <p className="text-xs text-neutral-400 mb-3">
+          Adressen mit Komma, Semikolon, Leerzeichen oder Zeilenumbruch trennen. Doppelte und
+          ungültige werden automatisch übersprungen.
+        </p>
+        <textarea
+          value={bulk}
+          onChange={(e) => setBulk(e.target.value)}
+          rows={4}
+          placeholder="max@example.de; anna@example.de, ..."
+          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+        <div className="flex items-center justify-between gap-3 mt-2">
+          {bulkMsg ? (
+            <p className="text-sm text-primary font-medium">{bulkMsg}</p>
+          ) : (
+            <span />
+          )}
+          <button
+            type="button"
+            onClick={importBulk}
+            disabled={busy || !bulk.trim()}
+            className="inline-flex items-center justify-center gap-2 bg-primary text-white font-semibold text-sm px-5 py-2 rounded-lg hover:bg-primary-dark disabled:opacity-50 whitespace-nowrap"
+          >
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
+            Importieren
+          </button>
+        </div>
+      </div>
 
       {/* Probemail */}
       <div className="bg-secondary/10 rounded-2xl border border-secondary/30 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
