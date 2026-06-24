@@ -236,7 +236,7 @@ export async function GET(
           )}
         </div>
 
-        {/* Tageskarten */}
+        {/* Tageskarten – großes Gericht-Foto je Tag mit Text-Overlay */}
         <div
           style={{
             display: "flex",
@@ -250,7 +250,6 @@ export async function GET(
             DAYS_DE.slice(0, 5).map((dayName, i) => {
               const dishes = byDay[i];
               const empty = dishes.length === 0;
-              const PHOTO = 146 * s;
               const dayImg = empty
                 ? null
                 : dishes.map((d) => dishPhotoUrl(d.slug, baseUrl)).find(Boolean) || null;
@@ -259,59 +258,66 @@ export async function GET(
                   key={i}
                   style={{
                     display: "flex",
-                    marginBottom: i < 4 ? 4 * s : 0,
+                    position: "relative",
+                    flex: 1,
+                    marginBottom: i < 4 ? 8 * s : 0,
                     borderRadius: 18 * s,
                     overflow: "hidden",
-                    backgroundColor: CARD,
-                    boxShadow: `0 ${4 * s}px ${14 * s}px rgba(74,36,16,0.10)`,
+                    backgroundColor: empty ? CARD : BRAND,
+                    boxShadow: `0 ${4 * s}px ${14 * s}px rgba(74,36,16,0.12)`,
                   }}
                 >
-                  {/* Akzentbalken */}
+                  {/* Foto als Hintergrund (formatfüllend) */}
+                  {dayImg && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={dayImg}
+                      alt=""
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
+                  {/* Lesbarkeits-Verlauf (links dunkel, rechts Foto frei) */}
                   <div
                     style={{
                       display: "flex",
-                      width: 12 * s,
-                      backgroundColor: EMBER,
-                      backgroundImage: empty
-                        ? "none"
-                        : `linear-gradient(180deg, ${PAPRIKA}, ${EMBER})`,
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      backgroundImage: dayImg
+                        ? `linear-gradient(90deg, rgba(28,14,6,0.88) 0%, rgba(28,14,6,0.66) 40%, rgba(28,14,6,0.12) 100%)`
+                        : "none",
                     }}
                   />
-                  {/* Inhalt: Foto + Text */}
+                  {/* Text-Overlay */}
                   <div
                     style={{
                       display: "flex",
+                      position: "relative",
                       alignItems: "center",
+                      justifyContent: "space-between",
                       flex: 1,
-                      padding: `${5 * s}px ${22 * s}px`,
+                      padding: `0 ${32 * s}px`,
                     }}
                   >
-                    {dayImg && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={dayImg}
-                        alt=""
-                        width={PHOTO}
-                        height={PHOTO}
-                        style={{
-                          width: PHOTO,
-                          height: PHOTO,
-                          borderRadius: 16 * s,
-                          objectFit: "cover",
-                          marginRight: 20 * s,
-                          flexShrink: 0,
-                        }}
-                      />
-                    )}
-                    <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                    <div style={{ display: "flex", flexDirection: "column", flex: 1, paddingRight: 18 * s }}>
                       <div
                         style={{
                           display: "flex",
-                          fontFamily: "Playfair",
                           fontWeight: 700,
-                          fontSize: 22 * s,
-                          color: BRAND,
-                          marginBottom: empty ? 0 : 6 * s,
+                          fontSize: 19 * s,
+                          letterSpacing: 3 * s,
+                          textTransform: "uppercase",
+                          color: empty ? BRAND : EMBER,
+                          marginBottom: 4 * s,
                         }}
                       >
                         {dayName}
@@ -320,7 +326,7 @@ export async function GET(
                         <div
                           style={{
                             display: "flex",
-                            fontSize: 20 * s,
+                            fontSize: 26 * s,
                             color: INK_SOFT,
                             fontStyle: "italic",
                           }}
@@ -333,65 +339,38 @@ export async function GET(
                             key={j}
                             style={{
                               display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
+                              fontFamily: "Playfair",
+                              fontWeight: 700,
+                              fontSize: 30 * s,
+                              color: "#FFFFFF",
+                              lineHeight: 1.12,
                               marginTop: j > 0 ? 6 * s : 0,
                             }}
                           >
-                            <div
-                              style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                flex: 1,
-                                paddingRight: 14 * s,
-                              }}
-                            >
-                              <div
-                                style={{
-                                  display: "flex",
-                                  fontWeight: 700,
-                                  fontSize: 22 * s,
-                                  color: INK,
-                                  lineHeight: 1.12,
-                                }}
-                              >
-                                {d.name}
-                              </div>
-                              {d.note && (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    fontSize: 15 * s,
-                                    color: INK_SOFT,
-                                    marginTop: 3 * s,
-                                  }}
-                                >
-                                  {d.note}
-                                </div>
-                              )}
-                            </div>
-                            {uniformPrice === null && d.price > 0 && (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  backgroundColor: PAPRIKA,
-                                  backgroundImage: `linear-gradient(135deg, ${EMBER}, ${PAPRIKA})`,
-                                  color: PAPER,
-                                  fontWeight: 700,
-                                  fontSize: 21 * s,
-                                  padding: `${7 * s}px ${15 * s}px`,
-                                  borderRadius: 999,
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {formatCurrency(d.price)}
-                              </div>
-                            )}
+                            {d.name}
                           </div>
                         ))
                       )}
                     </div>
+                    {uniformPrice === null && !empty && dishes[0] && dishes[0].price > 0 && (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          backgroundColor: PAPRIKA,
+                          backgroundImage: `linear-gradient(135deg, ${EMBER}, ${PAPRIKA})`,
+                          color: PAPER,
+                          fontWeight: 700,
+                          fontSize: 26 * s,
+                          padding: `${7 * s}px ${17 * s}px`,
+                          borderRadius: 999,
+                          whiteSpace: "nowrap",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {formatCurrency(dishes[0].price)}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
