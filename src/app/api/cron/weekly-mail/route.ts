@@ -46,8 +46,10 @@ function resolveWeekStart(req: Request): Date {
 
 async function run(req: Request) {
   const weekStart = resolveWeekStart(req);
-  const result = await sendWeeklyMenuMail(weekStart);
-  return NextResponse.json({ ...result, weekStart: toISODateLocal(weekStart) });
+  // Test-Versand an genau eine Adresse: ?to=mail@example.de (Verteiler bleibt unberührt)
+  const to = new URL(req.url).searchParams.get("to") || undefined;
+  const result = await sendWeeklyMenuMail(weekStart, to ? { to } : undefined);
+  return NextResponse.json({ ...result, weekStart: toISODateLocal(weekStart), testTo: to });
 }
 
 export async function POST(req: Request) {

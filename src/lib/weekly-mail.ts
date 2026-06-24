@@ -100,7 +100,10 @@ function buildHtml(weekRange: string, posterUrl: string): string {
  * Verteilers – einzeln (kein BCC, damit Adressen privat bleiben).
  * Sendet nichts, wenn für die Woche kein Plan hinterlegt ist oder der Verteiler leer ist.
  */
-export async function sendWeeklyMenuMail(weekStart: Date): Promise<WeeklyMailResult> {
+export async function sendWeeklyMenuMail(
+  weekStart: Date,
+  opts?: { to?: string }
+): Promise<WeeklyMailResult> {
   const weekRange = formatWeekRange(weekStart);
 
   const rows = await getWeekPlanRows(weekStart);
@@ -109,16 +112,21 @@ export async function sendWeeklyMenuMail(weekStart: Date): Promise<WeeklyMailRes
   }
 
   let recipients: { email: string }[] = [];
-  try {
-    recipients = await db.mailingRecipient.findMany({
-      where: { isActive: true },
-      select: { email: true },
-    });
-  } catch {
-    return { ok: false, skipped: "Verteiler-Tabelle fehlt – bitte /api/admin/migrate ausführen.", weekRange };
-  }
-  if (recipients.length === 0) {
-    return { ok: true, skipped: "Kein aktiver Empfänger im Verteiler.", weekRange, recipients: 0 };
+  if (opts?.to) {
+    // Test-Modus: nur an eine Adresse, Verteiler bleibt unangetastet.
+    recipients = [{ email: opts.to.trim().toLowerCase() }];
+  } else {
+    try {
+      recipients = await db.mailingRecipient.findMany({
+        where: { isActive: true },
+        select: { email: true },
+      });
+    } catch {
+      return { ok: false, skipped: "Verteiler-Tabelle fehlt – bitte /api/admin/migrate ausführen.", weekRange };
+    }
+    if (recipients.length === 0) {
+      return { ok: true, skipped: "Kein aktiver Empfänger im Verteiler.", weekRange, recipients: 0 };
+    }
   }
 
   const posterUrl = `${BASE_URL}/api/menu-poster/square?week=${toISODateLocal(weekStart)}`;
