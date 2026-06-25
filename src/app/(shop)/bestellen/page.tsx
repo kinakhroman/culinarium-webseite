@@ -28,7 +28,7 @@ interface MenuItem {
 
 export default function BestellenPage() {
   const [items, setItems] = useState<MenuItem[]>([]);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { addItem, updateQuantity, items: cartItems, total, itemCount } = useCart();
@@ -42,8 +42,22 @@ export default function BestellenPage() {
         ]);
         const menuData = await menuRes.json();
         const catData = await catRes.json();
+        const cats = Array.isArray(catData) ? catData : [];
         setItems(Array.isArray(menuData) ? menuData : []);
-        setCategories(Array.isArray(catData) ? catData : []);
+        setCategories(cats);
+
+        // Kategorie per URL vorwählen, z. B. /bestellen?kategorie=wochenmenue
+        // (genutzt vom "Jetzt vorbestellen"-Button in der Wochenmenü-Mail)
+        const param = new URLSearchParams(window.location.search)
+          .get("kategorie")
+          ?.toLowerCase();
+        if (param) {
+          const match = cats.find(
+            (c: { slug: string; name: string }) =>
+              c.slug === param || c.name.toLowerCase() === param
+          );
+          if (match) setActiveCategory(match.id);
+        }
       } catch {
         setItems([]);
         setCategories([]);

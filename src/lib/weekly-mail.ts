@@ -7,6 +7,8 @@ import { getWeekPlanRows, type WeekPlanRow } from "@/lib/menu-db";
 import { formatWeekRange, toISODateLocal, formatCurrency, DAYS_DE } from "@/lib/utils";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://culinarium-berlin.de";
+// "Jetzt vorbestellen" führt direkt auf die Bestellseite mit Wochenmenü-Filter.
+const ORDER_URL = `${BASE_URL}/bestellen?kategorie=wochenmenue`;
 
 // Markenfarben (vgl. globals.css)
 const BRAND = "#4A2410";
@@ -50,7 +52,7 @@ function buildText(rows: WeekPlanRow[], weekRange: string): string {
     "",
     ...lines,
     "",
-    `Jetzt vorbestellen: ${BASE_URL}`,
+    `Jetzt vorbestellen: ${ORDER_URL}`,
     "",
     "Guten Appetit – euer Culinarium-Team am Biesenhorst",
   ].join("\n");
@@ -78,7 +80,7 @@ function buildHtml(weekRange: string, posterUrl: string): string {
         </td></tr>
         <!-- CTA -->
         <tr><td style="padding:24px 28px 8px;text-align:center;">
-          <a href="${BASE_URL}" style="display:inline-block;background:${PAPRIKA};color:#fff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 32px;border-radius:999px;">Jetzt vorbestellen &rarr;</a>
+          <a href="${ORDER_URL}" style="display:inline-block;background:${PAPRIKA};color:#fff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 32px;border-radius:999px;">Jetzt vorbestellen &rarr;</a>
           <div style="color:${INK_SOFT};font-size:13px;margin-top:14px;">Frisch gekocht, Mo&ndash;Fr. Wir freuen uns auf euch!</div>
         </td></tr>
         <!-- Footer -->
