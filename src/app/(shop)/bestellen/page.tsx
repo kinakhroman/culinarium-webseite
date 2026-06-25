@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import WeeklyMenuOrder from "@/components/features/order/weekly-menu-order";
 
 interface MenuItem {
   id: string;
@@ -71,6 +72,13 @@ export default function BestellenPage() {
   const filteredItems = activeCategory
     ? items.filter((item) => item.category.id === activeCategory)
     : items;
+
+  // Wochenmenü-Ansicht: zeigt NUR die geplanten Gerichte dieser + kommender
+  // Woche, nach Tagen gegliedert (statt der flachen Kategorie-Liste).
+  const activeSlug = activeCategory
+    ? categories.find((c) => c.id === activeCategory)?.slug
+    : null;
+  const isWeekly = activeSlug === "wochenmenue";
 
   function handleAdd(item: MenuItem) {
     addItem({
@@ -134,7 +142,13 @@ export default function BestellenPage() {
         ))}
       </div>
 
-      {/* Menu Grid */}
+      {/* Wochenmenü: nach Tagen gegliederte, bestellbare Gerichte dieser + kommender Woche */}
+      {isWeekly ? (
+        <div className="mb-8">
+          <WeeklyMenuOrder />
+        </div>
+      ) : (
+      /* Menu Grid (normale Kategorien) */
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {filteredItems.map((item) => {
           const qty = getCartQuantity(item.id);
@@ -219,6 +233,7 @@ export default function BestellenPage() {
           );
         })}
       </div>
+      )}
 
       {/* Floating Cart Bar */}
       {itemCount > 0 && (

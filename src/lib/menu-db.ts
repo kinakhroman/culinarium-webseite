@@ -35,6 +35,7 @@ function getPool(): Pool {
 
 export type WeekPlanRow = {
   dayOfWeek: number;
+  menuItemId: string;
   name: string;
   price: number;
   category: string | null;
@@ -71,7 +72,7 @@ export async function getWeekPlanRows(weekStart: Date): Promise<WeekPlanRow[]> {
   try {
     const rows = await conn.query(
       `SELECT w.dayOfWeek AS dayOfWeek, w.note AS note,
-              m.name AS name, m.price AS price, m.slug AS slug, m.imageUrl AS imageUrl,
+              m.id AS menuItemId, m.name AS name, m.price AS price, m.slug AS slug, m.imageUrl AS imageUrl,
               c.name AS category
        FROM WeeklyPlanItem w
        JOIN MenuItem m ON w.menuItemId = m.id
@@ -85,6 +86,7 @@ export async function getWeekPlanRows(weekStart: Date): Promise<WeekPlanRow[]> {
       const dbImg = r.imageUrl != null ? String(r.imageUrl) : null;
       return {
         dayOfWeek: Number(r.dayOfWeek),
+        menuItemId: String(r.menuItemId),
         name: String(r.name),
         price: Number(r.price),
         category: r.category != null ? String(r.category) : null,
