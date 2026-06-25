@@ -6,9 +6,29 @@
  * Ist SMTP nicht konfiguriert (oder nodemailer fehlt), wird die Mail server-
  * seitig NUR geloggt (kein Crash) – so ist der Flow auch ohne Mailserver testbar.
  */
-type MailInput = { to: string; subject: string; text: string; html?: string; replyTo?: string };
+type MailAttachment = {
+  filename: string;
+  content: Buffer;
+  cid?: string; // gesetzt = Inline-Bild (per <img src="cid:...">), kein externer Abruf
+  contentType?: string;
+};
+type MailInput = {
+  to: string;
+  subject: string;
+  text: string;
+  html?: string;
+  replyTo?: string;
+  attachments?: MailAttachment[];
+};
 
-export async function sendMail({ to, subject, text, html, replyTo }: MailInput): Promise<boolean> {
+export async function sendMail({
+  to,
+  subject,
+  text,
+  html,
+  replyTo,
+  attachments,
+}: MailInput): Promise<boolean> {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
 
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
@@ -46,6 +66,7 @@ export async function sendMail({ to, subject, text, html, replyTo }: MailInput):
       subject,
       text,
       html: html || undefined,
+      attachments: attachments?.length ? attachments : undefined,
     });
     return true;
   } catch (e) {

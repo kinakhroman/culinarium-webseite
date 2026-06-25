@@ -4,11 +4,13 @@
 import { db } from "@/lib/db";
 import { sendMail } from "@/lib/mailer";
 import { getWeekPlanRows, type WeekPlanRow } from "@/lib/menu-db";
-import { formatWeekRange, toISODateLocal, formatCurrency, DAYS_DE } from "@/lib/utils";
+import { formatWeekRange, formatCurrency, DAYS_DE } from "@/lib/utils";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://culinarium-berlin.de";
 // "Jetzt vorbestellen" führt direkt auf die Bestellseite mit Wochenmenü-Filter.
 const ORDER_URL = `${BASE_URL}/bestellen?kategorie=wochenmenue`;
+// "Menü ansehen" führt auf die Wochenplan-Seite (mit Grafik & Details).
+const MENU_URL = `${BASE_URL}/wochenplan`;
 
 // Markenfarben (vgl. globals.css)
 const BRAND = "#4A2410";
@@ -40,28 +42,78 @@ function byDay(rows: WeekPlanRow[]): { day: number; items: WeekPlanRow[] }[] {
     .map(([day, items]) => ({ day, items }));
 }
 
+/** Einheitspreis erkennen (alle Gerichte gleich teuer > 0) – sonst null. */
+function uniformPrice(rows: WeekPlanRow[]): number | null {
+  const prices = rows.map((r) => r.price).filter((p) => p > 0);
+  return prices.length > 0 && prices.every((p) => p === prices[0]) ? prices[0] : null;
+}
+
 function buildText(rows: WeekPlanRow[], weekRange: string): string {
+  const uni = uniformPrice(rows);
   const lines = byDay(rows).map(({ day, items }) => {
     const dishes = items
-      .map((i) => `${i.name} (${formatCurrency(i.price)})${i.note ? ` – ${i.note}` : ""}`)
+      .map(
+        (i) =>
+          `${i.name}${uni === null && i.price > 0 ? ` (${formatCurrency(i.price)})` : ""}${
+            i.note ? ` – ${i.note}` : ""
+          }`
+      )
       .join(" · ");
     return `${DAYS_DE[day] ?? "?"}: ${dishes}`;
   });
   return [
     `Unser Wochenmenü ${weekRange} bei Culinarium am Biesenhorst`,
+    uni !== null ? `Jedes Gericht ${formatCurrency(uni)} – inkl. Salat` : "",
     "",
     ...lines,
     "",
+    `Menü ansehen: ${MENU_URL}`,
     `Jetzt vorbestellen: ${ORDER_URL}`,
     "",
     "Guten Appetit – euer Culinarium-Team am Biesenhorst",
   ].join("\n");
 }
 
-function buildHtml(weekRange: string, posterUrl: string): string {
-  // Bewusst KEINE Tag-für-Tag-Tabelle mehr: die Menügrafik (posterUrl) zeigt
-  // bereits alle Tage mit Fotos und Preisen – eine Textliste darunter wäre
-  // doppelt. Die reine Text-Version der Mail (buildText) bleibt als Fallback.
+function buildHtml(rows: WeekPlanRow[], weekRange: string): string {
+  const uni = uniformPrice(rows);
+
+  const dayRows = byDay(rows)
+    .map(({ day, items }, idx) => {
+      const bg = idx % 2 === 0 ? "#FFFFFF" : "#FBF4EA";
+      const dishes = items
+        .map((i) => {
+          const price =
+            uni === null && i.price > 0
+              ? ` <span style="color:${PAPRIKA};font-weight:700;white-space:nowrap;">${formatCurrency(
+                  i.price
+                )}</span>`
+              : "";
+          const note = i.note
+            ? `<div style="color:${INK_SOFT};font-size:13px;">${escapeHtml(i.note)}</div>`
+            : "";
+          return `<div style="margin:1px 0;"><span style="color:${INK};font-weight:600;">${escapeHtml(
+            i.name
+          )}</span>${price}${note}</div>`;
+        })
+        .join("");
+      return `<tr>
+        <td style="padding:11px 14px;background:${bg};border-bottom:1px solid #EFE3D2;width:104px;vertical-align:top;">
+          <span style="display:inline-block;background:${BRAND};color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:999px;">${
+        DAYS_DE[day] ?? "?"
+      }</span>
+        </td>
+        <td style="padding:11px 14px;background:${bg};border-bottom:1px solid #EFE3D2;vertical-align:top;font-size:15px;line-height:1.35;">${dishes}</td>
+      </tr>`;
+    })
+    .join("");
+
+  const priceBadge =
+    uni !== null
+      ? `<div style="text-align:center;margin:0 0 4px;"><span style="display:inline-block;background:${PAPRIKA};background-image:linear-gradient(135deg,${EMBER},${PAPRIKA});color:#fff;font-weight:700;font-size:15px;padding:7px 20px;border-radius:999px;">${formatCurrency(
+          uni
+        )} pro Gericht &middot; mit Salat</span></div>`
+      : "";
+
   return `<!DOCTYPE html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:${PAPER};font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${INK};">
@@ -69,19 +121,23 @@ function buildHtml(weekRange: string, posterUrl: string): string {
     <tr><td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(74,36,16,.08);">
         <!-- Header -->
-        <tr><td style="background:${BRAND};padding:28px 28px 22px;text-align:center;">
+        <tr><td style="background:${BRAND};padding:26px 28px 20px;text-align:center;">
           <div style="color:${EMBER};font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Culinarium am Biesenhorst</div>
           <div style="color:#fff;font-size:26px;font-weight:800;margin-top:6px;">Unser Wochenmenü</div>
           <div style="color:#F3DFC8;font-size:15px;margin-top:4px;">${weekRange}</div>
         </td></tr>
-        <!-- Menügrafik (zeigt alle Tage + Preise + Fotos) -->
-        <tr><td style="padding:0;line-height:0;">
-          <img src="${posterUrl}" alt="Wochenmenü ${weekRange}" width="600" style="display:block;width:100%;height:auto;border:0;" />
+        <!-- Text-Menü (sofort lesbar, kein Bild nötig) -->
+        <tr><td style="padding:22px 24px 4px;">
+          ${priceBadge}
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0;margin-top:8px;border:1px solid #EFE3D2;border-radius:12px;overflow:hidden;">
+            ${dayRows}
+          </table>
         </td></tr>
-        <!-- CTA -->
-        <tr><td style="padding:24px 28px 8px;text-align:center;">
-          <a href="${ORDER_URL}" style="display:inline-block;background:${PAPRIKA};color:#fff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 32px;border-radius:999px;">Jetzt vorbestellen &rarr;</a>
-          <div style="color:${INK_SOFT};font-size:13px;margin-top:14px;">Frisch gekocht, Mo&ndash;Fr. Wir freuen uns auf euch!</div>
+        <!-- Buttons -->
+        <tr><td style="padding:20px 24px 6px;text-align:center;">
+          <a href="${MENU_URL}" style="display:inline-block;background:#fff;border:2px solid ${PAPRIKA};color:${PAPRIKA};text-decoration:none;font-weight:700;font-size:15px;padding:10px 24px;border-radius:999px;margin:0 5px 10px;">Menü ansehen</a>
+          <a href="${ORDER_URL}" style="display:inline-block;background:${PAPRIKA};color:#fff;text-decoration:none;font-weight:700;font-size:15px;padding:12px 26px;border-radius:999px;margin:0 5px 10px;">Jetzt vorbestellen &rarr;</a>
+          <div style="color:${INK_SOFT};font-size:13px;margin-top:6px;">Frisch gekocht, Mo&ndash;Fr. Wir freuen uns auf euch!</div>
         </td></tr>
         <!-- Footer -->
         <tr><td style="padding:18px 28px 24px;text-align:center;border-top:1px solid #EFE3D2;">
@@ -95,6 +151,14 @@ function buildHtml(weekRange: string, posterUrl: string): string {
     </td></tr>
   </table>
 </body></html>`;
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 /**
@@ -131,12 +195,12 @@ export async function sendWeeklyMenuMail(
     }
   }
 
-  // Kleineres "mail"-Format: lädt zuverlässig in Mail-Clients (Outlook bricht
-  // das große 1080er-Poster sonst beim Abruf ab).
-  const posterUrl = `${BASE_URL}/api/menu-poster/mail?week=${toISODateLocal(weekStart)}`;
   const subject = `🍽️ Wochenmenü ${weekRange} – Culinarium am Biesenhorst`;
   const text = buildText(rows, weekRange);
-  const html = buildHtml(weekRange, posterUrl);
+  // Reine Text-/HTML-Mail OHNE eingebettetes Bild: das Menü ist sofort lesbar
+  // (Outlook blockiert externe Bilder standardmäßig); die Grafik gibt's per
+  // "Menü ansehen"-Button auf der Website.
+  const html = buildHtml(rows, weekRange);
 
   let sent = 0;
   let failed = 0;
