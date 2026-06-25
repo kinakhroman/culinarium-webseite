@@ -132,7 +132,7 @@ export default function WeeklyMenuOrder() {
                           key={item.menuItemId + day.date}
                           className="bg-white rounded-2xl border border-neutral-100 overflow-hidden hover:shadow-lg transition-shadow"
                         >
-                          <div className="h-36 bg-gradient-to-br from-secondary/20 to-warm-200 flex items-center justify-center relative overflow-hidden">
+                          <div className="aspect-[11/6] bg-gradient-to-br from-secondary/20 to-warm-200 flex items-center justify-center relative overflow-hidden">
                             {item.imageUrl ? (
                               <Image
                                 src={item.imageUrl}
