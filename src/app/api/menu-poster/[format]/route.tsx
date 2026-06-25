@@ -11,6 +11,9 @@ const FORMATS = {
   square: { w: 1080, h: 1080 },
   story: { w: 1080, h: 1920 },
   print: { w: 1240, h: 1754 },
+  // Kleineres, leichteres Format für E-Mail (lädt zuverlässig in Outlook;
+  // 1080px war ~1,5 MB/4 s und wurde von Mail-Clients abgebrochen).
+  mail: { w: 760, h: 760 },
 } as const;
 
 const PAPER = "#F8F1E7";
@@ -26,23 +29,16 @@ function font(name: string) {
   return readFileSync(join(process.cwd(), "public", "fonts", name));
 }
 
-/**
- * Bild von der Platte als Daten-URI (base64). Vermeidet HTTP-Selbstabrufe in
- * next/og – das war der Grund für 4–7s Renderzeit (und kaputte Mail-Bilder).
- */
-function imgData(absPath: string): string | null {
+/** Absolute URL zum Gericht-Foto, wenn die Datei existiert (next/og lädt sie). */
+function dishPhotoUrl(slug: string | null | undefined, baseUrl: string): string | null {
+  if (!slug) return null;
   try {
-    if (!existsSync(absPath)) return null;
-    return `data:image/png;base64,${readFileSync(absPath).toString("base64")}`;
+    const p = join(process.cwd(), "public", "images", "menu", `${slug}.png`);
+    if (!existsSync(p)) return null;
+    return `${baseUrl}/images/menu/${slug}.png`;
   } catch {
     return null;
   }
-}
-
-/** Gericht-Foto als Daten-URI, wenn die Datei existiert. */
-function dishPhotoUrl(slug: string | null | undefined): string | null {
-  if (!slug) return null;
-  return imgData(join(process.cwd(), "public", "images", "menu", `${slug}.png`));
 }
 
 export async function GET(
@@ -63,7 +59,7 @@ export async function GET(
     weekStart = getWeekStart();
   }
   const rows = await getWeekPlanRows(weekStart);
-  const logoSrc = imgData(join(process.cwd(), "public", "images", "logo-emblem.png"));
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://culinarium-berlin.de";
 
   const byDay: Record<
     number,
@@ -126,15 +122,13 @@ export async function GET(
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {logoSrc && (
-                <img
-                  src={logoSrc}
-                  alt=""
-                  width={74 * s}
-                  height={74 * s}
-                  style={{ width: 74 * s, height: 74 * s }}
-                />
-              )}
+              <img
+                src={`${baseUrl}/images/logo-emblem.png`}
+                alt=""
+                width={74 * s}
+                height={74 * s}
+                style={{ width: 74 * s, height: 74 * s }}
+              />
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <div
@@ -261,7 +255,7 @@ export async function GET(
               const empty = dishes.length === 0;
               const dayImg = empty
                 ? null
-                : dishes.map((d) => dishPhotoUrl(d.slug)).find(Boolean) || null;
+                : dishes.map((d) => dishPhotoUrl(d.slug, baseUrl)).find(Boolean) || null;
               return (
                 <div
                   key={i}
@@ -419,11 +413,6 @@ export async function GET(
     {
       width: size.w,
       height: size.h,
-      headers: {
-        // Einmal erzeugen, dann aus dem Cache ausliefern (Mail-Clients/Proxys
-        // brechen langsame Bild-Abrufe sonst ab). 1 Tag, plus Stale-Serving.
-        "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
-      },
       fonts: [
         { name: "Playfair", data: font("playfair-700.woff"), weight: 700, style: "normal" },
         { name: "PlayfairX", data: font("playfair-700-ext.woff"), weight: 700, style: "normal" },

@@ -131,7 +131,9 @@ export async function sendWeeklyMenuMail(
     }
   }
 
-  const posterUrl = `${BASE_URL}/api/menu-poster/square?week=${toISODateLocal(weekStart)}`;
+  // Kleineres "mail"-Format: lädt zuverlässig in Mail-Clients (Outlook bricht
+  // das große 1080er-Poster sonst beim Abruf ab).
+  const posterUrl = `${BASE_URL}/api/menu-poster/mail?week=${toISODateLocal(weekStart)}`;
   const subject = `🍽️ Wochenmenü ${weekRange} – Culinarium am Biesenhorst`;
   const text = buildText(rows, weekRange);
   const html = buildHtml(weekRange, posterUrl);
