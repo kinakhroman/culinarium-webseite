@@ -83,6 +83,10 @@ export default function AdminWochenplanPage() {
         body: JSON.stringify({
           rawText,
           defaultPrice: parseFloat(price.replace(",", ".")) || 6.9,
+          // NICHT sofort posten: Website + Fotos + Caption-Entwürfe werden
+          // gespeichert. Das Wochenmenü wird automatisch erst am Freitag vom
+          // Zeitplan (weekly-post) auf Instagram + Facebook veröffentlicht.
+          post: false,
         }),
       });
       const data: AutoResult = await res.json();
@@ -186,7 +190,9 @@ export default function AdminWochenplanPage() {
         <p className="text-sm text-neutral-500 mb-4">
           Wochenmenü einfach reinkopieren (z.&nbsp;B. auf Ukrainisch von den Kollegen). Es wird
           übersetzt, die Website aktualisiert, Fotos werden generiert und Social-Media-Beiträge
-          vorbereitet bzw. gepostet.
+          als Entwurf vorbereitet. <strong>Auf Instagram &amp; Facebook wird das Wochenmenü
+          automatisch erst am Freitag</strong> für die kommende Woche gepostet – hier wird also
+          nichts sofort veröffentlicht.
         </p>
         <textarea
           value={rawText}
