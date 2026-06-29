@@ -47,7 +47,12 @@
       "Bash(curl -s -o /dev/null -w \"Status: %{http_code}\\\\nTime: %{time_total}s\\\\n\" http://localhost:3000/)",
       "Bash(tasklist //FI \"IMAGENAME eq node.exe\")",
       "PowerShell(git -C \"c:\\\\Users\\\\rkina\\\\Documents\\\\.claude\\\\Webseite Culinarium\" status --short)",
-      "PowerShell(git -C \"c:\\\\Users\\\\rkina\\\\Documents\\\\.claude\\\\Webseite Culinarium\" log --oneline -1)"
+      "PowerShell(git -C \"c:\\\\Users\\\\rkina\\\\Documents\\\\.claude\\\\Webseite Culinarium\" log --oneline -1)",
+      "PowerShell(Start-Process \"chrome.exe\" \"https://developers.facebook.com/apps/\")",
+      "PowerShell(Start-Process \"chrome.exe\" \"https://developers.facebook.com/tools/explorer/\")",
+      "Bash(gh run *)",
+      "Bash(curl -sS -m 25 -o /dev/null -w \"HTTP %{http_code} — connect %{time_connect}s total %{time_total}s\\\\n\" https://culinarium-berlin.de/)",
+      "Bash(curl -sS --ssl-no-revoke -m 25 -o /dev/null -w \"HTTP %{http_code} — connect %{time_connect}s total %{time_total}s\\\\n\" https://culinarium-berlin.de/)"
     ],
     "additionalDirectories": [
       "C:\\Users\\rkina",
