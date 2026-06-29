@@ -48,6 +48,7 @@ export async function GET(
   const { format } = await params;
   const size = FORMATS[format as keyof typeof FORMATS] ?? FORMATS.square;
   const s = size.h / 1080; // Skalierung relativ zum Quadrat
+  const isPrint = format === "print"; // A4: eigenes, ruhigeres Layout (Foto-Kachel + Text)
 
   // Optional ?week=YYYY-MM-DD (fürs Druck-Archiv); sonst aktuelle Woche
   const weekParam = new URL(req.url).searchParams.get("week");
@@ -256,6 +257,123 @@ export async function GET(
               const dayImg = empty
                 ? null
                 : dishes.map((d) => dishPhotoUrl(d.slug, baseUrl)).find(Boolean) || null;
+
+              // PRINT (A4): Foto-Kachel links, Text auf hellem Grund rechts –
+              // klar getrennt statt Text-über-Foto. Übersichtlicher, nutzt die Höhe.
+              if (isPrint) {
+                const photoW = Math.round(size.w * 0.31);
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      flex: 1,
+                      alignItems: "stretch",
+                      marginBottom: i < 4 ? 14 * s : 0,
+                      borderRadius: 20 * s,
+                      overflow: "hidden",
+                      backgroundColor: CARD,
+                      border: `${1 * s}px solid rgba(74,36,16,0.10)`,
+                      boxShadow: `0 ${5 * s}px ${16 * s}px rgba(74,36,16,0.10)`,
+                    }}
+                  >
+                    {/* Foto-Kachel links */}
+                    <div
+                      style={{
+                        display: "flex",
+                        position: "relative",
+                        width: photoW,
+                        flexShrink: 0,
+                        backgroundColor: empty ? PAPER : BRAND,
+                      }}
+                    >
+                      {dayImg && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={dayImg}
+                          alt=""
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      )}
+                    </div>
+                    {/* Text rechts auf hellem Grund */}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        flex: 1,
+                        justifyContent: "center",
+                        padding: `0 ${38 * s}px`,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          fontWeight: 700,
+                          fontSize: 20 * s,
+                          letterSpacing: 3 * s,
+                          textTransform: "uppercase",
+                          color: empty ? INK_SOFT : PAPRIKA,
+                          marginBottom: 7 * s,
+                        }}
+                      >
+                        {dayName}
+                      </div>
+                      {empty ? (
+                        <div style={{ display: "flex", fontSize: 28 * s, color: INK_SOFT, fontStyle: "italic" }}>
+                          Ruhetag
+                        </div>
+                      ) : (
+                        dishes.map((d, j) => (
+                          <div
+                            key={j}
+                            style={{
+                              display: "flex",
+                              fontFamily: "Playfair",
+                              fontWeight: 700,
+                              fontSize: 32 * s,
+                              color: INK,
+                              lineHeight: 1.14,
+                              marginTop: j > 0 ? 6 * s : 0,
+                            }}
+                          >
+                            {d.name}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    {uniformPrice === null && !empty && dishes[0] && dishes[0].price > 0 && (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          alignSelf: "center",
+                          backgroundColor: PAPRIKA,
+                          backgroundImage: `linear-gradient(135deg, ${EMBER}, ${PAPRIKA})`,
+                          color: PAPER,
+                          fontWeight: 700,
+                          fontSize: 26 * s,
+                          padding: `${7 * s}px ${17 * s}px`,
+                          borderRadius: 999,
+                          whiteSpace: "nowrap",
+                          flexShrink: 0,
+                          marginRight: 30 * s,
+                        }}
+                      >
+                        {formatCurrency(dishes[0].price)}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={i}
