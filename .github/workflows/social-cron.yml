@@ -6,10 +6,11 @@ name: Social Auto-Posting
 #   - 09:00 UTC = 11:00 Europe/Berlin im Sommer (10:00 im Winter)
 # Der API-Key liegt als Repo-Secret MENU_API_KEY (wird in den Logs maskiert).
 #
-# Robustheit: Jeder Aufruf wird bei Server-Wacklern (HTTP 000/5xx, auch 400/403/404,
-# wie sie der Webserver vor der App bei einem Zombie-Stau liefert) mehrfach mit
-# Backoff wiederholt. Bleibt es nach allen Versuchen kaputt, schlägt der Step
-# WIRKLICH fehl (rot) → GitHub schickt eine Fehler-Mail. Kein stilles "success" mehr.
+# WICHTIG (Lehre aus 24.–26.06.): Aufrufe per curl von GitHub-Runnern werden
+# vom Hostinger-WAF mit leerem HTTP 400 abgewiesen (curl-TLS/IP). Deshalb läuft
+# der Aufruf über PowerShell (Invoke-WebRequest, .NET-TLS – kommt durch).
+# Das Skript wiederholt bei Wacklern und schlägt sonst WIRKLICH fehl (rot) →
+# GitHub-Fehlermail statt stillem "success".
 
 on:
   schedule:
@@ -30,29 +31,29 @@ jobs:
   post:
     runs-on: ubuntu-latest
     steps:
-      - name: Code auschecken (für das Retry-Skript)
+      - name: Code auschecken (für das Aufruf-Skript)
         uses: actions/checkout@v4
 
       - name: Tagesgericht posten (Mo–Fr)
         if: github.event.schedule == '0 3 * * 1-5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'daily')
+        shell: pwsh
         env:
           API_KEY: ${{ secrets.MENU_API_KEY }}
         run: |
-          bash "$GITHUB_WORKSPACE/.github/scripts/call-cron.sh" \
-            "Tagesgericht" "https://culinarium-berlin.de/api/cron/daily-post"
+          .github/scripts/call-cron.ps1 -Label "Tagesgericht" -Url "https://culinarium-berlin.de/api/cron/daily-post"
 
       - name: Wochenmenü posten (Freitag)
         if: github.event.schedule == '0 9 * * 5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'weekly')
+        shell: pwsh
         env:
           API_KEY: ${{ secrets.MENU_API_KEY }}
         run: |
-          bash "$GITHUB_WORKSPACE/.github/scripts/call-cron.sh" \
-            "Wochenmenü-Post" "https://culinarium-berlin.de/api/cron/weekly-post"
+          .github/scripts/call-cron.ps1 -Label "Wochenmenü-Post" -Url "https://culinarium-berlin.de/api/cron/weekly-post"
 
       - name: Wochenmenü per Mail an Verteiler (Freitag)
         if: github.event.schedule == '0 9 * * 5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'weekly')
+        shell: pwsh
         env:
           API_KEY: ${{ secrets.MENU_API_KEY }}
         run: |
-          bash "$GITHUB_WORKSPACE/.github/scripts/call-cron.sh" \
-            "Wochenmenü-Mail" "https://culinarium-berlin.de/api/cron/weekly-mail"
+          .github/scripts/call-cron.ps1 -Label "Wochenmenü-Mail" -Url "https://culinarium-berlin.de/api/cron/weekly-mail"
