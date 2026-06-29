@@ -82,6 +82,12 @@ export async function GET(
   const uniformPrice =
     prices.length > 0 && prices.every((p) => p > 0 && p === prices[0]) ? prices[0] : null;
 
+  // A4-Druck: Schrift der Gerichtnamen an den LÄNGSTEN Namen der Woche koppeln,
+  // damit lange Namen (mehrzeilig) nicht aus der Karte laufen / abgeschnitten werden.
+  const maxNameLen = planned.reduce((m, r) => Math.max(m, r.name.length), 0);
+  const printDishFont =
+    maxNameLen >= 50 ? 24 : maxNameLen >= 40 ? 27 : maxNameLen >= 30 ? 30 : 33;
+
   return new ImageResponse(
     (
       <div
@@ -310,18 +316,19 @@ export async function GET(
                         flexDirection: "column",
                         flex: 1,
                         justifyContent: "center",
-                        padding: `0 ${38 * s}px`,
+                        padding: `${10 * s}px ${30 * s}px`,
+                        overflow: "hidden",
                       }}
                     >
                       <div
                         style={{
                           display: "flex",
                           fontWeight: 700,
-                          fontSize: 20 * s,
+                          fontSize: 19 * s,
                           letterSpacing: 3 * s,
                           textTransform: "uppercase",
                           color: empty ? INK_SOFT : PAPRIKA,
-                          marginBottom: 7 * s,
+                          marginBottom: 6 * s,
                         }}
                       >
                         {dayName}
@@ -338,9 +345,9 @@ export async function GET(
                               display: "flex",
                               fontFamily: "Playfair",
                               fontWeight: 700,
-                              fontSize: 32 * s,
+                              fontSize: printDishFont * s,
                               color: INK,
-                              lineHeight: 1.14,
+                              lineHeight: 1.12,
                               marginTop: j > 0 ? 6 * s : 0,
                             }}
                           >
