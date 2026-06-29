@@ -27,7 +27,11 @@ trap 'rm -f "$body_file"' EXIT
 attempt=1
 while [ "$attempt" -le "$ATTEMPTS" ]; do
   echo "[$LABEL] Versuch $attempt/$ATTEMPTS → $URL"
+  # WICHTIG: Browser-User-Agent senden. Der Hostinger-WAF lehnt den Standard-
+  # curl-UA mit leerem HTTP 400 ab (Ursache des Ausfalls am 26.06.).
   code="$(curl -sS -X POST \
+    -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" \
+    -H "Accept: application/json" \
     -H "x-api-key: ${API_KEY}" \
     --max-time "$MAX_TIME" \
     -o "$body_file" \
