@@ -85,9 +85,11 @@ async function run() {
     };
   }
 
-  // 1) Feed auf IG + FB, 2) IG-Story
+  // 1) Feed auf IG + FB (Gericht-Foto), 2) IG-Story mit gebrandeter
+  // Tages-Grafik (Foto + "Heute nur X €" + 14-Uhr-Restportionen-Hinweis)
+  const storyUrl = `${baseUrl}/api/daily-story?day=${todayIdx}`;
   const feed = await postToBoth(captions.instagram, imageUrl);
-  const story = await postStoryToInstagram(imageUrl);
+  const story = await postStoryToInstagram(storyUrl);
 
   // protokollieren
   for (const r of feed) {
@@ -106,7 +108,7 @@ async function run() {
     data: {
       platform: "instagram",
       caption: `[STORY] ${captions.instagram}`,
-      imageUrl,
+      imageUrl: storyUrl,
       status: story.ok ? "POSTED" : "FAILED",
       postedAt: story.ok ? new Date() : null,
       error: story.error || null,
