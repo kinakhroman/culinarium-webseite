@@ -29,16 +29,31 @@ function font(name: string) {
   return readFileSync(join(process.cwd(), "public", "fonts", name));
 }
 
-/** Absolute URL zum Gericht-Foto, wenn die Datei existiert (next/og lädt sie). */
-function dishPhotoUrl(slug: string | null | undefined, baseUrl: string): string | null {
-  if (!slug) return null;
+/**
+ * Bild als Data-URI direkt von der Platte – KEIN HTTP-Selbstabruf.
+ * (Ein fehlgeschlagener Fetch ließ satori mit "Image size cannot be
+ * determined" abstürzen → 503 für die ganze Grafik. Außerdem stimmt so der
+ * Bildtyp immer: manche .png-Dateien enthalten recodierte JPEG-Daten.)
+ */
+function fileAsDataUri(p: string): string | null {
   try {
-    const p = join(process.cwd(), "public", "images", "menu", `${slug}.png`);
     if (!existsSync(p)) return null;
-    return `${baseUrl}/images/menu/${slug}.png`;
+    const buf = readFileSync(p);
+    // Schutz fürs knappe Speicherlimit auf dem Shared-Hosting
+    if (buf.length > 3_000_000) return null;
+    const mime =
+      buf[0] === 0x89 ? "image/png" : buf[0] === 0xff ? "image/jpeg" : null;
+    if (!mime) return null;
+    return `data:${mime};base64,${buf.toString("base64")}`;
   } catch {
     return null;
   }
+}
+
+/** Gericht-Foto als Data-URI, wenn die Datei existiert. */
+function dishPhotoUrl(slug: string | null | undefined): string | null {
+  if (!slug) return null;
+  return fileAsDataUri(join(process.cwd(), "public", "images", "menu", `${slug}.png`));
 }
 
 export async function GET(
@@ -60,7 +75,7 @@ export async function GET(
     weekStart = getWeekStart();
   }
   const rows = await getWeekPlanRows(weekStart);
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://culinarium-berlin.de";
+  const logoImg = fileAsDataUri(join(process.cwd(), "public", "images", "logo-emblem.png"));
 
   const byDay: Record<
     number,
@@ -128,14 +143,16 @@ export async function GET(
                 flexShrink: 0,
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`${baseUrl}/images/logo-emblem.png`}
-                alt=""
-                width={74 * s}
-                height={74 * s}
-                style={{ width: 74 * s, height: 74 * s }}
-              />
+              {logoImg && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={logoImg}
+                  alt=""
+                  width={74 * s}
+                  height={74 * s}
+                  style={{ width: 74 * s, height: 74 * s }}
+                />
+              )}
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <div
@@ -262,7 +279,7 @@ export async function GET(
               const empty = dishes.length === 0;
               const dayImg = empty
                 ? null
-                : dishes.map((d) => dishPhotoUrl(d.slug, baseUrl)).find(Boolean) || null;
+                : dishes.map((d) => dishPhotoUrl(d.slug)).find(Boolean) || null;
 
               // PRINT (A4): Foto-Kachel links, Text auf hellem Grund rechts –
               // klar getrennt statt Text-über-Foto. Übersichtlicher, nutzt die Höhe.
@@ -420,9 +437,13 @@ export async function GET(
                       left: 0,
                       width: "100%",
                       height: "100%",
-                      backgroundImage: dayImg
-                        ? `linear-gradient(90deg, rgba(28,14,6,0.88) 0%, rgba(28,14,6,0.66) 40%, rgba(28,14,6,0.12) 100%)`
-                        : "none",
+                      // Kein `backgroundImage: "none"` setzen – satori wirft darauf
+                      // "Invalid background image" und die ganze Grafik bricht mit 503 ab.
+                      ...(dayImg
+                        ? {
+                            backgroundImage: `linear-gradient(90deg, rgba(28,14,6,0.88) 0%, rgba(28,14,6,0.66) 40%, rgba(28,14,6,0.12) 100%)`,
+                          }
+                        : {}),
                     }}
                   />
                   {/* Text-Overlay */}
