@@ -63,7 +63,10 @@ export async function GET(
   const { format } = await params;
   const size = FORMATS[format as keyof typeof FORMATS] ?? FORMATS.square;
   const s = size.h / 1080; // Skalierung relativ zum Quadrat
-  const isPrint = format === "print"; // A4: eigenes, ruhigeres Layout (Foto-Kachel + Text)
+  // Horizontale Skalierung für Kopf-/Titel-/Fußzeile: bei sehr hohen Formaten
+  // (Story) an der BREITE deckeln, sonst läuft der Kopf rechts aus dem Bild.
+  // Faktor 1.414 = Verhältnis beim A4-Druck (dort passt alles gerade gut).
+  const hs = Math.min(s, (size.w / 1080) * 1.414);
 
   // Optional ?week=YYYY-MM-DD (fürs Druck-Archiv); sonst aktuelle Woche
   const weekParam = new URL(req.url).searchParams.get("week");
@@ -97,11 +100,15 @@ export async function GET(
   const uniformPrice =
     prices.length > 0 && prices.every((p) => p > 0 && p === prices[0]) ? prices[0] : null;
 
-  // A4-Druck: Schrift der Gerichtnamen an den LÄNGSTEN Namen der Woche koppeln,
-  // damit lange Namen (mehrzeilig) nicht aus der Karte laufen / abgeschnitten werden.
+  // Schrift der Gerichtnamen an den LÄNGSTEN Namen der Woche UND die Formatbreite
+  // koppeln, damit lange Namen nicht unten aus der Karte laufen (v. a. Story:
+  // schmale Textspalte bei großer Skalierung → Text braucht kleinere Schrift).
   const maxNameLen = planned.reduce((m, r) => Math.max(m, r.name.length), 0);
+  // Textspaltenbreite normalisiert auf Quadrat-Einheiten (685 = Spalte im 1080er-Quadrat)
+  const textCapacity = (size.w * 0.69 - 60 * s) / s;
+  const effLen = (maxNameLen * 685) / Math.max(textCapacity, 1);
   const printDishFont =
-    maxNameLen >= 50 ? 24 : maxNameLen >= 40 ? 27 : maxNameLen >= 30 ? 30 : 33;
+    effLen >= 90 ? 18 : effLen >= 70 ? 21 : effLen >= 50 ? 24 : effLen >= 40 ? 27 : effLen >= 30 ? 30 : 33;
 
   return new ImageResponse(
     (
@@ -125,7 +132,7 @@ export async function GET(
             justifyContent: "space-between",
             backgroundColor: BRAND,
             backgroundImage: `linear-gradient(120deg, ${BRAND_DEEP}, ${BRAND})`,
-            padding: `${18 * s}px ${52 * s}px`,
+            padding: `${18 * hs}px ${52 * hs}px`,
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -135,11 +142,11 @@ export async function GET(
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: 88 * s,
-                height: 88 * s,
+                width: 88 * hs,
+                height: 88 * hs,
                 borderRadius: 999,
                 backgroundColor: PAPER,
-                marginRight: 22 * s,
+                marginRight: 22 * hs,
                 flexShrink: 0,
               }}
             >
@@ -148,9 +155,9 @@ export async function GET(
                 <img
                   src={logoImg}
                   alt=""
-                  width={74 * s}
-                  height={74 * s}
-                  style={{ width: 74 * s, height: 74 * s }}
+                  width={74 * hs}
+                  height={74 * hs}
+                  style={{ width: 74 * hs, height: 74 * hs }}
                 />
               )}
             </div>
@@ -159,7 +166,7 @@ export async function GET(
                 style={{
                   fontFamily: "Playfair",
                   fontWeight: 700,
-                  fontSize: 50 * s,
+                  fontSize: 50 * hs,
                   color: PAPER,
                   lineHeight: 1,
                 }}
@@ -169,10 +176,10 @@ export async function GET(
               <div
                 style={{
                   fontWeight: 700,
-                  fontSize: 19 * s,
-                  letterSpacing: 6 * s,
+                  fontSize: 19 * hs,
+                  letterSpacing: 6 * hs,
                   color: EMBER,
-                  marginTop: 7 * s,
+                  marginTop: 7 * hs,
                 }}
               >
                 BERLIN.DE
@@ -184,7 +191,7 @@ export async function GET(
               style={{
                 fontFamily: "Playfair",
                 fontWeight: 700,
-                fontSize: 38 * s,
+                fontSize: 38 * hs,
                 color: EMBER,
                 lineHeight: 1,
               }}
@@ -193,10 +200,10 @@ export async function GET(
             </div>
             <div
               style={{
-                fontSize: 17 * s,
+                fontSize: 17 * hs,
                 color: PAPER,
-                letterSpacing: 4 * s,
-                marginTop: 6 * s,
+                letterSpacing: 4 * hs,
+                marginTop: 6 * hs,
               }}
             >
               MITTAGSTISCH
@@ -210,7 +217,7 @@ export async function GET(
             display: "flex",
             alignItems: "flex-end",
             justifyContent: "space-between",
-            padding: `${10 * s}px ${52 * s}px ${2 * s}px`,
+            padding: `${10 * hs}px ${52 * hs}px ${2 * hs}px`,
           }}
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
@@ -218,14 +225,14 @@ export async function GET(
               style={{
                 fontFamily: "Playfair",
                 fontWeight: 700,
-                fontSize: 46 * s,
+                fontSize: 46 * hs,
                 color: PAPRIKA,
                 lineHeight: 1,
               }}
             >
               Menü der Woche
             </div>
-            <div style={{ display: "flex", fontSize: 23 * s, color: INK_SOFT, marginTop: 8 * s }}>
+            <div style={{ display: "flex", fontSize: 23 * hs, color: INK_SOFT, marginTop: 8 * hs }}>
               {formatWeekRange(weekStart)}
             </div>
           </div>
@@ -239,11 +246,11 @@ export async function GET(
                   backgroundImage: `linear-gradient(135deg, ${EMBER}, ${PAPRIKA})`,
                   color: PAPER,
                   fontWeight: 700,
-                  fontSize: 40 * s,
-                  padding: `${9 * s}px ${26 * s}px`,
+                  fontSize: 40 * hs,
+                  padding: `${9 * hs}px ${26 * hs}px`,
                   borderRadius: 999,
                   whiteSpace: "nowrap",
-                  boxShadow: `0 ${4 * s}px ${12 * s}px rgba(192,56,28,0.25)`,
+                  boxShadow: `0 ${4 * hs}px ${12 * hs}px rgba(192,56,28,0.25)`,
                 }}
               >
                 {formatCurrency(uniformPrice)}
@@ -251,10 +258,10 @@ export async function GET(
               <div
                 style={{
                   display: "flex",
-                  fontSize: 16 * s,
+                  fontSize: 16 * hs,
                   color: INK_SOFT,
-                  letterSpacing: 2 * s,
-                  marginTop: 6 * s,
+                  letterSpacing: 2 * hs,
+                  marginTop: 6 * hs,
                 }}
               >
                 pro Gericht · mit Salat
@@ -269,7 +276,7 @@ export async function GET(
             display: "flex",
             flexDirection: "column",
             flex: 1,
-            padding: `${6 * s}px ${52 * s}px ${6 * s}px`,
+            padding: `${6 * s}px ${52 * hs}px ${6 * s}px`,
             justifyContent: hasItems ? "flex-start" : "center",
           }}
         >
@@ -281,11 +288,10 @@ export async function GET(
                 ? null
                 : dishes.map((d) => dishPhotoUrl(d.slug)).find(Boolean) || null;
 
-              // PRINT (A4): Foto-Kachel links, Text auf hellem Grund rechts –
-              // klar getrennt statt Text-über-Foto. Übersichtlicher, nutzt die Höhe.
-              if (isPrint) {
-                const photoW = Math.round(size.w * 0.31);
-                return (
+              // Einheitliches Layout für ALLE Formate (wie A4-Aushang):
+              // Foto-Kachel links, Text auf hellem Grund rechts.
+              const photoW = Math.round(size.w * 0.31);
+              return (
                   <div
                     key={i}
                     style={{
@@ -396,133 +402,6 @@ export async function GET(
                     )}
                   </div>
                 );
-              }
-
-              return (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    position: "relative",
-                    flex: 1,
-                    marginBottom: i < 4 ? 8 * s : 0,
-                    borderRadius: 18 * s,
-                    overflow: "hidden",
-                    backgroundColor: empty ? CARD : BRAND,
-                    boxShadow: `0 ${4 * s}px ${14 * s}px rgba(74,36,16,0.12)`,
-                  }}
-                >
-                  {/* Foto als Hintergrund (formatfüllend) */}
-                  {dayImg && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={dayImg}
-                      alt=""
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  )}
-                  {/* Lesbarkeits-Verlauf (links dunkel, rechts Foto frei) */}
-                  <div
-                    style={{
-                      display: "flex",
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: "100%",
-                      // Kein `backgroundImage: "none"` setzen – satori wirft darauf
-                      // "Invalid background image" und die ganze Grafik bricht mit 503 ab.
-                      ...(dayImg
-                        ? {
-                            backgroundImage: `linear-gradient(90deg, rgba(28,14,6,0.88) 0%, rgba(28,14,6,0.66) 40%, rgba(28,14,6,0.12) 100%)`,
-                          }
-                        : {}),
-                    }}
-                  />
-                  {/* Text-Overlay */}
-                  <div
-                    style={{
-                      display: "flex",
-                      position: "relative",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      flex: 1,
-                      padding: `0 ${32 * s}px`,
-                    }}
-                  >
-                    <div style={{ display: "flex", flexDirection: "column", flex: 1, paddingRight: 18 * s }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          fontWeight: 700,
-                          fontSize: 19 * s,
-                          letterSpacing: 3 * s,
-                          textTransform: "uppercase",
-                          color: empty ? BRAND : EMBER,
-                          marginBottom: 4 * s,
-                        }}
-                      >
-                        {dayName}
-                      </div>
-                      {empty ? (
-                        <div
-                          style={{
-                            display: "flex",
-                            fontSize: 26 * s,
-                            color: INK_SOFT,
-                            fontStyle: "italic",
-                          }}
-                        >
-                          Ruhetag
-                        </div>
-                      ) : (
-                        dishes.map((d, j) => (
-                          <div
-                            key={j}
-                            style={{
-                              display: "flex",
-                              fontFamily: "Playfair",
-                              fontWeight: 700,
-                              fontSize: 30 * s,
-                              color: "#FFFFFF",
-                              lineHeight: 1.12,
-                              marginTop: j > 0 ? 6 * s : 0,
-                            }}
-                          >
-                            {d.name}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                    {uniformPrice === null && !empty && dishes[0] && dishes[0].price > 0 && (
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          backgroundColor: PAPRIKA,
-                          backgroundImage: `linear-gradient(135deg, ${EMBER}, ${PAPRIKA})`,
-                          color: PAPER,
-                          fontWeight: 700,
-                          fontSize: 26 * s,
-                          padding: `${7 * s}px ${17 * s}px`,
-                          borderRadius: 999,
-                          whiteSpace: "nowrap",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {formatCurrency(dishes[0].price)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
             })
           ) : (
             <div
@@ -546,13 +425,13 @@ export async function GET(
             justifyContent: "space-between",
             backgroundColor: INK,
             color: PAPER,
-            padding: `${12 * s}px ${52 * s}px`,
+            padding: `${12 * hs}px ${52 * hs}px`,
           }}
         >
-          <div style={{ display: "flex", fontWeight: 700, fontSize: 23 * s, color: EMBER }}>
+          <div style={{ display: "flex", fontWeight: 700, fontSize: 23 * hs, color: EMBER }}>
             culinarium-berlin.de
           </div>
-          <div style={{ display: "flex", fontSize: 20 * s }}>030 56553364 · frisch &amp; regional</div>
+          <div style={{ display: "flex", fontSize: 20 * hs }}>030 56553364 · frisch &amp; regional</div>
         </div>
       </div>
     ),
