@@ -4,13 +4,16 @@
 import { db } from "@/lib/db";
 import { sendMail } from "@/lib/mailer";
 import { getWeekPlanRows, type WeekPlanRow } from "@/lib/menu-db";
-import { formatWeekRange, formatCurrency, DAYS_DE } from "@/lib/utils";
+import { formatWeekRange, formatCurrency, toISODateLocal, DAYS_DE } from "@/lib/utils";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://culinarium-berlin.de";
 // "Jetzt vorbestellen" führt direkt auf die Bestellseite mit Wochenmenü-Filter.
 const ORDER_URL = `${BASE_URL}/bestellen?kategorie=wochenmenue`;
-// "Menü ansehen" führt auf die Wochenplan-Seite (mit Grafik & Details).
-const MENU_URL = `${BASE_URL}/wochenplan`;
+// "Menü ansehen" führt auf die Wochenplan-Seite – MIT ?week=, damit die in der
+// Mail beworbene (kommende) Woche gezeigt wird, nicht die laufende.
+function menuUrl(weekStart: Date): string {
+  return `${BASE_URL}/wochenplan?week=${toISODateLocal(weekStart)}`;
+}
 
 // Markenfarben (vgl. globals.css)
 const BRAND = "#4A2410";
@@ -48,7 +51,7 @@ function uniformPrice(rows: WeekPlanRow[]): number | null {
   return prices.length > 0 && prices.every((p) => p === prices[0]) ? prices[0] : null;
 }
 
-function buildText(rows: WeekPlanRow[], weekRange: string): string {
+function buildText(rows: WeekPlanRow[], weekRange: string, menuLink: string): string {
   const uni = uniformPrice(rows);
   const lines = byDay(rows).map(({ day, items }) => {
     const dishes = items
@@ -67,14 +70,14 @@ function buildText(rows: WeekPlanRow[], weekRange: string): string {
     "",
     ...lines,
     "",
-    `Menü ansehen: ${MENU_URL}`,
+    `Menü ansehen: ${menuLink}`,
     `Jetzt vorbestellen: ${ORDER_URL}`,
     "",
     "Guten Appetit – euer Culinarium-Team am Biesenhorst",
   ].join("\n");
 }
 
-function buildHtml(rows: WeekPlanRow[], weekRange: string): string {
+function buildHtml(rows: WeekPlanRow[], weekRange: string, menuLink: string): string {
   const uni = uniformPrice(rows);
 
   const dayRows = byDay(rows)
@@ -135,7 +138,7 @@ function buildHtml(rows: WeekPlanRow[], weekRange: string): string {
         </td></tr>
         <!-- Buttons -->
         <tr><td style="padding:20px 24px 6px;text-align:center;">
-          <a href="${MENU_URL}" style="display:inline-block;background:#fff;border:2px solid ${PAPRIKA};color:${PAPRIKA};text-decoration:none;font-weight:700;font-size:15px;padding:10px 24px;border-radius:999px;margin:0 5px 10px;">Menü ansehen</a>
+          <a href="${menuLink}" style="display:inline-block;background:#fff;border:2px solid ${PAPRIKA};color:${PAPRIKA};text-decoration:none;font-weight:700;font-size:15px;padding:10px 24px;border-radius:999px;margin:0 5px 10px;">Menü ansehen</a>
           <a href="${ORDER_URL}" style="display:inline-block;background:${PAPRIKA};color:#fff;text-decoration:none;font-weight:700;font-size:15px;padding:12px 26px;border-radius:999px;margin:0 5px 10px;">Jetzt vorbestellen &rarr;</a>
           <div style="color:${INK_SOFT};font-size:13px;margin-top:6px;">Frisch gekocht, Mo&ndash;Fr. Wir freuen uns auf euch!</div>
         </td></tr>
@@ -196,11 +199,12 @@ export async function sendWeeklyMenuMail(
   }
 
   const subject = `🍽️ Wochenmenü ${weekRange} – Culinarium am Biesenhorst`;
-  const text = buildText(rows, weekRange);
+  const menuLink = menuUrl(weekStart);
+  const text = buildText(rows, weekRange, menuLink);
   // Reine Text-/HTML-Mail OHNE eingebettetes Bild: das Menü ist sofort lesbar
   // (Outlook blockiert externe Bilder standardmäßig); die Grafik gibt's per
   // "Menü ansehen"-Button auf der Website.
-  const html = buildHtml(rows, weekRange);
+  const html = buildHtml(rows, weekRange, menuLink);
 
   let sent = 0;
   let failed = 0;
