@@ -16,10 +16,10 @@ export default function KassePage() {
   const [orderType, setOrderType] = useState<"PICKUP" | "DELIVERY">("PICKUP");
   const [requestedTime, setRequestedTime] = useState("");
   const [notes, setNotes] = useState("");
-  const [guestFirstName, setGuestFirstName] = useState("");
-  const [guestLastName, setGuestLastName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
-  const [guestPhone, setGuestPhone] = useState("");
+  // Kontaktdaten – für Gäste UND eingeloggte Kunden (bei Login vorbefüllt)
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
   const [deliveryStreet, setDeliveryStreet] = useState("");
   const [deliveryHouseNumber, setDeliveryHouseNumber] = useState("");
   const [deliveryPostalCode, setDeliveryPostalCode] = useState("");
@@ -34,6 +34,20 @@ export default function KassePage() {
       .then((d) => setStripeOn(!!d.stripe))
       .catch(() => setStripeOn(false));
   }, []);
+
+  // Eingeloggt: Kontaktdaten aus dem Profil vorbefüllen (nur solange Felder leer)
+  useEffect(() => {
+    if (!session?.user) return;
+    fetch("/api/profile")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => {
+        if (!p) return;
+        setContactName((v) => v || p.name || "");
+        setContactEmail((v) => v || p.email || "");
+        setContactPhone((v) => v || p.phone || "");
+      })
+      .catch(() => {});
+  }, [session?.user]);
 
   const MIN_DELIVERY = 50;
   const deliveryFee = orderType === "DELIVERY" ? 3.5 : 0;
@@ -57,12 +71,9 @@ export default function KassePage() {
   async function handleOrder() {
     setError("");
 
-    // Gast-Bestellung: Vorname, Nachname und Telefon erforderlich (für Rücksprache)
-    if (
-      !session?.user &&
-      (!guestFirstName.trim() || !guestLastName.trim() || !guestPhone.trim())
-    ) {
-      setError("Bitte Vorname, Nachname und Telefonnummer angeben – oder melde dich an.");
+    // Name + Telefon sind für ALLE Pflicht (damit wir bei Rückfragen erreichen können)
+    if (!contactName.trim() || !contactPhone.trim()) {
+      setError("Bitte Name und Telefonnummer angeben, damit wir Sie bei Rückfragen erreichen.");
       return;
     }
 
@@ -98,11 +109,9 @@ export default function KassePage() {
           orderType,
           requestedTime: requestedTime || undefined,
           notes: notes || undefined,
-          guestName: !session?.user
-            ? `${guestFirstName} ${guestLastName}`.trim()
-            : undefined,
-          guestEmail: !session?.user ? guestEmail : undefined,
-          guestPhone: !session?.user ? guestPhone : undefined,
+          guestName: contactName.trim(),
+          guestEmail: contactEmail.trim() || undefined,
+          guestPhone: contactPhone.trim(),
           deliveryStreet: orderType === "DELIVERY" ? deliveryStreet : undefined,
           deliveryHouseNumber: orderType === "DELIVERY" ? deliveryHouseNumber : undefined,
           deliveryPostalCode: orderType === "DELIVERY" ? deliveryPostalCode : undefined,
@@ -144,74 +153,67 @@ export default function KassePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          {/* Gast-Kontaktdaten (nur ohne Login) */}
-          {!session?.user && (
-            <div className="bg-white rounded-2xl border border-neutral-100 p-6">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="font-heading text-lg font-bold text-neutral-800 flex items-center gap-2">
-                  <User className="h-5 w-5 text-primary" />
-                  Ihre Kontaktdaten
-                </h2>
+          {/* Kontaktdaten – für Gäste UND eingeloggte Kunden */}
+          <div className="bg-white rounded-2xl border border-neutral-100 p-6">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="font-heading text-lg font-bold text-neutral-800 flex items-center gap-2">
+                <User className="h-5 w-5 text-primary" />
+                Ihre Kontaktdaten
+              </h2>
+            </div>
+            <p className="text-sm text-neutral-500 mb-4">
+              {session?.user ? (
+                <>Damit wir Sie bei Rückfragen zur Bestellung erreichen können.</>
+              ) : (
+                <>
+                  Bestellung als Gast – ganz ohne Konto. Telefonnummer für die Rücksprache zur
+                  Bestellung.{" "}
+                  <Link
+                    href="/login?callbackUrl=/kasse"
+                    className="text-primary font-semibold hover:underline"
+                  >
+                    Schon Kunde? Anmelden
+                  </Link>
+                </>
+              )}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Name *</label>
+                <input
+                  type="text"
+                  value={contactName}
+                  onChange={(e) => setContactName(e.target.value)}
+                  required
+                  placeholder="Vor- und Nachname"
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                />
               </div>
-              <p className="text-sm text-neutral-500 mb-4">
-                Bestellung als Gast – ganz ohne Konto. Telefonnummer für die Rücksprache zur
-                Bestellung.{" "}
-                <Link
-                  href="/login?callbackUrl=/kasse"
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Schon Kunde? Anmelden
-                </Link>
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">Vorname *</label>
-                  <input
-                    type="text"
-                    value={guestFirstName}
-                    onChange={(e) => setGuestFirstName(e.target.value)}
-                    required
-                    placeholder="Vorname"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">Nachname *</label>
-                  <input
-                    type="text"
-                    value={guestLastName}
-                    onChange={(e) => setGuestLastName(e.target.value)}
-                    required
-                    placeholder="Nachname"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">Telefon *</label>
-                  <input
-                    type="tel"
-                    value={guestPhone}
-                    onChange={(e) => setGuestPhone(e.target.value)}
-                    required
-                    placeholder="z. B. 0170 1234567"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">
-                    E-Mail (optional)
-                  </label>
-                  <input
-                    type="email"
-                    value={guestEmail}
-                    onChange={(e) => setGuestEmail(e.target.value)}
-                    placeholder="ihre@email.de"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Telefon *</label>
+                <input
+                  type="tel"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  required
+                  placeholder="z. B. 0170 1234567"
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  E-Mail (optional)
+                </label>
+                <input
+                  type="email"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  placeholder="ihre@email.de"
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                />
               </div>
             </div>
-          )}
+          </div>
 
           {/* Order Type */}
           <div className="bg-white rounded-2xl border border-neutral-100 p-6">

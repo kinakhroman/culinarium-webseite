@@ -41,7 +41,9 @@ export async function POST(req: Request) {
 
   const data = parsed.data;
 
-  // Gast-Bestellung: Name + Telefon sind Pflicht (für Rücksprache); E-Mail optional
+  // Gast-Bestellung: Name + Telefon sind Pflicht (für Rücksprache); E-Mail optional.
+  // (Eingeloggte: Formulardaten übersteuern das Konto, Konto dient als Rückfall –
+  // Pflicht-Prüfung fürs Telefon folgt unten, wenn beide Quellen leer sind.)
   if (isGuest) {
     if (!data.guestName?.trim() || !data.guestPhone?.trim()) {
       return NextResponse.json(
@@ -108,9 +110,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Benutzer nicht gefunden" }, { status: 404 });
     }
     userId = user.id;
-    customerName = user.name;
-    customerPhone = user.phone;
-    customerEmail = user.email;
+    // Formulardaten haben Vorrang (Kasse zeigt die Kontaktfelder jetzt für alle),
+    // das Konto ist der Rückfall für ältere Clients ohne die Felder.
+    customerName = data.guestName?.trim() || user.name;
+    customerPhone = data.guestPhone?.trim() || user.phone;
+    customerEmail = data.guestEmail?.trim() || user.email;
+    if (!customerPhone) {
+      return NextResponse.json(
+        { error: "Bitte eine Telefonnummer angeben, damit wir Sie bei Rückfragen erreichen." },
+        { status: 400 }
+      );
+    }
+    // Neue Nummer ins Profil übernehmen, wenn dort noch keine hinterlegt ist
+    if (!user.phone && data.guestPhone?.trim()) {
+      await db.user
+        .update({ where: { id: user.id }, data: { phone: data.guestPhone.trim() } })
+        .catch(() => {});
+    }
   }
 
   // Parse requested time
