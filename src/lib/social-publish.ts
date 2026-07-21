@@ -63,6 +63,43 @@ export async function postToFacebook(
   }
 }
 
+/**
+ * Wartet, bis ein IG-Media-Container fertig verarbeitet ist, und veröffentlicht
+ * ihn dann (mit Wiederholungen). Sofortiges media_publish schlägt sporadisch mit
+ * "Media ID is not available" fehl – so ging z. B. am 20.07. der Tages-Post verloren.
+ */
+async function publishIgContainer(
+  igId: string,
+  t: string,
+  creationId: string
+): Promise<{ id?: string; error?: string }> {
+  // 1) Auf Container-Verarbeitung warten (status_code: IN_PROGRESS → FINISHED/ERROR)
+  for (let i = 0; i < 10; i++) {
+    try {
+      const res = await fetch(
+        `${GRAPH}/${creationId}?fields=status_code&access_token=${encodeURIComponent(t)}`
+      );
+      const data = await res.json();
+      if (data?.status_code === "FINISHED") break;
+      if (data?.status_code === "ERROR") {
+        return { error: "Instagram konnte das Bild nicht verarbeiten (Container ERROR)" };
+      }
+    } catch {}
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+  // 2) Veröffentlichen, bei Wacklern erneut versuchen
+  let lastErr = "";
+  for (let i = 0; i < 3; i++) {
+    if (i > 0) await new Promise((r) => setTimeout(r, 3000));
+    const pubBody = new URLSearchParams({ creation_id: creationId, access_token: t });
+    const pubRes = await fetch(`${GRAPH}/${igId}/media_publish`, { method: "POST", body: pubBody });
+    const pubData = await pubRes.json();
+    if (pubRes.ok && pubData.id) return { id: pubData.id };
+    lastErr = pubData?.error?.message || `Publish-Fehler HTTP ${pubRes.status}`;
+  }
+  return { error: lastErr };
+}
+
 /** Instagram-Beitrag (Bild-URL Pflicht): 1) Container erstellen 2) veröffentlichen. */
 export async function postToInstagram(
   caption: string,
@@ -84,14 +121,12 @@ export async function postToInstagram(
     if (!createRes.ok || !createData.id) {
       return { ok: false, platform: "instagram", error: createData?.error?.message || `Container-Fehler HTTP ${createRes.status}` };
     }
-    // 2) Veröffentlichen
-    const pubBody = new URLSearchParams({ creation_id: createData.id, access_token: t });
-    const pubRes = await fetch(`${GRAPH}/${igId}/media_publish`, { method: "POST", body: pubBody });
-    const pubData = await pubRes.json();
-    if (!pubRes.ok || !pubData.id) {
-      return { ok: false, platform: "instagram", error: pubData?.error?.message || `Publish-Fehler HTTP ${pubRes.status}` };
+    // 2) Verarbeitung abwarten + veröffentlichen (mit Retry)
+    const pub = await publishIgContainer(igId, t, createData.id);
+    if (!pub.id) {
+      return { ok: false, platform: "instagram", error: pub.error };
     }
-    return { ok: true, platform: "instagram", id: pubData.id };
+    return { ok: true, platform: "instagram", id: pub.id };
   } catch (e) {
     return { ok: false, platform: "instagram", error: e instanceof Error ? e.message : "Fehler" };
   }
@@ -118,13 +153,11 @@ export async function postStoryToInstagram(imageUrl: string): Promise<PublishRes
     if (!createRes.ok || !createData.id) {
       return { ok: false, platform: "instagram", error: createData?.error?.message || `Story-Container-Fehler HTTP ${createRes.status}` };
     }
-    const pubBody = new URLSearchParams({ creation_id: createData.id, access_token: t });
-    const pubRes = await fetch(`${GRAPH}/${igId}/media_publish`, { method: "POST", body: pubBody });
-    const pubData = await pubRes.json();
-    if (!pubRes.ok || !pubData.id) {
-      return { ok: false, platform: "instagram", error: pubData?.error?.message || `Story-Publish-Fehler HTTP ${pubRes.status}` };
+    const pub = await publishIgContainer(igId, t, createData.id);
+    if (!pub.id) {
+      return { ok: false, platform: "instagram", error: pub.error };
     }
-    return { ok: true, platform: "instagram", id: pubData.id };
+    return { ok: true, platform: "instagram", id: pub.id };
   } catch (e) {
     return { ok: false, platform: "instagram", error: e instanceof Error ? e.message : "Fehler" };
   }

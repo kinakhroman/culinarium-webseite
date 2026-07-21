@@ -26,25 +26,37 @@ export async function generateDishPhoto(
   if (existsSync(file)) return { ok: true, skipped: true };
 
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: `${dishNameGerman} (German canteen lunch dish), ${STYLE}` },
-              ],
-            },
-          ],
-        }),
-      }
-    );
-    if (!res.ok) {
-      const t = await res.text().catch(() => "");
-      return { ok: false, error: `Gemini HTTP ${res.status}: ${t.slice(0, 200)}` };
+    // Gemini wackelt gern (503/429) – bis zu 3 Versuche mit Backoff, sonst
+    // fehlt das Foto der Woche einfach (so geschehen in der Woche 20.07.).
+    let res: Response | null = null;
+    let lastErr = "";
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      if (attempt > 1) await new Promise((r) => setTimeout(r, attempt * 5000));
+      res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: `${dishNameGerman} (German canteen lunch dish), ${STYLE}` },
+                ],
+              },
+            ],
+          }),
+        }
+      ).catch(() => null);
+      if (res?.ok) break;
+      const status = res?.status ?? 0;
+      lastErr = `Gemini HTTP ${status}`;
+      // Nur bei transienten Fehlern erneut versuchen
+      if (res && status !== 429 && status < 500) break;
+    }
+    if (!res || !res.ok) {
+      const t = res ? await res.text().catch(() => "") : "";
+      return { ok: false, error: `${lastErr}: ${t.slice(0, 200)}` };
     }
     const data = await res.json();
     const parts: Array<{ inlineData?: { mimeType?: string; data?: string } }> =
