@@ -19,7 +19,10 @@ function parseWeekStartFromText(text: string): string | undefined {
   // Nur den Kopfbereich betrachten (erste ~120 Zeichen) – dort steht das Wochendatum,
   // nicht in den Gericht-Zeilen.
   const head = text.slice(0, 120);
-  const m = head.match(/(\d{1,2})[.\/](\d{1,2})(?:[.\/](\d{2,4}))?/);
+  // Trenner: Punkt, Slash ODER Leerzeichen – die Kollegen schreiben auch
+  // „Меню 3 08 по 7 08" (ohne Punkte); das lief sonst in die AKTUELLE Woche
+  // und hat sie überschrieben (passiert am 25.07.2026).
+  const m = head.match(/(\d{1,2})[.\/\s]+(\d{1,2})(?:[.\/](\d{2,4}))?/);
   if (!m) return undefined;
   const day = parseInt(m[1], 10);
   const month = parseInt(m[2], 10);
