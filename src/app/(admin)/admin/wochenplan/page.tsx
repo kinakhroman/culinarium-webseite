@@ -379,7 +379,11 @@ export default function AdminWochenplanPage() {
                 {formats.map((f) => (
                   <a
                     key={f.key}
-                    href={`/api/menu-poster/${f.key}?t=${bust}`}
+                    href={
+                      f.key === "print"
+                        ? `/api/menu-poster/pdf?t=${bust}`
+                        : `/api/menu-poster/${f.key}?t=${bust}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm font-semibold text-neutral-700 hover:border-primary hover:text-primary transition-colors"
@@ -440,7 +444,7 @@ export default function AdminWochenplanPage() {
                   {formats.map((f) => {
                     const label =
                       f.key === "print"
-                        ? "A4 drucken"
+                        ? "A4 als PDF"
                         : f.key === "square"
                         ? "Instagram"
                         : f.key === "story"
@@ -449,7 +453,11 @@ export default function AdminWochenplanPage() {
                     return (
                       <a
                         key={f.key}
-                        href={`/api/menu-poster/${f.key}?week=${w.weekStart}`}
+                        href={
+                          f.key === "print"
+                            ? `/api/menu-poster/pdf?week=${w.weekStart}`
+                            : `/api/menu-poster/${f.key}?week=${w.weekStart}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
