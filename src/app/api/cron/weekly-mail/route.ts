@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 import { auth } from "../../../../../auth";
 import { getWeekStart, toISODateLocal } from "@/lib/utils";
 import { sendWeeklyMenuMail } from "@/lib/weekly-mail";
@@ -48,7 +49,37 @@ async function run(req: Request) {
   const weekStart = resolveWeekStart(req);
   // Test-Versand an genau eine Adresse: ?to=mail@example.de (Verteiler bleibt unberührt)
   const to = new URL(req.url).searchParams.get("to") || undefined;
+
+  // Doppelversand-Schutz (nur echter Verteiler-Versand): Der Cron darf mehrfach
+  // anlaufen (zweiter Versuch, falls der Server beim ersten nicht antwortet),
+  // die Empfänger sollen die Wochen-Mail aber höchstens einmal bekommen.
+  // Marker liegt als SocialPost-Eintrag (platform "mail") – keine eigene Tabelle nötig.
+  const marker = `weekly-mail:${toISODateLocal(weekStart)}`;
+  if (!to) {
+    const already = await db.socialPost.findFirst({
+      where: { platform: "mail", status: "POSTED", imageUrl: marker },
+    });
+    if (already) {
+      return NextResponse.json({
+        ok: true,
+        skipped: "Wochenmenü-Mail für diese Woche bereits verschickt",
+        weekStart: toISODateLocal(weekStart),
+      });
+    }
+  }
+
   const result = await sendWeeklyMenuMail(weekStart, to ? { to } : undefined);
+  if (!to && result.ok && (result.sent ?? 0) > 0) {
+    await db.socialPost.create({
+      data: {
+        platform: "mail",
+        caption: `[MAIL] Wochenmenü ${result.weekRange} an Verteiler (${result.sent}/${result.recipients})`,
+        imageUrl: marker,
+        status: "POSTED",
+        postedAt: new Date(),
+      },
+    });
+  }
   return NextResponse.json({ ...result, weekStart: toISODateLocal(weekStart), testTo: to });
 }
 

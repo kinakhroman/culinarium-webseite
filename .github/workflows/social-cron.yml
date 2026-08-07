@@ -15,7 +15,9 @@ name: Social Auto-Posting
 on:
   schedule:
     - cron: "0 3 * * 1-5" # Mo–Fr früh: heutiges Tagesgericht (Post + IG-Story)
+    - cron: "0 5 * * 1-5" # Zweiter Anlauf 2h später (Hostinger antwortet morgens teils nicht, 05.08.+07.08.). Doppelpost-Schutz in der Route macht das gefahrlos: war der erste Lauf erfolgreich, kommt nur "bereits gepostet".
     - cron: "0 9 * * 5" # Freitag: Menü der kommenden Woche
+    - cron: "0 11 * * 5" # Zweiter Anlauf für den Freitags-Block; Wochenpost UND Verteiler-Mail haben je einen Bereits-erledigt-Schutz
   workflow_dispatch:
     inputs:
       job:
@@ -35,7 +37,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Tagesgericht posten (Mo–Fr)
-        if: github.event.schedule == '0 3 * * 1-5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'daily')
+        if: github.event.schedule == '0 3 * * 1-5' || github.event.schedule == '0 5 * * 1-5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'daily')
         shell: pwsh
         env:
           API_KEY: ${{ secrets.MENU_API_KEY }}
@@ -43,7 +45,7 @@ jobs:
           .github/scripts/call-cron.ps1 -Label "Tagesgericht" -Url "https://culinarium-berlin.de/api/cron/daily-post"
 
       - name: Wochenmenü posten (Freitag)
-        if: github.event.schedule == '0 9 * * 5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'weekly')
+        if: github.event.schedule == '0 9 * * 5' || github.event.schedule == '0 11 * * 5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'weekly')
         shell: pwsh
         env:
           API_KEY: ${{ secrets.MENU_API_KEY }}
@@ -51,7 +53,7 @@ jobs:
           .github/scripts/call-cron.ps1 -Label "Wochenmenü-Post" -Url "https://culinarium-berlin.de/api/cron/weekly-post"
 
       - name: Wochenmenü per Mail an Verteiler (Freitag)
-        if: github.event.schedule == '0 9 * * 5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'weekly')
+        if: github.event.schedule == '0 9 * * 5' || github.event.schedule == '0 11 * * 5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'weekly')
         shell: pwsh
         env:
           API_KEY: ${{ secrets.MENU_API_KEY }}

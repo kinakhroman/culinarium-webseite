@@ -28,7 +28,10 @@ $headers = @{
 }
 $attempts   = 4
 $sleepBase  = 20
-$maxTimeSec = 90
+# 240s statt 90s: die Cron-Routen dürfen bis ~2 Min arbeiten (maxDuration 120),
+# und nach Deploys/Kaltstart antwortet Hostinger morgens teils erst sehr spät
+# (Ausfälle 05.08. + 07.08.: 4x HTTP 0 bei 90s, Stunden später 28s normal).
+$maxTimeSec = 240
 
 for ($i = 1; $i -le $attempts; $i++) {
   Write-Host "[$Label] Versuch $i/$attempts -> $Url"
