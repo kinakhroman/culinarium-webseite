@@ -36,6 +36,19 @@ jobs:
       - name: Code auschecken (für das Aufruf-Skript)
         uses: actions/checkout@v4
 
+      # Der Hostinger-Prozess degradiert nach wenigen Tagen (Grafik-Routen 503,
+      # morgens Hänger – Incidents 24.+28.08.). Deshalb vor jedem Posten den
+      # App-Prozess frisch starten; LiteSpeed spawnt beim nächsten Aufruf neu.
+      # Nicht fatal: schlägt der Neustart fehl, wird trotzdem gepostet.
+      - name: App-Prozess frisch starten
+        continue-on-error: true
+        shell: pwsh
+        env:
+          API_KEY: ${{ secrets.MENU_API_KEY }}
+        run: |
+          .github/scripts/call-cron.ps1 -Label "Neustart" -Url "https://culinarium-berlin.de/api/admin/restart"
+          Start-Sleep -Seconds 15
+
       - name: Tagesgericht posten (Mo–Fr)
         if: github.event.schedule == '0 3 * * 1-5' || github.event.schedule == '0 5 * * 1-5' || (github.event_name == 'workflow_dispatch' && inputs.job == 'daily')
         shell: pwsh
