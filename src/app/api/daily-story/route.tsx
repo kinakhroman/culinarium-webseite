@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { renderImageOrHeal } from "@/lib/self-restart";
 import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 import { getWeekPlanRows } from "@/lib/menu-db";
@@ -77,7 +78,9 @@ export async function GET(req: Request) {
   const nameFont = name.length >= 45 ? 56 : name.length >= 30 ? 64 : 74;
   const price = dish && dish.price > 0 ? dish.price : null;
 
-  return new ImageResponse(
+  // Vollständig rendern + bei Render-Fehler Prozess-Neustart einplanen
+  // (Selbstheilung nach der Foto-Generierung, siehe src/lib/self-restart.ts).
+  const image = new ImageResponse(
     (
       <div
         style={{
@@ -273,4 +276,5 @@ export async function GET(req: Request) {
       ],
     }
   );
+  return renderImageOrHeal(image, req, "daily-story");
 }

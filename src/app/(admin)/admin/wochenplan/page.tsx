@@ -93,9 +93,12 @@ export default function AdminWochenplanPage() {
       setAutoResult(data);
       if (res.ok && data.success) {
         setAutoState("done");
-        setBust(Date.now());
         loadCurrent();
         loadWeeks();
+        // Nach der Foto-Generierung startet sich der Server-Prozess selbst neu
+        // (Selbstheilung, siehe src/lib/self-restart.ts). Die Grafik-Vorschauen
+        // deshalb erst laden, wenn der frische Prozess steht.
+        setTimeout(() => setBust(Date.now()), 10000);
       } else {
         setAutoState("error");
       }

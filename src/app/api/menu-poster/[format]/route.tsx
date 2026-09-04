@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { renderImageOrHeal } from "@/lib/self-restart";
 import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 import { getWeekPlanRows } from "@/lib/menu-db";
@@ -110,7 +111,9 @@ export async function GET(
   const printDishFont =
     effLen >= 90 ? 18 : effLen >= 70 ? 21 : effLen >= 50 ? 24 : effLen >= 40 ? 27 : effLen >= 30 ? 30 : 33;
 
-  return new ImageResponse(
+  // Vollständig rendern + bei Render-Fehler Prozess-Neustart einplanen
+  // (Selbstheilung nach der Foto-Generierung, siehe src/lib/self-restart.ts).
+  const image = new ImageResponse(
     (
       <div
         style={{
@@ -448,4 +451,5 @@ export async function GET(
       ],
     }
   );
+  return renderImageOrHeal(image, req, `menu-poster/${format}`);
 }

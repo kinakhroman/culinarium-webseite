@@ -73,6 +73,11 @@ export async function generateDishPhoto(
     // JPEG recodieren (Dateiname bleibt .png, wie die übrigen Menü-Fotos).
     try {
       const sharp = (await import("sharp")).default;
+      // libvips-Cache aus und nur 1 Thread: Der Prozess soll nach der
+      // Generierung nicht mit Bildspeicher vollhängen (danach schlug
+      // ImageResponse/satori für Poster & Story fehl – siehe self-restart.ts).
+      sharp.cache(false);
+      sharp.concurrency(1);
       const jpeg = await sharp(raw)
         .resize({ width: 1280, withoutEnlargement: true })
         .jpeg({ quality: 85, progressive: true, mozjpeg: true })

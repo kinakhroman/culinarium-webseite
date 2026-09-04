@@ -4,6 +4,7 @@ import { auth } from "../../../../../auth";
 import { translateAndStructureMenu, generateCaptions } from "@/lib/ai-content";
 import { setWeeklyPlan } from "@/lib/weekly-plan";
 import { generateDishPhoto } from "@/lib/ai-image";
+import { scheduleSelfRestart } from "@/lib/self-restart";
 import { postToBoth } from "@/lib/social-publish";
 import { formatWeekRange, slugify } from "@/lib/utils";
 
@@ -178,6 +179,15 @@ export async function POST(req: Request) {
           : "Meta-Token fehlt – Captions als Entwürfe gespeichert.",
       };
     }
+  }
+
+  // Selbstheilung: Nach der Foto-Generierung (Gemini + sharp/libvips) kann
+  // dieser Prozess keine Grafiken mehr rendern – Poster/PDF/Story liefern
+  // dann 503 (Incidents 24.08., 28.08., 04.09.2026). Deshalb nach dem
+  // Antworten sauber beenden; LiteSpeed startet beim nächsten Aufruf frisch.
+  const neueFotos = photoResults.filter((p) => p.ok && !p.skipped).length;
+  if (neueFotos > 0) {
+    scheduleSelfRestart(2000, `publish-week: ${neueFotos} Fotos generiert`);
   }
 
   return NextResponse.json({

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
+import { unavailableResponse } from "@/lib/self-restart";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -34,10 +35,12 @@ export async function GET(req: Request) {
   }`;
   const res = await fetch(posterUrl, { cache: "no-store" });
   if (!res.ok) {
-    return NextResponse.json(
-      { error: `Poster konnte nicht gerendert werden (HTTP ${res.status})` },
-      { status: 502 }
-    );
+    // Die Poster-Route heilt sich bei Render-Fehlern selbst (Prozess-Neustart,
+    // siehe self-restart.ts). Browser bekommen eine Seite, die sich nach 10s
+    // automatisch neu lädt und dann das PDF ausliefert; API-Aufrufer ein 503.
+    return unavailableResponse(req, {
+      error: `Poster konnte nicht gerendert werden (HTTP ${res.status})`,
+    });
   }
   const png = new Uint8Array(await res.arrayBuffer());
 

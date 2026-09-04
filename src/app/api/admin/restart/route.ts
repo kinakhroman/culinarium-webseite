@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "../../../../../auth";
+import { scheduleSelfRestart } from "@/lib/self-restart";
 
 export const dynamic = "force-dynamic";
 
@@ -35,10 +36,10 @@ async function authorized(req: Request): Promise<boolean> {
 async function run() {
   const uptimeSec = Math.round(process.uptime());
   // Erst die Antwort rausgehen lassen, dann regulär beenden.
-  setTimeout(() => process.exit(0), 500);
+  const restarting = scheduleSelfRestart(500, "manuell/Cron über /api/admin/restart");
   return NextResponse.json({
     ok: true,
-    restarting: true,
+    restarting,
     pid: process.pid,
     uptimeSec,
     hint: "Prozess beendet sich – der nächste Aufruf der Website startet einen frischen.",
