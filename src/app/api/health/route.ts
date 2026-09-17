@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
-import { prismaStatus, getDb } from "@/lib/db";
-import { getWeekPlanRows } from "@/lib/menu-db";
-import { getWeekStart } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Kurz-Diagnose ohne SSH – sagt in einem Aufruf, WAS kaputt ist.
  *
- * Entstanden nach dem Totalausfall 14.–17.09.2026: Die Website lieferte nur
- * „Internal Server Error", und es kostete viel Zeit herauszufinden, dass die
- * Datenbank lief und allein der Prisma-Client hinüber war. Gibt absichtlich
- * nur Ja/Nein-Werte zurück, niemals Zugangsdaten.
+ * Entstanden beim Totalausfall 14.–17.09.2026: Die Website lieferte überall
+ * „Internal Server Error", und ohne Serverzugriff war nicht erkennbar, dass
+ * die Datenbank lief und allein der Prisma-Client hinüber war.
+ *
+ * WICHTIG: Diese Route bindet nichts fest ein, was ausfallen kann – alle
+ * Prüfungen laufen über `await import(...)` in try/catch. Sonst reißt ein
+ * kaputtes Modul die Diagnose-Route selbst mit (genau das passierte).
+ * Gibt nur Ja/Nein und Fehlertexte zurück, niemals Zugangsdaten.
  */
 export async function GET() {
   const out: Record<string, unknown> = {
@@ -28,27 +29,40 @@ export async function GET() {
     },
   };
 
+  const fail = (schritt: string, e: unknown) => {
+    out.ok = false;
+    out[schritt] = {
+      ok: false,
+      error: e instanceof Error ? `${e.name}: ${e.message}` : String(e),
+    };
+  };
+
   // 1) Direkter MariaDB-Zugriff (trägt /wochenplan und die Menü-Grafiken)
   try {
+    const { getWeekPlanRows } = await import("@/lib/menu-db");
+    const { getWeekStart } = await import("@/lib/utils");
     const rows = await getWeekPlanRows(getWeekStart());
     out.datenbankDirekt = { ok: true, gerichteDieseWoche: rows.length };
   } catch (e) {
-    out.ok = false;
-    out.datenbankDirekt = { ok: false, error: e instanceof Error ? e.message : String(e) };
+    fail("datenbankDirekt", e);
   }
 
-  // 2) Prisma (trägt Startseite, Speisekarte, Bestellungen, Login, Cron-Posts)
-  const status = prismaStatus();
-  if (!status.ok) {
-    out.ok = false;
-    out.prisma = status;
-  } else {
+  // 2) Prisma-Paket überhaupt ladbar? (hier scheiterte es im September)
+  try {
+    await import("@prisma/client");
+    out.prismaPaket = { ok: true };
+  } catch (e) {
+    fail("prismaPaket", e);
+  }
+
+  // 3) Prisma-Client erzeugen und eine echte Abfrage ausführen
+  if ((out.prismaPaket as { ok?: boolean })?.ok) {
     try {
+      const { getDb } = await import("@/lib/db");
       const count = await getDb().menuItem.count();
       out.prisma = { ok: true, gerichteGesamt: count };
     } catch (e) {
-      out.ok = false;
-      out.prisma = { ok: false, error: e instanceof Error ? e.message : String(e) };
+      fail("prisma", e);
     }
   }
 
