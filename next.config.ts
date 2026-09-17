@@ -14,6 +14,15 @@ const nextConfig: NextConfig = {
     "/**/*": [
       "./node_modules/.prisma/client/**/*",
       "./node_modules/@prisma/client/**/*",
+      // Nicht gebündelte Pakete VOLLSTÄNDIG mitkopieren. Beim Ausfall
+      // 14.–17.09.2026 lag von `lru-cache` nur eine unvollständige Kopie im
+      // Paket (package.json ohne index.js) – der Datenbanktreiber ließ sich
+      // nicht laden und jede datenbanknutzende Seite warf 500.
+      "./node_modules/lru-cache/**/*",
+      "./node_modules/mariadb/**/*",
+      "./node_modules/@prisma/adapter-mariadb/**/*",
+      "./node_modules/denque/**/*",
+      "./node_modules/iconv-lite/**/*",
     ],
   },
   images: {
