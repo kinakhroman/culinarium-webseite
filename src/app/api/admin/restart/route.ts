@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "../../../../../auth";
 import { scheduleSelfRestart } from "@/lib/self-restart";
 
 export const dynamic = "force-dynamic";
@@ -7,18 +6,18 @@ export const dynamic = "force-dynamic";
 /**
  * App-Prozess sauber neu starten – ohne SSH.
  *
- * Hintergrund (Incidents 24.08. + 28.08.2026): Auf dem Hostinger-Webhost
- * degradiert der lange laufende next-server-Prozess innerhalb weniger Tage:
- * normale Seiten laufen weiter, aber alles mit ImageResponse/satori
- * (Menü-Poster, PDF, Tages-Story) antwortet mit 503, und morgens hängt der
- * Server zeitweise ganz. Bisher half nur ein manueller Neustart per SSH.
+ * Zwei Aufgaben:
+ *  - Hostinger-Prozess nach der Foto-Generierung auffrischen (siehe
+ *    src/lib/self-restart.ts), damit Poster/PDF/Story weiter rendern.
+ *  - Notbremse, wenn der laufende Prozess hängt.
  *
- * Diese Route sendet ihre Antwort und beendet danach den eigenen Prozess
- * regulär (process.exit). LiteSpeed startet beim nächsten Aufruf der
- * öffentlichen URL automatisch einen frischen Prozess. Der GitHub-Cron ruft
- * die Route jeden Morgen vor dem Posten auf.
+ * WICHTIG (Ausfall 14.–17.09.2026): Diese Route bindet `auth` NICHT fest ein.
+ * Damals riss ein kaputter Prisma-Client jede Route mit sich, die auth (und
+ * damit die Datenbank) importiert – ausgerechnet auch die Notbremse. Der
+ * API-Schlüssel wird deshalb ohne Datenbank geprüft; die Admin-Sitzung nur
+ * nachrangig und abgesichert.
  *
- * Auth: Admin-Session ODER x-api-key/Bearer === MENU_API_KEY ODER ?key=MENU_API_KEY
+ * Auth: x-api-key/Bearer/?key= === MENU_API_KEY ODER Admin-Session
  */
 async function authorized(req: Request): Promise<boolean> {
   const url = new URL(req.url);
@@ -29,8 +28,15 @@ async function authorized(req: Request): Promise<boolean> {
     "";
   const apiKey = process.env.MENU_API_KEY;
   if (apiKey && (header === apiKey || keyParam === apiKey)) return true;
-  const session = await auth();
-  return !!session?.user && session.user.role === "ADMIN";
+
+  // Rückfall Admin-Sitzung – darf bei kaputter Datenbank nicht mitreißen.
+  try {
+    const { auth } = await import("../../../../../auth");
+    const session = await auth();
+    return !!session?.user && session.user.role === "ADMIN";
+  } catch {
+    return false;
+  }
 }
 
 async function run() {

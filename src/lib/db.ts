@@ -34,6 +34,40 @@ function createPrismaClient() {
   } as any);
 }
 
-export const db = globalForPrisma.prisma ?? createPrismaClient();
+/**
+ * Prisma-Client wird ERST beim ersten Zugriff erzeugt (Ausfall 14.–17.09.2026).
+ *
+ * Vorher lief `createPrismaClient()` beim Laden des Moduls. Als der generierte
+ * Prisma-Client auf dem Server kaputt war, warf schon der Import – und damit
+ * stürzte JEDE Route ab, die db (direkt oder über auth) einbindet: die ganze
+ * Website lieferte „Internal Server Error", obwohl die Datenbank lief und
+ * Seiten mit direktem MariaDB-Zugriff (z. B. /wochenplan) funktionierten.
+ * Mit der verzögerten Erzeugung scheitert nur noch die Route, die Prisma
+ * wirklich braucht; alles andere bleibt online.
+ */
+let client: PrismaClient | undefined;
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+export function getDb(): PrismaClient {
+  if (!client) {
+    client = globalForPrisma.prisma ?? createPrismaClient();
+    if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = client;
+  }
+  return client;
+}
+
+/** Prüft, ob Prisma nutzbar ist – für die Diagnose-Route /api/health. */
+export function prismaStatus(): { ok: boolean; error?: string } {
+  try {
+    getDb();
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+export const db = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const value = getDb()[prop as keyof PrismaClient];
+    return typeof value === "function" ? (value as Function).bind(getDb()) : value;
+  },
+}) as PrismaClient;
