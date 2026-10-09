@@ -7,6 +7,7 @@ export default defineConfig({
     seed: "npx tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env.DATABASE_URL,
+    // Anführungszeichen/Leerzeichen entfernen (Hostinger-Build 09.10.2026: P1013)
+    url: (process.env.DATABASE_URL || "").trim().replace(/^["']+|["']+$/g, "").trim(),
   },
 });

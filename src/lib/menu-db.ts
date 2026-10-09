@@ -5,6 +5,7 @@
 import { createPool, type Pool } from "mariadb";
 import { existsSync } from "fs";
 import { join } from "path";
+import { parseDatabaseUrl } from "./db-url";
 
 let pool: Pool | undefined;
 
@@ -20,13 +21,8 @@ export function menuImage(slug: string | null | undefined): string | null {
 
 function getPool(): Pool {
   if (!pool) {
-    const u = new URL((process.env.DATABASE_URL || "").replace(/^(mysql|mariadb):\/\//, "http://"));
     pool = createPool({
-      host: u.hostname === "localhost" ? "127.0.0.1" : u.hostname,
-      port: parseInt(u.port) || 3306,
-      user: decodeURIComponent(u.username),
-      password: decodeURIComponent(u.password),
-      database: u.pathname.slice(1),
+      ...parseDatabaseUrl(process.env.DATABASE_URL),
       connectionLimit: 3,
     });
   }

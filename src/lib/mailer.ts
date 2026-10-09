@@ -40,9 +40,11 @@ export async function sendMail({
   }
 
   try {
-    // Dynamischer Import über Variablen-Specifier: kein harter Build-Zwang auf nodemailer
-    const moduleName = "nodemailer";
-    const mod = (await import(moduleName).catch(() => null)) as
+    // Fester Specifier: Seit dem Wechsel auf `next build --webpack` (09.10.2026)
+    // würde ein Variablen-Import (`import(moduleName)`) ins Leere laufen und
+    // JEDE Mail still nur loggen. nodemailer ist in next.config als
+    // serverExternalPackage eingetragen und wird zur Laufzeit normal geladen.
+    const mod = (await import("nodemailer").catch(() => null)) as
       | { default?: unknown; createTransport?: unknown }
       | null;
     if (!mod) {
