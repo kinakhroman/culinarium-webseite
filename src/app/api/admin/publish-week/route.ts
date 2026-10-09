@@ -34,9 +34,11 @@ function parseWeekStartFromText(text: string): string | undefined {
   } else {
     const now = new Date();
     year = now.getFullYear();
-    const candidate = new Date(year, month - 1, day);
-    // liegt das Datum >2 Wochen in der Vergangenheit → nächstes Jahr gemeint
-    if (candidate.getTime() < now.getTime() - 14 * 864e5) year += 1;
+    // Jahreswechsel: Im Nov/Dez eingetragenes Jan/Feb-Menü gehört ins nächste
+    // Jahr. Früher wurde JEDES Datum >2 Wochen in der Vergangenheit ins
+    // Folgejahr geschoben – so landete ein Menü „30.08–03.09" im Oktober 2026
+    // als Woche 30.08.2027 im Archiv.
+    if (now.getMonth() >= 10 && month <= 2) year += 1;
   }
   const d = new Date(year, month - 1, day);
   if (isNaN(d.getTime())) return undefined;

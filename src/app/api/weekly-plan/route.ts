@@ -104,6 +104,36 @@ export async function POST(req: Request) {
 }
 
 /** GET /api/weekly-plan – aktuelle Woche (für Vorschau/Grafik), Umlaute-sicher */
+/**
+ * DELETE /api/weekly-plan?week=YYYY-MM-DD
+ * Entfernt eine komplette Woche aus dem Plan (z. B. versehentlich falsch
+ * datierte Woche wie 30.08.2027). Die Gerichte selbst (MenuItem) bleiben
+ * erhalten, weil sie in anderen Wochen wiederverwendet werden.
+ * Zugriff: eingeloggter Admin ODER API-Token.
+ */
+export async function DELETE(req: Request) {
+  const session = await auth();
+  const isAdmin = !!session?.user && session.user.role === "ADMIN";
+  const token =
+    req.headers.get("x-api-key") ||
+    req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ||
+    "";
+  const expected = process.env.MENU_API_KEY;
+  if (!isAdmin && !(expected && token === expected)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const week = new URL(req.url).searchParams.get("week") || "";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(week)) {
+    return NextResponse.json({ error: "Parameter week=YYYY-MM-DD fehlt" }, { status: 400 });
+  }
+  const weekStart = new Date(`${week}T00:00:00`);
+  weekStart.setHours(0, 0, 0, 0);
+
+  const { count } = await db.weeklyPlanItem.deleteMany({ where: { weekStart } });
+  return NextResponse.json({ ok: true, week, geloescht: count });
+}
+
 export async function GET() {
   const weekStart = getWeekStart();
   const rows = await getWeekPlanRows(weekStart);

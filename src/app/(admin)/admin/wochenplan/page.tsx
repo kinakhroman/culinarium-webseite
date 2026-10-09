@@ -125,6 +125,18 @@ export default function AdminWochenplanPage() {
     loadWeeks();
   }, []);
 
+  async function deleteWeek(weekStart: string) {
+    if (!window.confirm(`Woche ${fmtRange(weekStart)} wirklich löschen?`)) return;
+    try {
+      const res = await fetch(`/api/weekly-plan?week=${weekStart}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      loadWeeks();
+      loadCurrent();
+    } catch {
+      window.alert("Löschen hat nicht geklappt – bitte erneut versuchen.");
+    }
+  }
+
   async function save() {
     setState("saving");
     setMsg("");
@@ -473,6 +485,14 @@ export default function AdminWochenplanPage() {
                       </a>
                     );
                   })}
+                  <button
+                    type="button"
+                    onClick={() => deleteWeek(w.weekStart)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-semibold text-neutral-400 transition-colors hover:border-red-300 hover:text-red-600"
+                    title="Woche aus dem Plan entfernen"
+                  >
+                    Löschen
+                  </button>
                 </div>
               </div>
             ))}
