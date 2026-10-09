@@ -25,6 +25,7 @@ export async function GET() {
       MENU_API_KEY: !!process.env.MENU_API_KEY,
       META_GRAPH_TOKEN: !!process.env.META_GRAPH_TOKEN,
       GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
+      OPENAI_API_KEY: !!process.env.OPENAI_API_KEY?.trim(),
       ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY,
     },
   };
