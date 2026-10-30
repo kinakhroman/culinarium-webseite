@@ -25,6 +25,16 @@ const nextConfig: NextConfig = {
       "./node_modules/iconv-lite/**/*",
     ],
   },
+  // Build mit möglichst wenig Threads (Hostinger-Build 30.10.2026 brach ab:
+  // „OS can't spawn worker thread: Resource temporarily unavailable (os error
+  // 11)" – Next startete einen Worker pro erkannter CPU, ~63 Stück, mehr als
+  // das Konto an Threads erlaubt). Ein Worker reicht für die ~34 Seiten.
+  experimental: {
+    cpus: 1,
+    workerThreads: false,
+    webpackBuildWorker: false,
+    memoryBasedWorkersCount: false,
+  },
   images: {
     remotePatterns: [
       {

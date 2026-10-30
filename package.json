@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && (prisma db push || true) && next build --webpack",
+    "build": "prisma generate && (prisma db push || true) && TOKIO_WORKER_THREADS=2 RAYON_NUM_THREADS=2 UV_THREADPOOL_SIZE=2 next build --webpack",
     "start": "next start",
     "lint": "next lint",
     "db:push": "prisma db push",
