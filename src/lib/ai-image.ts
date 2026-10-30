@@ -8,9 +8,9 @@
  * leer, solange einer von beiden funktioniert.
  *
  *  - GEMINI_API_KEY  → gemini-2.5-flash-image
- *  - OPENAI_API_KEY  → gpt-image-1 (überschreibbar per OPENAI_IMAGE_MODEL);
- *                      verlangt OpenAI dafür eine Organisations-Verifizierung
- *                      (HTTP 403), wird automatisch dall-e-3 genommen.
+ *  - OPENAI_API_KEY  → Modell-Kette OPENAI_MODELS (neuestes zuerst; bei
+ *                      abgeschaltetem/nicht freigeschaltetem Modell automatisch
+ *                      das nächste). Wunschmodell per OPENAI_IMAGE_MODEL.
  *
  * Best-effort: Fehler werfen nicht, sondern geben ok:false mit Grund zurück.
  */
@@ -77,15 +77,30 @@ async function openaiCall(key: string, model: string, prompt: string) {
   }).catch(() => null);
 }
 
-/** OpenAI: gpt-image-1 (oder OPENAI_IMAGE_MODEL), bei 403 Rückfall auf dall-e-3. */
+/**
+ * OpenAI-Bildmodelle, neuestes zuerst. OpenAI schaltet Modelle ab, ohne dass
+ * sie aus der Modell-Liste verschwinden (Ende Okt. 2026: gpt-image-1 lieferte
+ * „model does not exist", Woche 02.11. bekam 3 Fotos nicht). Deshalb wird
+ * bei jedem Modell-/Parameterfehler einfach das nächste probiert.
+ */
+const OPENAI_MODELS = [
+  "gpt-image-2",
+  "gpt-image-1.5",
+  "chatgpt-image-latest",
+  "gpt-image-1-mini",
+  "gpt-image-1",
+  "dall-e-3",
+];
+
+/** OpenAI: Modell-Kette (OPENAI_IMAGE_MODEL zuerst, falls gesetzt). */
 async function openaiImage(prompt: string): Promise<ProviderResult> {
   const key = process.env.OPENAI_API_KEY?.trim();
   if (!key) return { ok: false, error: "OPENAI_API_KEY fehlt" };
 
-  const primary = process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-1";
-  const models = primary === "dall-e-3" ? [primary] : [primary, "dall-e-3"];
+  const preferred = process.env.OPENAI_IMAGE_MODEL?.trim();
+  const models = preferred ? [preferred, ...OPENAI_MODELS.filter((m) => m !== preferred)] : OPENAI_MODELS;
 
-  let lastErr = "";
+  const errors: string[] = [];
   for (const model of models) {
     for (let attempt = 1; attempt <= 2; attempt++) {
       if (attempt > 1) await sleep(5000);
@@ -94,18 +109,27 @@ async function openaiImage(prompt: string): Promise<ProviderResult> {
       if (res?.ok) {
         const data = await res.json();
         const b64: string | undefined = data?.data?.[0]?.b64_json;
-        if (!b64) return { ok: false, error: `OpenAI ${model} lieferte kein Bild` };
-        return { ok: true, image: Buffer.from(b64, "base64"), provider: `openai:${model}` };
+        if (b64) return { ok: true, image: Buffer.from(b64, "base64"), provider: `openai:${model}` };
+        errors.push(`${model}: kein Bild`);
+        break;
       }
       const t = res ? await res.text().catch(() => "") : "";
-      lastErr = `OpenAI ${model} HTTP ${status}: ${t.slice(0, 160)}`;
-      // 403 = Modell nicht freigeschaltet (Verifizierung) → nächstes Modell
-      if (status === 403) break;
-      // Nur 429/5xx/Netzfehler wiederholen
-      if (res && status !== 429 && status < 500) return { ok: false, error: lastErr };
+      const err = `${model} HTTP ${status}: ${t.replace(/\s+/g, " ").slice(0, 120)}`;
+      // Schlüssel ungültig oder Guthaben leer → andere Modelle helfen nicht
+      if (status === 401 || /insufficient_quota|billing/i.test(t)) {
+        return { ok: false, error: `OpenAI ${err}` };
+      }
+      // 429/5xx/Netzfehler: dasselbe Modell nochmal versuchen
+      if (!res || status === 429 || status >= 500) {
+        if (attempt === 2) errors.push(err);
+        continue;
+      }
+      // Sonstige 4xx (Modell abgeschaltet, nicht freigeschaltet, Parameter) → nächstes Modell
+      errors.push(err);
+      break;
     }
   }
-  return { ok: false, error: lastErr };
+  return { ok: false, error: `OpenAI: ${errors.join(" | ")}` };
 }
 
 /** Rohbild auf ~1280px JPEG verkleinern (Dateiname bleibt .png wie bei allen Menü-Fotos). */
