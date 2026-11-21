@@ -69,16 +69,21 @@ export async function POST(req: Request) {
       if (EMAIL_RE.test(e)) valid.push(e);
       else invalid.push(e);
     }
+    // Abgemeldete Adressen (isActive=false) sind ein Sperrvermerk: Ein
+    // Sammel-Import darf sie NICHT wieder aktivieren (Beschwerde 20.11.2026).
+    // Bewusstes Reaktivieren geht nur über den Schalter im Admin.
     let added = 0;
+    const blocked: string[] = [];
     for (const email of valid) {
-      await db.mailingRecipient.upsert({
-        where: { email },
-        update: { isActive: true },
-        create: { email, isActive: true },
-      });
+      const existing = await db.mailingRecipient.findUnique({ where: { email } });
+      if (existing) {
+        if (!existing.isActive) blocked.push(email);
+        continue;
+      }
+      await db.mailingRecipient.create({ data: { email, isActive: true } });
       added++;
     }
-    return NextResponse.json({ added, invalid, total: valid.length });
+    return NextResponse.json({ added, invalid, blocked, total: valid.length });
   }
 
   // Einzeln
@@ -87,9 +92,18 @@ export async function POST(req: Request) {
   if (!EMAIL_RE.test(email)) {
     return NextResponse.json({ error: "Ungültige E-Mail-Adresse" }, { status: 400 });
   }
+  // Auch einzeln gilt der Sperrvermerk: eine abgemeldete Adresse wird nicht
+  // durch erneutes Eintragen reaktiviert.
+  const existing = await db.mailingRecipient.findUnique({ where: { email } });
+  if (existing && !existing.isActive) {
+    return NextResponse.json(
+      { error: "Diese Adresse hat sich abgemeldet und bleibt gesperrt." },
+      { status: 409 }
+    );
+  }
   const recipient = await db.mailingRecipient.upsert({
     where: { email },
-    update: { name, isActive: true },
+    update: { name },
     create: { email, name, isActive: true },
   });
   return NextResponse.json({ recipient });

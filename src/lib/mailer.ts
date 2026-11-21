@@ -19,6 +19,8 @@ type MailInput = {
   html?: string;
   replyTo?: string;
   attachments?: MailAttachment[];
+  /** Zusätzliche Mail-Header, z. B. List-Unsubscribe für den Abmelde-Knopf der Mailprogramme. */
+  headers?: Record<string, string>;
 };
 
 export async function sendMail({
@@ -28,6 +30,7 @@ export async function sendMail({
   html,
   replyTo,
   attachments,
+  headers,
 }: MailInput): Promise<boolean> {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
 
@@ -69,6 +72,7 @@ export async function sendMail({
       text,
       html: html || undefined,
       attachments: attachments?.length ? attachments : undefined,
+      headers: headers && Object.keys(headers).length ? headers : undefined,
     });
     return true;
   } catch (e) {

@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { sendMail } from "@/lib/mailer";
 import { getWeekPlanRows, type WeekPlanRow } from "@/lib/menu-db";
 import { formatWeekRange, formatCurrency, toISODateLocal, DAYS_DE } from "@/lib/utils";
+import { unsubscribeUrl } from "@/lib/unsubscribe";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://culinarium-berlin.de";
 // "Jetzt vorbestellen" führt direkt auf die Bestellseite mit Wochenmenü-Filter.
@@ -51,7 +52,7 @@ function uniformPrice(rows: WeekPlanRow[]): number | null {
   return prices.length > 0 && prices.every((p) => p === prices[0]) ? prices[0] : null;
 }
 
-function buildText(rows: WeekPlanRow[], weekRange: string, menuLink: string): string {
+function buildText(rows: WeekPlanRow[], weekRange: string, menuLink: string, unsubLink: string): string {
   const uni = uniformPrice(rows);
   const lines = byDay(rows).map(({ day, items }) => {
     const dishes = items
@@ -74,10 +75,12 @@ function buildText(rows: WeekPlanRow[], weekRange: string, menuLink: string): st
     `Jetzt vorbestellen: ${ORDER_URL}`,
     "",
     "Guten Appetit – euer Culinarium-Team am Biesenhorst",
+    "",
+    `Keine Mails mehr gewünscht? Hier mit einem Klick abmelden: ${unsubLink}`,
   ].join("\n");
 }
 
-function buildHtml(rows: WeekPlanRow[], weekRange: string, menuLink: string): string {
+function buildHtml(rows: WeekPlanRow[], weekRange: string, menuLink: string, unsubLink: string): string {
   const uni = uniformPrice(rows);
 
   const dayRows = byDay(rows)
@@ -147,8 +150,9 @@ function buildHtml(rows: WeekPlanRow[], weekRange: string, menuLink: string): st
           <div style="color:${INK_SOFT};font-size:12px;line-height:1.6;">
             Culinarium am Biesenhorst &middot; <a href="${BASE_URL}" style="color:${BRAND};">culinarium-berlin.de</a><br>
             Sie erhalten diese E-Mail, weil Sie in unseren Wochenmenü-Verteiler aufgenommen wurden.<br>
-            Keine Mails mehr gewünscht? Kurze Antwort genügt &ndash; wir nehmen Sie sofort heraus.
+            Keine Mails mehr gewünscht? Ein Klick genügt:
           </div>
+          <a href="${unsubLink}" style="display:inline-block;margin-top:10px;background:#fff;border:1px solid #CDBBA3;color:${INK};text-decoration:none;font-weight:600;font-size:13px;padding:8px 20px;border-radius:999px;">Newsletter abbestellen</a>
         </td></tr>
       </table>
     </td></tr>
@@ -200,16 +204,26 @@ export async function sendWeeklyMenuMail(
 
   const subject = `🍽️ Wochenmenü ${weekRange} – Culinarium am Biesenhorst`;
   const menuLink = menuUrl(weekStart);
-  const text = buildText(rows, weekRange, menuLink);
   // Reine Text-/HTML-Mail OHNE eingebettetes Bild: das Menü ist sofort lesbar
   // (Outlook blockiert externe Bilder standardmäßig); die Grafik gibt's per
   // "Menü ansehen"-Button auf der Website.
-  const html = buildHtml(rows, weekRange, menuLink);
 
   let sent = 0;
   let failed = 0;
   for (const r of recipients) {
-    const ok = await sendMail({ to: r.email, subject, text, html });
+    // Jede Mail trägt den persönlichen Abmelde-Link des Empfängers – als Button,
+    // im Textteil und als List-Unsubscribe-Header (Abmelde-Knopf in Gmail/Outlook).
+    const unsubLink = unsubscribeUrl(r.email);
+    const ok = await sendMail({
+      to: r.email,
+      subject,
+      text: buildText(rows, weekRange, menuLink, unsubLink),
+      html: buildHtml(rows, weekRange, menuLink, unsubLink),
+      headers: {
+        "List-Unsubscribe": `<${unsubLink}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
+    });
     if (ok) sent++;
     else failed++;
   }
