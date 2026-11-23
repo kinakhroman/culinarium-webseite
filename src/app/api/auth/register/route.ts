@@ -2,8 +2,15 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { registerSchema } from "@/lib/validators";
+import { CUSTOMER_LOGIN_ENABLED } from "@/lib/constants";
 
 export async function POST(req: Request) {
+  if (!CUSTOMER_LOGIN_ENABLED) {
+    return NextResponse.json(
+      { error: "Die Registrierung ist derzeit nicht möglich. Bestellen Sie gern als Gast." },
+      { status: 403 }
+    );
+  }
   try {
     const body = await req.json();
     const parsed = registerSchema.safeParse(body);

@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X, ShoppingCart, User, LogOut } from "lucide-react";
-import { NAV_ITEMS } from "@/lib/constants";
+import { NAV_ITEMS, CUSTOMER_LOGIN_ENABLED } from "@/lib/constants";
 
 export function Header() {
   const { data: session } = useSession();
@@ -103,7 +103,7 @@ export function Header() {
                   <LogOut className="h-4 w-4" />
                 </button>
               </div>
-            ) : (
+            ) : !CUSTOMER_LOGIN_ENABLED ? null : (
               <Link
                 href={loginHref}
                 className="px-5 py-2.5 text-sm font-medium text-primary border border-primary/30 rounded-full hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
@@ -192,7 +192,7 @@ export function Header() {
                     Abmelden
                   </button>
                 </>
-              ) : (
+              ) : !CUSTOMER_LOGIN_ENABLED ? null : (
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     href={loginHref}

@@ -6,11 +6,14 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { db } from "@/lib/db";
 import { authConfig } from "./auth.config";
+import { CUSTOMER_LOGIN_ENABLED } from "@/lib/constants";
 
 // Social-Login-Provider nur aktivieren, wenn die Zugangsdaten gesetzt sind,
 // damit fehlende Schlüssel die App nicht crashen lassen.
 const oauthProviders = [];
-if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
+// Kunden-Login abgeschaltet (CUSTOMER_LOGIN_ENABLED=false): kein Google/Apple,
+// und per Passwort kommt nur noch der Admin hinein.
+if (CUSTOMER_LOGIN_ENABLED && process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
   oauthProviders.push(
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
@@ -18,7 +21,7 @@ if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
     })
   );
 }
-if (process.env.AUTH_APPLE_ID && process.env.AUTH_APPLE_SECRET) {
+if (CUSTOMER_LOGIN_ENABLED && process.env.AUTH_APPLE_ID && process.env.AUTH_APPLE_SECRET) {
   oauthProviders.push(
     Apple({
       clientId: process.env.AUTH_APPLE_ID,
@@ -52,6 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           user.passwordHash
         );
         if (!passwordMatch) return null;
+        if (!CUSTOMER_LOGIN_ENABLED && user.role !== "ADMIN") return null;
 
         return { id: user.id, email: user.email, name: user.name, role: user.role };
       },

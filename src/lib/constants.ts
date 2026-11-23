@@ -1,6 +1,14 @@
 export const APP_NAME = "Culinarium am Biesenhorst";
 export const APP_DESCRIPTION = "Frisch, regional und mit Liebe zubereitet. Bestellen Sie Ihr Mittagessen bequem online.";
 
+/**
+ * Kunden-Login und Registrierung sichtbar? Seit 23.11.2026 AUS, bis der
+ * Datenschutz geklärt ist. Bestellen geht weiter als Gast. Der Admin meldet
+ * sich direkt über /login an (Seite bleibt erreichbar, ist aber nirgends verlinkt).
+ * Wieder einschalten: auf true setzen und deployen.
+ */
+export const CUSTOMER_LOGIN_ENABLED = false;
+
 export const ORDER_STATUS = {
   PENDING: "Ausstehend",
   CONFIRMED: "Bestätigt",

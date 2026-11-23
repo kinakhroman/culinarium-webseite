@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LogIn, Eye, EyeOff } from "lucide-react";
 import SocialLogin from "@/components/auth/social-login";
+import { CUSTOMER_LOGIN_ENABLED } from "@/lib/constants";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -117,14 +118,18 @@ export default function LoginPage() {
         </Link>
       </p>
 
-      <SocialLogin callbackUrl={callbackUrl} />
+      {CUSTOMER_LOGIN_ENABLED && (
+        <>
+          <SocialLogin callbackUrl={callbackUrl} />
 
-      <p className="text-center text-sm text-neutral-500 mt-6">
-        Noch kein Konto?{" "}
-        <Link href="/registrierung" className="text-primary font-semibold hover:underline">
-          Jetzt registrieren
-        </Link>
-      </p>
+          <p className="text-center text-sm text-neutral-500 mt-6">
+            Noch kein Konto?{" "}
+            <Link href="/registrierung" className="text-primary font-semibold hover:underline">
+              Jetzt registrieren
+            </Link>
+          </p>
+        </>
+      )}
     </div>
   );
 }

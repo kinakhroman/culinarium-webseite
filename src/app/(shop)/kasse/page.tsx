@@ -7,6 +7,7 @@ import { useCart } from "@/components/features/cart/cart-provider";
 import { formatCurrency } from "@/lib/utils";
 import { MapPin, Clock, FileText, ShoppingCart, Truck, Store, User } from "lucide-react";
 import Link from "next/link";
+import { CUSTOMER_LOGIN_ENABLED } from "@/lib/constants";
 
 export default function KassePage() {
   const { data: session } = useSession();
@@ -168,12 +169,12 @@ export default function KassePage() {
                 <>
                   Bestellung als Gast – ganz ohne Konto. Telefonnummer für die Rücksprache zur
                   Bestellung.{" "}
-                  <Link
+                  {CUSTOMER_LOGIN_ENABLED && <Link
                     href="/login?callbackUrl=/kasse"
                     className="text-primary font-semibold hover:underline"
                   >
                     Schon Kunde? Anmelden
-                  </Link>
+                  </Link>}
                 </>
               )}
             </p>
