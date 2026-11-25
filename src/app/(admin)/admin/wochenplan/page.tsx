@@ -104,7 +104,19 @@ export default function AdminWochenplanPage() {
       }
     } catch {
       setAutoState("error");
-      setAutoResult({ error: "Netzwerkfehler – bitte erneut versuchen." });
+      // Die Antwort kommt nicht an, wenn die Foto-Erzeugung länger dauert als
+      // der Server die Verbindung hält (25.11.2026: Menü + Fotos waren trotzdem
+      // vollständig gespeichert). Deshalb kein „erneut versuchen", sondern
+      // Archiv und Vorschauen neu laden, sobald der Server wieder steht.
+      setAutoResult({
+        error:
+          "Die Antwort des Servers ist nicht angekommen (bei neuen Fotos dauert es manchmal zu lange). Das Menü ist meist trotzdem gespeichert – bitte unten im Archiv nachsehen, bevor Sie erneut klicken.",
+      });
+      setTimeout(() => {
+        loadCurrent();
+        loadWeeks();
+        setBust(Date.now());
+      }, 12000);
     }
   }
 
